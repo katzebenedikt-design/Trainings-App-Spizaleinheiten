@@ -1,7 +1,8 @@
-# Veröffentlicht den Ordner app/ auf GitHub Pages – nur von Hand gestartet
-# (GitHub → Actions → „GitHub Pages“ → „Run workflow“). Nichts wird automatisch veröffentlicht.
+# Veröffentlicht den Ordner app/ auf GitHub Pages bei jeder Änderung in main (oder von Hand).
 name: GitHub Pages
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
