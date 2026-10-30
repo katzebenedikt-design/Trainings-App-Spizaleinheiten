@@ -1,8 +1,7 @@
-# Veröffentlicht den Ordner app/ auf GitHub Pages.
+# Veröffentlicht den Ordner app/ auf GitHub Pages – nur von Hand gestartet
+# (GitHub → Actions → „GitHub Pages“ → „Run workflow“). Nichts wird automatisch veröffentlicht.
 name: GitHub Pages
 on:
-  push:
-    branches: [main, claude/fitness-training-pwa-app-weqfcx]
   workflow_dispatch:
 permissions:
   contents: read
