@@ -240,6 +240,8 @@ export function buildSession(code, ctx) {
         blocks: [{ kind: 'main', title: 'Denken unter Belastung', lines: ['Direkt nach dem Lauf: Mental → Spiele mit „Belastungsmodus an“', 'Kopfrechnen + Merkfähigkeit je eine Runde', 'Danach 5 min Box-Atmung'] }] };
     case 'REST':
     default:
+      if (ctx.friday) return { code: 'REST', title: 'Ruhetag · Heimfahrt', sub: 'Kein Training', min: 0, rest: true,
+        blocks: [{ kind: 'main', title: 'Heute nur ankommen', lines: ['Kein Training, auch keine Mobility – heute ist Heimfahrt.', 'Unterwegs genug trinken, zwischendurch aufstehen und bewegen.', 'Optional im Zug: Englisch-Karteikarten oder ein Abendtext.', '7–9 Stunden Schlaf.'] }] };
       return { code: 'REST', title: 'Ruhetag', sub: 'Erholung · Superkompensation', min: 0, rest: true,
         blocks: [{ kind: 'main', title: 'Erholung ist Training', lines: ['Kein Sport. Spazieren erlaubt.', '7–9 Stunden Schlaf.', ctx.sunday ? 'Sonntag: „Mein Warum“ lesen und überarbeiten.' : 'Kurze Box-Atmung am Abend.'] }] };
   }
@@ -266,7 +268,7 @@ export function baseDay(state, date) {
   const best = currentBest(state);
   const vol = state.plan.volFactor || 1;
   let [code, variant, extra] = TEMPLATES[phase.key][wd];
-  const ctx = { best, vol, week: weekTotal, deload, mode, sat: wd === 5, sunday: wd === 6, variant };
+  const ctx = { best, vol, week: weekTotal, deload, mode, sat: wd === 5, sunday: wd === 6, friday: wd === 4, variant };
   if (code === 'SAT') {
     if (deload) code = 'TESTLAUF';
     else if (phase.key === 'grundlage') code = weekTotal % 2 ? 'MT1' : 'TB1';

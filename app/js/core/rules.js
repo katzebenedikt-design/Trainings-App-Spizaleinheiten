@@ -6,7 +6,7 @@ import { weekday } from './util.js';
 const KRAFT = new Set(['K1', 'K2', 'K4', 'ZIRKEL', 'CAL', 'OBENLEICHT', 'TESTKRAFT', 'KRAFTPLUS']);
 const SCHWIMMEN = new Set(['ST', 'STTECH', 'STPLUS']);
 const SCHWERE_BEINE = (s) => s.code === 'K4' || s.code === 'ZIRKEL' || s.code === 'EILMARSCH' || ((s.code === 'K1' || s.code === 'K2') && (s.variant === 'beine' || s.variant === 'unten'));
-const RUHE_OK = new Set(['REST', 'MOB']); // Freitag: höchstens Mobility/Regeneration
+const RUHE_OK = new Set(['REST']); // Freitag: kompletter Ruhetag (Heimfahrt)
 
 export const isKraft = (s) => KRAFT.has(s.code);
 export const isSchwimmen = (s) => SCHWIMMEN.has(s.code) || !!s.swim;

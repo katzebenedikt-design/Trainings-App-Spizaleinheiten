@@ -44,7 +44,7 @@ export const WEEK_RULES = {
   1: { kraft: true, schwimmen: true, fest: 'KICKBOX', keineSchwerenBeine: true },
   2: { kraft: true, schwimmen: true },
   3: { kraft: true, schwimmen: true, fest: 'KICKBOX', keineSchwerenBeine: true },
-  4: { ruhetag: true }, // nur optionale Mobility/Regeneration
+  4: { ruhetag: true, notiz: 'Heimfahrt' }, // kompletter Ruhetag, kein Training
   5: { kraft: false, schwimmen: false },
   6: { kraft: false, schwimmen: false },
 };

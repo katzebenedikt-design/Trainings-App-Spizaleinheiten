@@ -1,5 +1,5 @@
 // Service Worker: App läuft offline, Erinnerungen per Benachrichtigung.
-const VERSION = '99bc582342';
+const VERSION = '2956a26b7e';
 const ASSETS = [
  "./",
  "./css/app.css",

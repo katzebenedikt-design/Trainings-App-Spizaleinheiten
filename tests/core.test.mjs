@@ -49,7 +49,8 @@ test('Wochenregeln: alle Wochen bis 2028, auch mit Verfügbarkeit und Schonmodus
       for (const d of week) assert.deepEqual(d.violations, [], d.date + ' ' + JSON.stringify(av) + ' ' + d.sessions.map((x) => x.code));
       const codes = week.map((d) => d.sessions.map((x) => x.code));
       assert.ok(codes[1].includes('KICKBOX') && codes[3].includes('KICKBOX'), 'Kickboxen Di/Do');
-      assert.ok(codes[4].every((c) => c === 'REST' || c === 'MOB'), 'Freitag Ruhe');
+      assert.deepEqual(codes[4], ['REST'], 'Freitag kompletter Ruhetag');
+      assert.equal(week[4].sessions[0].title, 'Ruhetag · Heimfahrt');
       for (const i of [5, 6]) for (const se of week[i].sessions) { assert.ok(!se.gym && !se.swim, 'Wochenende ' + se.code); }
       if (week[0].deload && week[0].phase.key !== 'taper') { assert.ok(codes[2].includes('TESTKRAFT')); assert.ok(codes[5].includes('TESTLAUF')); }
     }
@@ -66,6 +67,7 @@ test('Wochenregeln: alle Wochen bis 2028, auch mit Verfügbarkeit und Schonmodus
   // Prüffunktion erkennt Verstöße
   assert.ok(violations('2026-11-07', [{ code: 'K1', title: 'K1' }]).length > 0);
   assert.ok(violations('2026-11-06', [{ code: 'TB1', title: 'Lauf' }]).length > 0);
+  assert.ok(violations('2026-11-06', [{ code: 'MOB', title: 'Mobility' }]).length > 0);
   assert.ok(violations('2026-11-03', [{ code: 'K2', variant: 'unten', title: 'Beine' }, { code: 'KICKBOX', title: 'KB' }]).length > 0);
 });
 

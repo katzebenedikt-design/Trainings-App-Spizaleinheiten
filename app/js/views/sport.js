@@ -76,13 +76,14 @@ function renderHeute(el, app) {
   items.push({ id: 'checkin', t: 'Morgen-Check-in', sub: isDone(st, today, 'checkin') ? `BEREITSCHAFT ${r.percent}%` : '30 SEKUNDEN', act: () => openCheckin(app) });
   sessions.forEach((s, i) => items.push({ id: 'train:' + i, t: s.title, sub: `${s.sub}${s.min ? ' · ca. ' + s.min + ' min' : ''}`.toUpperCase(), act: () => openSession(app, s, today, i), rest: s.rest }));
   const nl = nextLesson(st);
-  if (nl) items.push({ id: 'sprache', t: `Englisch · ${nl.title}`, sub: '5–10 MIN · LAUT SPRECHEN', act: () => app.go('#/sprache') });
-  items.push({ id: 'mental', t: weekday(today) === 6 ? 'Mein Warum lesen + überarbeiten' : 'Box-Atmung oder Abendtext', sub: 'ABENDS · 5 MIN', act: () => app.go(weekday(today) === 6 ? '#/mental/warum' : '#/mental') });
+  const fri = weekday(today) === 4;
+  if (nl) items.push({ id: 'sprache', t: `Englisch · ${nl.title}`, sub: fri ? 'OPTIONAL · Z. B. IM ZUG' : '5–10 MIN · LAUT SPRECHEN', act: () => app.go('#/sprache'), optional: fri });
+  items.push({ id: 'mental', t: weekday(today) === 6 ? 'Mein Warum lesen + überarbeiten' : 'Box-Atmung oder Abendtext', sub: fri ? 'OPTIONAL · NACH DER HEIMFAHRT' : 'ABENDS · 5 MIN', act: () => app.go(weekday(today) === 6 ? '#/mental/warum' : '#/mental'), optional: fri });
   const lb = st.settings.lastBackup;
   if (!lb || daysBetween(lb.slice(0, 10), today) > 14) items.push({ id: 'backup', t: 'Daten sichern', sub: lb ? 'LETZTE SICHERUNG ' + fmtDate(lb.slice(0, 10)) : 'NOCH NIE GESICHERT', act: () => app.settings() });
 
   const done = (it) => it.rest ? true : isDone(st, today, it.id);
-  const firstOpen = items.find((it) => !done(it));
+  const firstOpen = items.find((it) => !done(it) && !it.optional);
   const tl = h('div', { class: 'tl' }, items.map((it) => h('div', { class: 'it ' + (done(it) ? 'done' : it === firstOpen ? 'now' : ''), onclick: it.act },
     h('div', { class: 't' }, it.t), h('small', {}, it.sub))));
   el.append(card(h('div', { class: 'k' }, `[ TAGESBEFEHL · ${fmtDateLong(today).toUpperCase()} ]`), tl,
@@ -224,7 +225,7 @@ function renderPlan(el, app) {
   el.append(whyCard(agg));
   el.append(card(h('div', { class: 'k' }, '[ FESTE WOCHENREGELN ]'), h('ul', { class: 'plain small dim' },
     h('li', {}, 'Mo–Do: Krafttraining und Schwimmen erlaubt'), h('li', {}, 'Di + Do: Kickboxen (fester Termin), davor nur leichte Einheit ohne Beine'),
-    h('li', {}, 'Fr: Ruhetag (höchstens Mobility)'), h('li', {}, 'Sa + So: kein Kraft, kein Schwimmen – Laufen, Marsch, Kopftraining'))));
+    h('li', {}, 'Fr: Ruhetag – Heimfahrt, kein Training'), h('li', {}, 'Sa + So: kein Kraft, kein Schwimmen – Laufen, Marsch, Kopftraining'))));
   el.append(h('div', { class: 'row mt' }, h('span', { class: 'm' }, 'Standard für neue Wochen:'), seg([['arbeit', 'Arbeit'], ['schule', 'Schule']], st.week.mode, (m) => { st.week.mode = m; app.save(); el.replaceChildren(); renderPlan(el, app); })));
 
   // Anpassung
