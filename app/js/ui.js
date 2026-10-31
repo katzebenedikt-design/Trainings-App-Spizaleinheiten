@@ -177,7 +177,7 @@ export function lineChart(points, { refs = [], fmt = (v) => v, lowerBetter = fal
   const xs = points.map((p) => new Date(p.date).getTime());
   const vals = [...points.map((p) => p.v), ...refs.map((r) => r.v)];
   let min = Math.min(...vals), max = Math.max(...vals);
-  if (min === max) { min -= 1; max += 1; }
+  if (max - min < 4) { const m = (max + min) / 2; min = m - 2; max = m + 2; }
   const pad = (max - min) * 0.1; min -= pad; max += pad;
   const x0 = Math.min(...xs), x1 = Math.max(...xs);
   const X = (t) => (x1 === x0 ? L + (W - L - R) / 2 : L + ((t - x0) / (x1 - x0)) * (W - L - R));

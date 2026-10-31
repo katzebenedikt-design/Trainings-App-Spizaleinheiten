@@ -2,7 +2,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { defaultState, normalize, parseBackup } from '../app/js/core/store.js';
-import { phasesFor, plannedDay, weekPlan, score7D, adaptAfterTest, calisthenics, currentBest } from '../app/js/core/plan.js';
+import { phasesFor, score7D, adaptAfterTest, calisthenics, currentBest, getNorms } from '../app/js/core/plan.js';
+import { plannedDay, weekPlan } from '../app/js/core/planner.js';
+import { violations } from '../app/js/core/rules.js';
+import { assessWeaknesses, focusAreas } from '../app/js/core/weakness.js';
+import { substituteExercise, AVAIL_DEFAULT } from '../app/js/core/availability.js';
+import { UNITS } from '../app/js/data/requirements.js';
 import { readiness, applyReadiness } from '../app/js/core/readiness.js';
 import { suggestNext, effLoad, bests } from '../app/js/core/strength.js';
 import { parseFIT, splitCSV, harvestGarminJSON } from '../app/js/core/garmin.js';
@@ -34,16 +39,78 @@ test('Phasen bis 2028 rückwärts geplant', () => {
   for (let i = 1; i < ph.length; i++) assert.equal(addDays(ph[i - 1].to, 1), ph[i].from);
 });
 
-test('Wochenplan: Gym nur Mo–Fr, Sonntag Ruhe, Entlastungswoche mit Test', () => {
-  const s = st0();
-  for (let w = 0; w < 16; w++) {
-    const week = weekPlan(s, addDays('2026-11-02', w * 7));
-    assert.equal(week[6].sessions[0].code, 'REST');
-    for (const d of week.slice(5)) for (const se of d.sessions) assert.ok(!se.gym, 'Kein Gym am Wochenende ' + d.date);
-    if (week[0].deload) assert.equal(week[5].sessions[0].code, 'TEST');
+test('Wochenregeln: alle Wochen bis 2028, auch mit Verfügbarkeit und Schonmodus', () => {
+  const combos = [{}, { gym: false }, { pool: false }, { ruck: false, bwOnly: true, gym: false, bar: false }, { montage: true }, { minutes: [20, 20, 60, 20, 0, 30, 30] }];
+  for (const av of combos) {
+    const s = st0();
+    s.week.availDefault = { ...AVAIL_DEFAULT, ...av };
+    for (let w = 0; w < 84; w++) {
+      const week = weekPlan(s, addDays('2026-11-02', w * 7));
+      for (const d of week) assert.deepEqual(d.violations, [], d.date + ' ' + JSON.stringify(av) + ' ' + d.sessions.map((x) => x.code));
+      const codes = week.map((d) => d.sessions.map((x) => x.code));
+      assert.ok(codes[1].includes('KICKBOX') && codes[3].includes('KICKBOX'), 'Kickboxen Di/Do');
+      assert.ok(codes[4].every((c) => c === 'REST' || c === 'MOB'), 'Freitag Ruhe');
+      for (const i of [5, 6]) for (const se of week[i].sessions) { assert.ok(!se.gym && !se.swim, 'Wochenende ' + se.code); }
+      if (week[0].deload && week[0].phase.key !== 'taper') { assert.ok(codes[2].includes('TESTKRAFT')); assert.ok(codes[5].includes('TESTLAUF')); }
+    }
   }
-  const day = plannedDay(s, '2026-11-02');
-  assert.ok(day.sessions[0].blocks.length > 0);
+  // Schonmodus an einem Kickbox-Tag
+  const s = st0(); const di = '2026-11-03';
+  s.checkins.push({ date: di, schlaf: 2, energie: 2, kater: 3, schmerz: 1, stimmung: 3 });
+  const d = plannedDay(s, di, { withReadiness: true });
+  assert.deepEqual(d.violations, []);
+  assert.ok(d.sessions.some((x) => x.code === 'KICKBOX' && /Technik/.test(x.title)));
+  s.checkins[0].schmerz = 5;
+  const p = plannedDay(s, di, { withReadiness: true });
+  assert.deepEqual(p.sessions.map((x) => x.code), ['REST']);
+  // Prüffunktion erkennt Verstöße
+  assert.ok(violations('2026-11-07', [{ code: 'K1', title: 'K1' }]).length > 0);
+  assert.ok(violations('2026-11-06', [{ code: 'TB1', title: 'Lauf' }]).length > 0);
+  assert.ok(violations('2026-11-03', [{ code: 'K2', variant: 'unten', title: 'Beine' }, { code: 'KICKBOX', title: 'KB' }]).length > 0);
+});
+
+test('Zielwerte aus der Konfiguration, strengster Wert, eigene Werte', () => {
+  const n = getNorms({ unit: 'offen' });
+  assert.equal(n.pullups.min, 7);
+  assert.equal(n.run5000.goal, 1320);
+  assert.equal(getNorms({ unit: 'offen', targets: { pullups: { goal: 18 } } }).pullups.goal, 18);
+  assert.ok(Object.keys(UNITS).includes('GSG 9'));
+});
+
+test('Schwächen bestimmen den Zusatz, mit Begründung', () => {
+  const s = st0();
+  s.tests.push({ id: 't', date: '2026-11-01', run3000: 700, pullups: 6, pushups: 70, situps: 70, swim100: 105 });
+  const weak = assessWeaknesses(s, '2026-11-02');
+  assert.equal(weak[0].key, 'pullups');
+  const f = focusAreas(weak).map((x) => x.key);
+  assert.ok(f.includes('pullups'));
+  const mo = plannedDay(s, '2026-11-02');
+  assert.ok(mo.sessions.some((x) => x.boost === 'pullups'), 'Zusatzblock Klimmzüge am Montag');
+  assert.ok(mo.why.some((w) => w.startsWith('Klimmzüge')));
+  // Kein Zusatz in der Entlastungswoche und nie an Kickbox-Tagen
+  for (let i = 0; i < 28; i++) { const d = plannedDay(s, addDays('2026-11-02', i)); if (d.deload || [1, 3].includes(i % 7)) assert.ok(!d.sessions.some((x) => x.boost)); }
+});
+
+test('Verfügbarkeit ersetzt Übungen', () => {
+  const a = { ...AVAIL_DEFAULT, gym: false };
+  assert.equal(substituteExercise('kniebeuge', a), 'rucksack_kniebeuge');
+  assert.equal(substituteExercise('kniebeuge', { ...a, ruck: false }), 'bulgarian');
+  assert.equal(substituteExercise('klimmzug', { ...a, bar: false }), 'tischrudern');
+  assert.equal(substituteExercise('bankdruecken', AVAIL_DEFAULT), 'bankdruecken');
+  const s = st0();
+  s.week.avail['2026-W45'] = { ...a, pool: false, minutes: [30, null, null, null, null, null, null] };
+  const mo = plannedDay(s, '2026-11-02');
+  assert.ok(mo.sessions.reduce((t, x) => t + (x.min || 0), 0) <= 30);
+  assert.ok(mo.availNotes.length > 0);
+  const di = plannedDay(s, '2026-11-03');
+  assert.ok(!di.sessions.some((x) => x.swim), 'kein Schwimmen ohne Bad');
+});
+
+test('Alte Sicherung (Version 1) bleibt vollständig erhalten', () => {
+  const old = { schema: 1, profile: { name: 'Alt', start: { run3000: 800 } }, checkins: [{ date: '2026-10-01', schlaf: 3 }], week: { mode: 'schule', overrides: { '2026-W44': 'arbeit' } }, daily: [{ date: '2026-10-01', restHR: 50 }] };
+  const n = parseBackup(JSON.stringify({ app: 'trainings-app-spezialeinheiten', state: old }));
+  assert.equal(n.schema, 2); assert.equal(n.profile.name, 'Alt'); assert.equal(n.checkins.length, 1); assert.equal(n.week.mode, 'schule');
+  assert.equal(n.week.overrides['2026-W44'], 'arbeit'); assert.deepEqual(n.week.avail, {}); assert.deepEqual(n.profile.targets, {}); assert.equal(n.daily[0].restHR, 50);
 });
 
 test('Berufsschulwoche ändert den Plan', () => {
@@ -67,7 +134,7 @@ test('Schonmodus-Regeln', () => {
   for (let i = 1; i <= 7; i++) s.checkins.push({ date: addDays(d, -i), schlaf: 4, energie: 4, kater: 1, schmerz: 1, stimmung: 4, ruhepuls: 52 });
   s.checkins[0] = { date: d, schlaf: 4, energie: 4, kater: 1, schmerz: 1, stimmung: 4, ruhepuls: 63 };
   assert.equal(readiness(s, d).mode, 'pause');
-  const sess = applyReadiness(plannedDay(s, d).sessions, readiness(s, d));
+  const sess = applyReadiness(plannedDay(s, d, { withReadiness: false }).sessions, readiness(s, d));
   assert.equal(sess[0].code, 'REST');
 });
 
@@ -79,7 +146,7 @@ test('7D-Punkte und Anpassung nach Test', () => {
   s.tests.push(t);
   const ad = adaptAfterTest(s, t);
   assert.ok(ad.volFactor > 1);
-  assert.equal(ad.focus.length, 2);
+  assert.deepEqual(ad.focus, []);
   assert.equal(currentBest(s).run3000, 800);
   assert.deepEqual(calisthenics(41, 11), { push: [5, '15–20'], pull: [5, '5–6'] });
 });
@@ -194,4 +261,21 @@ test('Inhalte vollständig', () => {
   assert.equal(new Set(UNITS_EN.map((u) => u.phase)).size, 3);
   for (const c of COURSES) { assert.ok(c.quiz.length >= 3); for (const q of c.quiz) assert.ok(q.ok < q.a.length); }
   assert.deepEqual(COURSES.map((c) => c.id).sort(), ['dienstgrade', 'erstehilfe', 'funk', 'kompass', 'nato', 'rucksack', 'tarnen', 'verhalten', 'waffen'].sort());
+});
+
+test('Garmin: HRV/Schlaf/Belastung senken die Intensität, auch ohne Check-in', async () => {
+  const { mergeDaily, harvestGarminJSON } = await import('../app/js/core/garmin.js');
+  const s = st0(); const d = '2026-11-20';
+  const rows = []; for (let i = 1; i <= 14; i++) rows.push({ date: addDays(d, -i), hrv: 60, load: 300 });
+  mergeDaily(s, rows);
+  mergeDaily(s, [{ date: d, hrv: 50 }]);
+  assert.equal(readiness(s, d).mode, 'leicht');
+  mergeDaily(s, [{ date: d, hrv: 40 }]);
+  assert.equal(readiness(s, d).mode, 'pause');
+  mergeDaily(s, [{ date: d, hrv: 60, sleepH: 4.5 }]);
+  assert.equal(readiness(s, d).mode, 'leicht');
+  assert.equal(s.daily.filter((x) => x.date === d).length, 1, 'kein doppelter Tag');
+  const acc = { acts: [], daily: {} };
+  harvestGarminJSON([{ calendarDate: '2026-10-02', hrvSummary: { lastNightAvg: 55 }, acuteTrainingLoad: 410 }], 'hrv.json', acc);
+  assert.equal(acc.daily['2026-10-02'].hrv, 55); assert.equal(acc.daily['2026-10-02'].load, 410);
 });

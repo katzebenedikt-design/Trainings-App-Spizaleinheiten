@@ -6,6 +6,7 @@ import { bodyweightOn } from '../core/plan.js';
 import { iso, fmtDate, fmtNum, num } from '../core/util.js';
 import { uid } from '../core/store.js';
 import { showExercise } from './sport.js';
+import { figure } from './figures.js';
 import { speak, beep, vibrate } from '../core/speech.js';
 
 export function renderKraft(el, app) {
@@ -22,6 +23,7 @@ export function renderKraft(el, app) {
       const b = bests(st, ex); const n = history(st, ex.id).length;
       const bestTxt = ex.typ === 'zeit' ? (b.maxSec ? `${b.maxSec.v} s` : '') : ex.typ === 'kg' ? (b.maxReps ? `${b.maxReps.v} Wdh.` : '') : b.best1rm ? `1RM ≈ ${fmtNum(b.best1rm.v, 0)} kg` : '';
       ul.append(h('li', { onclick: () => exerciseDetail(app, ex), style: { cursor: 'pointer' } },
+        figure(ex.fig, { thumb: true }),
         h('div', { class: 'grow' }, h('b', {}, ex.name), h('div', { class: 'm' }, `${TYP_LABEL[ex.typ]}${n ? ' · ' + n + '× trainiert' : ''}`)),
         h('div', { class: 'mono sand small' }, bestTxt)));
     }
@@ -37,7 +39,7 @@ function exerciseDetail(app, ex) {
       wrap.replaceChildren();
       const b = bests(st, ex); const hist = history(st, ex.id);
       const sug = suggestNext(st, ex);
-      wrap.append(h('div', { class: 'k' }, `[ ${TYP_LABEL[ex.typ].toUpperCase()} ]`), h('h1', {}, ex.name),
+      wrap.append(h('div', { class: 'k' }, `[ ${TYP_LABEL[ex.typ].toUpperCase()} ]`), h('h1', {}, ex.name), figure(ex.fig),
         h('div', { class: 'row' }, h('button', { class: 'btn s', onclick: () => showExercise(ex) }, 'Ablauf ansehen'), h('button', { class: 'btn s f', onclick: () => logStrengthModal(app, ex, { onSaved: draw }) }, '+ Training')),
         card(h('div', { class: 'k' }, '[ VORSCHLAG NÄCHSTES TRAINING ]'), h('p', {}, sug.text)),
         h('div', { class: 'grid3 mt' },

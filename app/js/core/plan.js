@@ -5,15 +5,11 @@
 // Leitregeln (elite-selection-coach): Umfang max. ca. 10 % pro Woche steigern, alle 3–4 Wochen Entlastung,
 // mindestens 1 Ruhetag, kein Training durch Schmerz.
 import { addDays, daysBetween, mondayOf, weekday, isoWeekKey, clamp, fmtTime, sortByDate, last, iso } from './util.js';
+import { KICKBOX } from '../data/requirements.js';
 
-export const NORMS = {
-  run3000: { label: '3000-m-Lauf', unit: 'zeit', lower: true, min: 780, goal: 720, top: 645, src: 'KSK-Richtwert < 12:00' },
-  pullups: { label: 'Klimmzüge', unit: 'wdh', min: 7, goal: 14, top: 20, src: 'KSK PFV min. 7 · SFAS-Ziel 14' },
-  pushups: { label: 'Liegestütze', unit: 'wdh', min: 40, goal: 60, top: 75, src: 'Max. am Stück, immer gleich messen' },
-  situps: { label: 'Sit-ups', unit: 'wdh', min: 40, goal: 60, top: 75, src: 'Immer gleich messen' },
-  swim100: { label: '100 m Brust', unit: 'zeit', lower: true, min: 150, goal: 120, top: 100, src: 'KSK 7D: 100 m Kleiderschw. < 2:30' },
-  ruck7: { label: '7 km Eilmarsch 20 kg', unit: 'zeit', lower: true, min: 3120, goal: 2700, top: 2400, src: 'KSK/EGB: unter 45 min' },
-};
+// Zielwerte kommen aus der zentralen Konfiguration (data/requirements.js).
+export { getNorms } from '../data/requirements.js';
+import { getNorms } from '../data/requirements.js';
 
 export const TEST_FIELDS = [
   { key: 'run3000', label: '3000 m (Zeit)', unit: 'zeit', core: true },
@@ -222,6 +218,26 @@ export function buildSession(code, ctx) {
     case 'TEST':
       return { code, title: 'Monatlicher Leistungstest', sub: '3000 m · Klimmzüge · Liegestütze · Sit-ups · Schwimmen', min: 75, test: true,
         blocks: [warm(15), { kind: 'main', title: 'Testablauf (ausgeruht!)', lines: ['1. Klimmzüge max. (Ristgriff, ausgehängt)', '2. Liegestütze max.', '3. Sit-ups max.', '4. 3000 m auf Zeit (Bahn oder flache Strecke)', 'Schwimmen 100 m Brust: am nächsten Schwimmtag', 'Ergebnisse unter Sport → Test eintragen. Der Plan passt sich danach an.'] }] };
+    case 'KICKBOX':
+      return { code, title: 'Kickboxen', sub: `Fester Termin · ${KICKBOX.zeit}`, min: KICKBOX.min, fixed: true,
+        blocks: [{ kind: 'main', title: 'Training im Verein', lines: ['Fester Termin – der restliche Tag ist darauf abgestimmt.', 'Genug trinken, vorher leicht essen.', 'Sparring zählt fürs PFV (2 min Nahkampf). Danach kurz notieren, wie es lief.'] }] };
+    case 'OBENLEICHT': {
+      return { code, title: 'Oberkörper-Zug & Rumpf (leicht)', sub: 'Vor dem Kickboxen · 30–35 min · keine Beine', min: 35, gym: false, light: true,
+        blocks: [{ kind: 'main', title: 'Leicht, nicht bis zum Versagen', ex: [{ id: 'klimmzug', sets: cal.pull[0] - 1, reps: cal.pull[1], rest: 90 }, { id: 'rudern', sets: 3, reps: '12–15', rest: 60 }], lines: ['Etwa 2 Wiederholungen „im Tank“ lassen – das Kickboxen kommt noch.'] },
+          { kind: 'main', title: 'Rumpf', lines: coreRoutine(week).slice(0, 3) }] };
+    }
+    case 'STTECH':
+      return { code, title: 'Schwimmen Technik (leicht)', sub: 'Vor dem Kickboxen · 30 min · ruhig', min: 30, swim: true, light: true,
+        blocks: [{ kind: 'main', title: 'Technik Brust', lines: ['200 m locker einschwimmen', '6× 50 m Brust, lange Gleitphase, Züge zählen', '100 m locker aus', 'Kein Sprint – abends ist Kickboxen.'] }] };
+    case 'TESTKRAFT':
+      return { code, title: 'Monatstest: Kraft & Schwimmen', sub: 'Klimmzüge · Liegestütze · Sit-ups · 100 m Brust', min: 60, test: true,
+        blocks: [warm(12), { kind: 'main', title: 'Testablauf (ausgeruht!)', lines: ['1. Klimmzüge max. (Ristgriff, ausgehängt)', '2. Liegestütze max.', '3. Sit-ups max.', '4. Schwimmen: 100 m Brust auf Zeit', 'Ergebnisse unter Sport → Test eintragen. Der 3000-m-Lauf folgt am Samstag.'] }] };
+    case 'TESTLAUF':
+      return { code, title: 'Monatstest: 3000 m', sub: 'Lauf auf Zeit · flache Strecke', min: 45, test: true, run: true,
+        blocks: [warm(15), { kind: 'main', title: 'Testlauf', lines: ['3000 m auf Zeit, gleichmäßig anlaufen, letzte Runde ziehen.', 'Zeit unter Sport → Test eintragen. Danach passt sich der Plan an.'] }, cool] };
+    case 'KOPF':
+      return { code, title: 'Kopftraining', sub: 'Kognitiv · 10–15 min', min: 15, mental: true,
+        blocks: [{ kind: 'main', title: 'Denken unter Belastung', lines: ['Direkt nach dem Lauf: Mental → Spiele mit „Belastungsmodus an“', 'Kopfrechnen + Merkfähigkeit je eine Runde', 'Danach 5 min Box-Atmung'] }] };
     case 'REST':
     default:
       return { code: 'REST', title: 'Ruhetag', sub: 'Erholung · Superkompensation', min: 0, rest: true,
@@ -229,31 +245,19 @@ export function buildSession(code, ctx) {
   }
 }
 
-// Wochenvorlagen: Index 0 = Montag. Fitnessstudio nur Mo–Fr. Abends nach der Arbeit (ab ca. 17:00).
+// Wochenvorlagen nach den festen Wochenregeln (data/requirements.js → WEEK_RULES):
+// Mo–Do Kraft und Schwimmen, Di/Do Kickboxen mit leichter Einheit davor, Fr Ruhetag,
+// Sa/So nur Laufen, Marsch, Ausdauer und Kopftraining. [Code, Variante, Zusatz]
 const TEMPLATES = {
-  grundlage: {
-    arbeit: [['K1', 'beine'], ['TB1'], ['K1', 'brust', 'CAL'], ['ST'], ['K1', 'ruecken'], ['SAT'], ['REST']],
-    schule: [['K1', 'beine'], ['TB1', null, 'KT'], ['K1', 'brust', 'CAL'], ['ST', null, 'MOB'], ['K1', 'ruecken'], ['SAT'], ['REST']],
-  },
-  aufbau: {
-    arbeit: [['K2', 'oben'], ['TB3'], ['K1', 'beine', 'CAL'], ['ST'], ['K2', 'unten'], ['SAT'], ['REST']],
-    schule: [['K2', 'oben'], ['TB3', null, 'KT'], ['K1', 'beine', 'CAL'], ['ST', null, 'MOB'], ['K2', 'unten', 'TB2'], ['SAT'], ['REST']],
-  },
-  leistung: {
-    arbeit: [['KX', 'oben'], ['TB4'], ['K1', 'ruecken', 'CAL'], ['ST'], ['K2', 'unten', 'KT'], ['SAT'], ['REST']],
-    schule: [['KX', 'oben'], ['TB4', null, 'CAL'], ['K1', 'ruecken', 'TB1'], ['ST', null, 'MOB'], ['K2', 'unten', 'KT'], ['SAT'], ['REST']],
-  },
-  spezifik: {
-    arbeit: [['ZIRKEL'], ['TB3', null, 'CAL'], ['ST'], ['EILMARSCH'], ['KT', null, 'MOB'], ['SAT'], ['REST']],
-    schule: [['ZIRKEL'], ['TB4', null, 'CAL'], ['ST', null, 'KT'], ['EILMARSCH'], ['K1', 'beine', 'MOB'], ['SAT'], ['REST']],
-  },
-  taper: {
-    arbeit: [['CAL'], ['TB2'], ['ST'], ['TBR'], ['MOB'], ['TB1'], ['REST']],
-    schule: [['CAL'], ['TB2'], ['ST'], ['TBR'], ['MOB'], ['TB1'], ['REST']],
-  },
+  grundlage: [['K1', 'beine'], ['STTECH', null, 'KICKBOX'], ['K1', 'ruecken', 'CAL'], ['OBENLEICHT', null, 'KICKBOX'], ['REST'], ['SAT'], ['TB1', null, 'KOPF']],
+  aufbau: [['K2', 'unten'], ['STTECH', null, 'KICKBOX'], ['K2', 'oben', 'ST'], ['OBENLEICHT', null, 'KICKBOX'], ['REST'], ['SAT'], ['TB1', null, 'KOPF']],
+  leistung: [['KX', 'unten'], ['STTECH', null, 'KICKBOX'], ['K2', 'oben', 'ST'], ['OBENLEICHT', null, 'KICKBOX'], ['REST'], ['SAT'], ['TB3', null, 'KOPF']],
+  spezifik: [['ZIRKEL'], ['STTECH', null, 'KICKBOX'], ['K1', 'ruecken', 'ST'], ['OBENLEICHT', null, 'KICKBOX'], ['REST'], ['SAT'], ['TB3', null, 'KOPF']],
+  taper: [['CAL'], ['STTECH', null, 'KICKBOX'], ['ST'], ['KICKBOX'], ['REST'], ['TB2'], ['TBR']],
 };
 
-export function plannedDay(state, date) {
+// Grundplan eines Tages (ohne Schwächen, Verfügbarkeit und Schonmodus – das macht core/planner.js)
+export function baseDay(state, date) {
   const { phase, weekInPhase, weekTotal } = phaseAt(state, date);
   const cw = cycleWeek(weekTotal);
   const deload = cw === 4 && phase.key !== 'taper';
@@ -261,38 +265,30 @@ export function plannedDay(state, date) {
   const wd = weekday(date);
   const best = currentBest(state);
   const vol = state.plan.volFactor || 1;
-  let [code, variant, extra] = TEMPLATES[phase.key][mode][wd];
+  let [code, variant, extra] = TEMPLATES[phase.key][wd];
   const ctx = { best, vol, week: weekTotal, deload, mode, sat: wd === 5, sunday: wd === 6, variant };
   if (code === 'SAT') {
-    if (deload) code = 'TEST';
+    if (deload) code = 'TESTLAUF';
     else if (phase.key === 'grundlage') code = weekTotal % 2 ? 'MT1' : 'TB1';
-    else if (phase.key === 'aufbau') code = weekTotal % 2 ? 'MT2' : 'TB1';
-    else code = weekTotal % 2 ? 'MT3' : 'TB1';
+    else if (phase.key === 'aufbau') code = weekTotal % 2 ? 'MT2' : 'TB3';
+    else if (phase.key === 'leistung') code = weekTotal % 2 ? 'MT3' : 'TB4';
+    else code = weekTotal % 2 ? 'EILMARSCH' : 'MT3';
   }
   if (code === 'KX') code = cw === 1 ? 'K4' : 'K2';
-  if (deload && wd === 4) { code = 'TBR'; extra = 'MOB'; } // Freitag vor dem Test locker
-  // Fokus aus dem letzten Test: schwächste Disziplin bekommt eine Zusatzaufgabe
-  const sessions = [buildSession(code, ctx)];
+  if (deload && wd === 2) { code = 'TESTKRAFT'; extra = null; } // Mittwoch der Entlastungswoche
+  const sessions = [{ ...buildSession(code, ctx), variant }];
   if (extra) sessions.push(buildSession(extra, ctx));
-  const focus = state.plan.focus || [];
-  if (!deload && focus.length && [1, 3].includes(wd)) {
-    const add = { pullups: 'Zusatz Klimmzüge: 5× Negativ-Klimmzüge (5 s ablassen)', pushups: 'Zusatz: 3× Liegestütze 30 s', situps: 'Zusatz: 3× Sit-ups 30 s', run3000: 'Zusatz: 6× 20 s Steigerungslauf nach dem Lauf', swim100: 'Zusatz: nächster Schwimmtag 4× 50 m schnell' }[focus[0]];
-    if (add) sessions[0].blocks.push({ kind: 'main', title: 'Fokus aus deinem Test', lines: [add] });
-  }
-  return { date, phase, weekInPhase, weekTotal, cycleWeek: cw, deload, mode, sessions };
-}
-
-export function weekPlan(state, anyDate) {
-  const mon = mondayOf(anyDate);
-  return Array.from({ length: 7 }, (_, i) => plannedDay(state, addDays(mon, i)));
+  // Berufsschulwoche: etwas mehr Energie am Abend → Mobility zusätzlich am Montag
+  if (mode === 'schule' && wd === 0 && !deload) sessions.push(buildSession('MOB', ctx));
+  return { date, phase, weekInPhase, weekTotal, cycleWeek: cw, deload, mode, sessions, ctx, notes: [] };
 }
 
 // ---------- Anpassung nach dem Monatstest ----------
 export function adaptAfterTest(state, test) {
+  const NORMS = getNorms(state.profile);
   const tests = sortByDate(state.tests).filter((t) => t.id !== test.id && t.date <= test.date);
   const prev = tests.length ? last(tests) : { ...state.profile.start, date: null };
   const notes = []; let better = 0, worse = 0;
-  const gaps = [];
   for (const [k, n] of Object.entries(NORMS)) {
     const v = test[k]; if (v == null) continue;
     const pv = prev[k];
@@ -301,24 +297,19 @@ export function adaptAfterTest(state, test) {
       const rel = imp / Math.max(1, Math.abs(pv));
       if (rel > 0.01) better++; else if (rel < -0.02) worse++;
     }
-    const range = n.lower ? n.min - n.top : n.top - n.min;
-    const pos = n.lower ? (n.min - v) / range : (v - n.min) / range;
-    gaps.push([k, pos]);
   }
-  gaps.sort((a, b) => a[1] - b[1]);
-  const focus = gaps.slice(0, 2).map((g) => g[0]);
   let vol = state.plan.volFactor || 1;
   if (worse > better) { vol = Math.max(0.8, vol * 0.9); notes.push('Leistung gesunken: Umfang 10 % runter. Schlaf und Erholung prüfen.'); }
   else if (better >= 2) { vol = Math.min(1.4, vol * 1.05); notes.push('Fortschritt: Umfang +5 %.'); }
   else { vol = Math.min(1.4, vol * 1.02); notes.push('Stagnation: gleicher Plan mit leicht höherer Intensität (KSK-Regel).'); }
   const s7 = score7D(test);
-  if (focus.length) notes.push('Fokus nächster Monat: ' + focus.map((k) => NORMS[k].label).join(', '));
-  return { volFactor: Math.round(vol * 100) / 100, focus, group: s7.group, lastAdapt: test.date, notes };
+  notes.push('Schwerpunkte stellt die Schwächen-Analyse automatisch ein (Plan → „Warum so?“).');
+  return { volFactor: Math.round(vol * 100) / 100, focus: [], group: s7.group, lastAdapt: test.date, notes };
 }
 
-// Abstand zur Top-Norm 0..1 (1 = Top erreicht)
-export function normProgress(key, value) {
-  const n = NORMS[key]; if (value == null || !n) return null;
+// Fortschritt Richtung Top-Wert 0..1 (1 = Top erreicht). n = Eintrag aus getNorms()
+export function normProgress(n, value) {
+  if (value == null || !n) return null;
   const startV = n.lower ? n.min * 1.15 : n.min * 0.6;
   const p = n.lower ? (startV - value) / (startV - n.top) : (value - startV) / (n.top - startV);
   return clamp(p, 0, 1);

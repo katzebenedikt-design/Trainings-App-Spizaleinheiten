@@ -2,7 +2,7 @@
 import { h, card, modal, field, micFor, lineChart, toast, seg, confirmBox, iconBtn, pickFile } from '../ui.js';
 import { iso, fmtDate, fmtTime, fmtPace, parseTime, num, fmtNum, sortByDate } from '../core/util.js';
 import { uid } from '../core/store.js';
-import { importFile, toIso } from '../core/garmin.js';
+import { importFile, toIso, mergeDaily } from '../core/garmin.js';
 import { giveBadge } from '../core/rewards.js';
 import { celebrate } from '../ui.js';
 
@@ -86,27 +86,10 @@ export function renderDaten(el, app) {
     lineChart(bw.map((w) => ({ date: w.date, v: w.kg })), { fmt: (v) => fmtNum(v, 1) }),
     bmi ? h('div', { class: 'm' }, `${st.profile.heightCm} CM · BMI ${fmtNum(bmi, 1)} (bei Sportlern nur grob aussagekräftig)`) : null));
 
-  // Garmin
-  const imp = card(h('div', { class: 'k' }, '[ GARMIN-IMPORT ]'),
-    h('p', { class: 'small' }, 'Einzelne Aktivität (FIT, GPX, TCX), Aktivitätenliste (CSV aus Garmin Connect) oder der komplette Garmin-Datenexport (ZIP) mit Schlaf, Ruhepuls, Body Battery, VO2max.'),
-    h('button', { class: 'btn f', onclick: () => doImport(app) }, '> Datei auswählen'),
-    h('details', {}, h('summary', { class: 'm', style: { cursor: 'pointer', marginTop: '10px' } }, 'SO KOMMST DU AN DIE DATEIEN'),
-      h('ul', { class: 'plain small' },
-        h('li', {}, 'Einzelaktivität: Garmin Connect im Browser → Aktivität öffnen → Zahnrad → „Original exportieren“ (FIT) oder „Exportieren nach GPX/TCX“.'),
-        h('li', {}, 'Liste: Garmin Connect → Aktivitäten → „Alle Aktivitäten“ → „CSV exportieren“.'),
-        h('li', {}, 'Gesamtexport: garmin.com → Konto → Datenverwaltung → „Daten exportieren“. Nach der E-Mail die ZIP-Datei hier auswählen.'),
-        h('li', {}, 'Alles wird nur auf dem Handy verarbeitet, nichts wird hochgeladen.'))));
-  el.append(imp);
-
-  const daily = sortByDate(st.daily).slice(-120);
-  if (daily.length) {
-    const mk = (k, title, fmt, refs) => { const pts = daily.filter((d) => d[k] != null).map((d) => ({ date: d.date, v: d[k] })); return pts.length ? card(lineChart(pts, { title, fmt, refs })) : null; };
-    el.append(mk('restHR', 'Ruhepuls (bpm)', (v) => Math.round(v)), mk('sleepH', 'Schlaf (h)', (v) => fmtNum(v, 1), [{ v: 7, label: 'Min' }]), mk('bodyBattery', 'Body Battery', (v) => Math.round(v)), mk('vo2max', 'VO2max', (v) => fmtNum(v, 1), [{ v: 50, label: 'KSK' }]));
-  }
-  el.append(h('p', { class: 'm mt' }, `${st.daily.length} Tageswerte · ${st.runs.filter((r) => r.source === 'garmin').length + st.swims.filter((r) => r.source === 'garmin').length} importierte Aktivitäten`));
+  el.append(h('p', { class: 'm mt' }, 'Garmin-Werte (Ruhepuls, HRV, Schlaf …) findest du im Reiter „Garmin“.'), h('button', { class: 'btn', onclick: () => app.go('#/sport/garmin') }, 'Zum Garmin-Reiter'));
 }
 
-async function doImport(app) {
+export async function doImport(app) {
   const st = app.state;
   const file = await pickFile('.fit,.gpx,.tcx,.csv,.zip,.json');
   if (!file) return;
@@ -126,14 +109,7 @@ async function doImport(app) {
       } else continue;
       added++;
     }
-    let days = 0;
-    for (const d of res.daily) {
-      if (!d.date) continue;
-      const i = st.daily.findIndex((x) => x.date === d.date);
-      const clean = Object.fromEntries(Object.entries(d).filter(([, v]) => v != null));
-      if (i >= 0) st.daily[i] = { ...st.daily[i], ...clean }; else st.daily.push(clean);
-      days++;
-    }
+    const days = mergeDaily(st, res.daily);
     const ev = giveBadge(st, 'garmin');
     app.save();
     toast(`Import: ${added} Aktivitäten${dup ? `, ${dup} doppelt übersprungen` : ''}, ${days} Tageswerte.`, 5000);

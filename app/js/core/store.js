@@ -1,5 +1,5 @@
 // Dauerhafter Speicher auf dem Gerät (IndexedDB, Fallback localStorage) + Sichern/Wiederherstellen.
-export const SCHEMA = 1;
+export const SCHEMA = 2;
 
 export function defaultState() {
   return {
@@ -10,11 +10,12 @@ export function defaultState() {
       unit: 'offen', targetDate: '2028-06-01',
       start: { run3000: 836, pullups: 11, pushups: 41, situps: 41, swim100: null },
       maxHR: null, onboarded: false,
+      targets: {}, // eigene Zielwerte { pullups: { goal, top } }
     },
-    week: { mode: 'arbeit', overrides: {} }, // overrides: { '2026-W45': 'schule' }
+    week: { mode: 'arbeit', overrides: {}, avail: {}, availDefault: null }, // overrides: { '2026-W45': 'schule' }, avail: Verfügbarkeit je Woche
     checkins: [], bodyweight: [], strength: [], runs: [], swims: [], tests: [],
     customExercises: [],
-    daily: [], // Garmin-Tageswerte {date, restHR, sleepH, bodyBattery, vo2max, steps, stress}
+    daily: [], // Garmin-Tageswerte {date, restHR, hrv, sleepH, bodyBattery, vo2max, load, steps, stress}
     done: {}, // { '2026-10-30': ['train', 'checkin', ...] }
     plan: { volFactor: 1, focus: [], group: 'C', lastAdapt: null, notes: [] },
     rewards: { points: 0, badges: {}, log: [] },
@@ -37,8 +38,11 @@ function merge(base, data) {
   return out;
 }
 
+// Ältere Sicherungen werden ergänzt, nie gekürzt: fehlende Felder bekommen Standardwerte.
 export function normalize(data) {
-  return merge(defaultState(), data || {});
+  const out = merge(defaultState(), data || {});
+  out.schema = SCHEMA;
+  return out;
 }
 
 const DB = 'trainings-app', STORE = 'kv', KEY = 'state';

@@ -1,14 +1,19 @@
 // Bereich Sport: Startseite (Countdown + Tagesbefehl), Plan, Kraft, Ausdauer, Test, Daten, Timer.
 import { h, card, iconBtn, modal, scale, field, micFor, ring, countUp, progressBar, toast, seg } from '../ui.js';
 import { iso, addDays, daysBetween, fmtDateLong, fmtDate, fmtMonth, fmtTime, TAGE_LANG, mondayOf, isoWeekKey, num, weekday } from '../core/util.js';
-import { plannedDay, weekPlan, phaseAt, NORMS, currentBest, normProgress } from '../core/plan.js';
-import { readiness, applyReadiness, CHECK_ITEMS } from '../core/readiness.js';
+import { phaseAt, normProgress } from '../core/plan.js';
+import { plannedDay, weekPlan } from '../core/planner.js';
+import { CHECK_ITEMS } from '../core/readiness.js';
+import { fmtVal } from '../core/weakness.js';
+import { renderAvailability } from './availability.js';
+import { REQ_STAND } from '../data/requirements.js';
 import { rankFor, streak } from '../core/rewards.js';
 import { exById, videoLink } from '../data/exercises.js';
 import { figure, FIGS } from './figures.js';
 import { renderKraft, logStrengthModal } from './kraft.js';
 import { renderAusdauer, logRunModal, renderDaten } from './ausdauer.js';
 import { renderTest } from './test.js';
+import { renderGarmin } from './garmin.js';
 import { renderTimer, openTimer } from './timer.js';
 import { voiceCommand } from './voice.js';
 import { nextLesson } from './sprache.js';
@@ -19,7 +24,8 @@ export const sportTabs = [
   { key: 'kraft', label: 'Kraft', render: renderKraft },
   { key: 'ausdauer', label: 'Ausdauer', render: renderAusdauer },
   { key: 'test', label: 'Test', render: renderTest },
-  { key: 'daten', label: 'Daten', render: renderDaten },
+  { key: 'garmin', label: 'Garmin', render: renderGarmin },
+  { key: 'daten', label: 'Gewicht', render: renderDaten },
   { key: 'timer', label: 'Timer', render: renderTimer },
 ];
 
@@ -27,9 +33,8 @@ const isDone = (state, date, id) => (state.done[date] || []).includes(id);
 function markDone(state, date, id) { const l = state.done[date] || (state.done[date] = []); if (!l.includes(id)) l.push(id); }
 
 export function todaySessions(state, date = iso()) {
-  const day = plannedDay(state, date);
-  const r = readiness(state, date);
-  return { day, r, sessions: applyReadiness(day.sessions, r) };
+  const day = plannedDay(state, date, { withReadiness: true });
+  return { day, r: day.readiness, sessions: day.sessions };
 }
 
 function renderHeute(el, app) {
@@ -90,15 +95,25 @@ function renderHeute(el, app) {
     h('div', { class: 'tile' }, h('i', {}, 'Punkte'), pts),
     h('div', { class: 'tile' }, h('i', {}, 'Rang'), h('b', { style: { fontSize: '17px', paddingTop: '6px' } }, rank.name.toUpperCase()))));
 
-  // Abstand zur Top-Norm
-  const best = currentBest(st);
-  const norms = ['run3000', 'pullups', 'pushups', 'situps', 'swim100'];
+  el.append(whyCard(day, true));
+
+  // Abstand zur Top-Norm (aktuellste Werte aus Tests, Läufen, Schwimmen, Kraft, Garmin)
   el.append(card(h('div', { class: 'k' }, '[ ABSTAND ZUR TOP-NORM ]'),
-    ...norms.map((k) => {
-      const n = NORMS[k], v = best[k]; const f = (x) => (n.unit === 'zeit' ? fmtTime(x) : x);
-      return h('div', {}, h('div', { class: 'm' }, `${n.label.toUpperCase()}  ${v != null ? f(v) : '—'} → ${f(n.top)}`), progressBar(normProgress(k, v) || 0, normProgress(k, n.goal)));
-    }),
-    h('div', { class: 'm' }, 'Strich = Richtwert aus den Handbüchern. Aktuelle offizielle Normen bei Bundeswehr/Bundespolizei prüfen.')));
+    ...day.weak.filter((w) => w.gap != null).slice(0, 7).map((w) => h('div', {},
+      h('div', { class: 'm' }, `${w.label.toUpperCase()}  ${fmtVal(w.norm, w.value)} → ${fmtVal(w.norm, w.norm.top)}`),
+      progressBar(1 - w.gap, normProgress(w.norm, w.norm.goal)))),
+    h('div', { class: 'm' }, `Strich = Ziel. Zielwerte: ${st.profile.unit === 'offen' ? 'strengster Wert aus KSK/EGB/GSG 9' : st.profile.unit} (Stand ${REQ_STAND}, änderbar unter Einstellungen).`)));
+}
+
+// „Warum so?“ – Begründung der automatischen Anpassung
+export function whyCard(day, compact = false) {
+  const lines = [...day.why, ...day.availNotes.map((n) => 'Verfügbarkeit: ' + n)];
+  if (day.readiness && day.readiness.mode !== 'normal' && day.readiness.mode !== 'offen') lines.push('Schonmodus: ' + day.readiness.reasons[0]);
+  const missing = day.weak.filter((w) => w.gap == null && ['run3000', 'pullups', 'pushups', 'situps', 'swim100', 'ruck7'].includes(w.key)).map((w) => w.label);
+  if (missing.length) lines.push('Noch keine aktuellen Werte für: ' + missing.join(', ') + ' – beim nächsten Test eintragen.');
+  if (!lines.length) lines.push('Keine Schwäche mit großer Lücke – Plan läuft nach Phase und Wochenregeln.');
+  return card(h('div', { class: 'k' }, '[ WARUM SO? ]'), h('ul', { class: 'plain small' }, (compact ? lines.slice(0, 4) : lines).map((l) => h('li', {}, l))),
+    day.violations?.length ? h('p', { class: 'bad' }, 'Regelkonflikt: ' + day.violations.join('; ')) : null);
 }
 
 function toggleWeek(app, date) {
@@ -143,11 +158,14 @@ export function openSession(app, s, date, idx) {
       if (b.ex) for (const e of b.ex) {
         const ex = exById(e.id, st.customExercises);
         if (!ex) continue;
+        const orig = e.orig ? exById(e.orig, st.customExercises) : null;
         c.append(h('div', { class: 'row between mt', style: { borderTop: '1px solid var(--line2)', paddingTop: '8px' } },
-          h('div', { class: 'grow' }, h('b', {}, ex.name), h('div', { class: 'm' }, `${e.sets} × ${e.reps} · Pause ${e.rest} s`)),
+          h('div', { onclick: () => showExercise(ex), style: { cursor: 'pointer' } }, figure(ex.fig, { thumb: true })),
+          h('div', { class: 'grow' }, h('b', {}, ex.name), h('div', { class: 'm' }, `${e.sets} × ${e.reps} · Pause ${e.rest} s`), orig ? h('div', { class: 'm olive' }, `ERSATZ FÜR ${orig.name.toUpperCase()}`) : null),
           h('button', { class: 'btn s', onclick: () => showExercise(ex) }, 'Ablauf'),
           h('button', { class: 'btn s', onclick: () => logStrengthModal(app, ex, { date, range: e.reps, sets: e.sets, rest: e.rest }) }, 'Eintragen')));
       }
+      if (s.code === 'KICKBOX' && b === s.blocks[0]) c.append(h('div', { style: { maxWidth: '200px' } }, figure('kickbox')));
       if (b.timer) c.append(h('button', { class: 'btn o', onclick: () => openTimer(app, b.timer) }, '> Intervall-Timer starten'));
       wrap.append(c);
     }
@@ -162,7 +180,7 @@ export function openSession(app, s, date, idx) {
 
 export function showExercise(ex) {
   modal(() => h('div', {}, h('div', { class: 'k' }, '[ AUSFÜHRUNG ]'), h('h2', {}, ex.name),
-    FIGS[ex.fig] ? figure(ex.fig) : h('div', { class: 'm' }, 'Keine Animation für diese Übung.'),
+    figure(ex.fig),
     h('p', {}, ex.cue || ''),
     h('a', { class: 'btn', href: videoLink(ex.name), target: '_blank', rel: 'noopener' }, 'Videos ansehen (YouTube)'),
     h('p', { class: 'm' }, 'Hinweis: Videos stammen von Dritten. Im Zweifel einen Trainer im Studio fragen.')));
@@ -195,19 +213,24 @@ function renderPlan(el, app) {
   const wc = card();
   week.forEach((d) => {
     const isToday = d.date === today;
-    const r = d.date === today ? readiness(st, today) : null;
-    const sess = r ? applyReadiness(d.sessions, r) : d.sessions;
+    const sess = d.sessions;
     wc.append(h('div', { style: { padding: '8px 0', borderBottom: '1px solid var(--line2)' } },
       h('div', { class: 'm ' + (isToday ? 'sand' : '') }, `${TAGE_LANG[weekday(d.date)].toUpperCase()} ${fmtDate(d.date)}${isToday ? ' · HEUTE' : ''}${(st.done[d.date] || []).includes('train') ? ' · ✓' : ''}`),
       ...sess.map((s, i) => h('div', { style: { cursor: 'pointer' }, onclick: () => openSession(app, s, d.date, i) }, h('b', {}, s.title), h('span', { class: 'm' }, ' ' + s.sub)))));
   });
   el.append(wc);
+  el.append(renderAvailability(app, ref, () => { el.replaceChildren(); renderPlan(el, app); }));
+  const agg = { ...week[0], why: week[0].why, availNotes: week.flatMap((d) => d.availNotes.map((n) => `${TAGE_LANG[weekday(d.date)].slice(0, 2)}: ${n}`)), violations: week.flatMap((d) => d.violations), readiness: null };
+  el.append(whyCard(agg));
+  el.append(card(h('div', { class: 'k' }, '[ FESTE WOCHENREGELN ]'), h('ul', { class: 'plain small dim' },
+    h('li', {}, 'Mo–Do: Krafttraining und Schwimmen erlaubt'), h('li', {}, 'Di + Do: Kickboxen (fester Termin), davor nur leichte Einheit ohne Beine'),
+    h('li', {}, 'Fr: Ruhetag (höchstens Mobility)'), h('li', {}, 'Sa + So: kein Kraft, kein Schwimmen – Laufen, Marsch, Kopftraining'))));
   el.append(h('div', { class: 'row mt' }, h('span', { class: 'm' }, 'Standard für neue Wochen:'), seg([['arbeit', 'Arbeit'], ['schule', 'Schule']], st.week.mode, (m) => { st.week.mode = m; app.save(); el.replaceChildren(); renderPlan(el, app); })));
 
   // Anpassung
   const pl = st.plan;
   el.append(card(h('div', { class: 'k' }, '[ AUTOMATISCHE ANPASSUNG ]'),
-    h('div', { class: 'grid3 mt' }, h('div', { class: 'tile' }, h('i', {}, 'Umfang'), h('b', {}, Math.round(pl.volFactor * 100) + '%')), h('div', { class: 'tile' }, h('i', {}, 'Leistungsgr.'), h('b', {}, pl.group)), h('div', { class: 'tile' }, h('i', {}, 'Fokus'), h('b', { style: { fontSize: '15px' } }, pl.focus.length ? pl.focus.map((k) => NORMS[k].label).join(', ') : '—'))),
+    h('div', { class: 'grid3 mt' }, h('div', { class: 'tile' }, h('i', {}, 'Umfang'), h('b', {}, Math.round(pl.volFactor * 100) + '%')), h('div', { class: 'tile' }, h('i', {}, 'Leistungsgr.'), h('b', {}, pl.group)), h('div', { class: 'tile' }, h('i', {}, 'Fokus'), h('b', { style: { fontSize: '15px' } }, week[0].focus.length ? week[0].focus.map((f) => f.label).join(', ') : '—'))),
     pl.notes.length ? h('ul', { class: 'plain' }, pl.notes.map((n) => h('li', { class: 'small' }, n))) : h('p', { class: 'm' }, 'Nach jedem Monatstest passt sich der Plan an: Umfang, Fokus-Disziplin, Leistungsgruppe.')));
   el.append(card(h('div', { class: 'k' }, '[ ABKÜRZUNGEN (KSK-HANDBUCH) ]'), h('div', { class: 'small dim' },
     'TB1 Grundlage · TB2 Tempo · TB3 Schwelle · TB4 anaerob · TB-R Regeneration · K1 Kraftausdauer · K2 Muskelaufbau · K4 Maximalkraft · MT1–3 Marsch leicht–schwer · ST Schwimmen · KT Koordination · CAL Liegestütz/Sit-up/Klimmzug')));

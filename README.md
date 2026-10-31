@@ -16,6 +16,13 @@ Alle Daten bleiben auf dem Handy (IndexedDB), Sichern/Wiederherstellen als Datei
 - **Sprache:** Englisch ab null (26 Wochen, 3 Phasen, 18 Einheiten) · Karteikarten inkl. Funkvokabular · Gespräche per Mikrofon · Überlebens-Sets für 5 weitere Sprachen
 - **Kurse:** Kompass & Karte, Rucksack, Waffenkunde, NATO-Alphabet, Dienstgrade, Sprechfunk, Erste Hilfe, Tarnen, Verhalten im Auswahlverfahren
 
+## Planung (Stand Version 2)
+- **Feste Wochenregeln:** Mo–Do Kraft und Schwimmen · Di/Do Kickboxen (davor nur leichte Einheit ohne Beine) · Fr Ruhetag · Sa/So kein Kraft, kein Schwimmen. Jeder Tag wird nach allen Anpassungen gegen diese Regeln geprüft.
+- **Anforderungen zentral:** `app/js/data/requirements.js` (Zielwerte je Einheit, Wochenregeln). Eigene Werte in der App unter Einstellungen → Zielwerte.
+- **Schwächen:** aktuelle Werte (Tests, Läufe, Schwimmen, Marsch, Kraft, Garmin-VO2max) gegen Zielwerte; die größten Lücken bekommen Zusatzvolumen. Begründung im Plan unter „Warum so?“.
+- **Verfügbarkeit pro Woche:** Plan → „Verfügbar in KW …“. Übungen werden ersetzt, Einheiten auf die verfügbare Zeit gekürzt.
+- **Garmin:** Reiter Sport → Garmin. Manuelle Eingabe, Datei-Import, Verläufe. HRV, Schlaf und Belastung senken bei Bedarf die Intensität. Automatische Anbindung: siehe `docs/garmin-anbindung.md`.
+
 ## Entwicklung
 - App liegt in `app/` (reines HTML/CSS/JS, kein Build nötig). Nach Änderungen `node tools/build-sw.mjs` ausführen (Offline-Cache).
 - Tests: `node --test tests/*.test.mjs` (Logik) und `node tests/e2e.cjs http://localhost:8765/` (Browser, App vorher mit `cd app && python3 -m http.server 8765` starten).

@@ -27,10 +27,16 @@ export function readiness(state, date) {
   const g = state.daily.find((x) => x.date === date);
   const reasons = [];
   let mode = 'normal', doctor = false, score = null;
-  if (!c) return { mode: 'offen', score: null, percent: null, reasons: ['Check-in noch offen'], doctor: false };
+  const up = (m) => { const order = ['normal', 'leicht', 'pause']; if (order.indexOf(m) > order.indexOf(mode)) mode = m; };
+  // Ohne Check-in zählen nur die Garmin-Werte des Tages
+  if (!c) {
+    if (g) garminRules(state, date, g, up, reasons);
+    if (mode === 'normal') return { mode: 'offen', score: null, percent: null, reasons: ['Check-in noch offen'], doctor: false };
+    reasons.push('Check-in noch offen');
+    return { mode, score: null, percent: null, reasons, doctor: false };
+  }
   score = c.schlaf + c.energie + c.stimmung + (6 - c.kater) + (6 - c.schmerz); // 5..25
   const percent = Math.round(((score - 5) / 20) * 100);
-  const up = (m) => { const order = ['normal', 'leicht', 'pause']; if (order.indexOf(m) > order.indexOf(mode)) mode = m; };
 
   if (c.schmerz >= 4) { up('pause'); doctor = true; reasons.push('Starke Schmerzen: heute Pause. Bei anhaltenden Schmerzen ärztlich abklären lassen.'); }
   else if (c.schmerz === 3) { up('leicht'); reasons.push('Schmerzen: betroffene Region schonen, nur leichte Belastung.'); }
@@ -39,17 +45,17 @@ export function readiness(state, date) {
     if (streak) { doctor = true; reasons.push('Schmerzen seit 3 Tagen: bitte ärztlich abklären lassen.'); }
   }
   const hr = c.ruhepuls || g?.restHR;
-  const base = restHRBaseline(state, date);
-  if (hr && base) {
-    if (hr >= base + 10) { up('pause'); reasons.push(`Ruhepuls ${hr} deutlich über deinem Schnitt (${Math.round(base)}): Pause.`); }
-    else if (hr >= base + 7) { up('leicht'); reasons.push(`Ruhepuls ${hr} erhöht (Schnitt ${Math.round(base)}): leichter trainieren.`); }
+  const hrBase = restHRBaseline(state, date);
+  if (hr && hrBase) {
+    if (hr >= hrBase + 10) { up('pause'); reasons.push(`Ruhepuls ${hr} deutlich über deinem Schnitt (${Math.round(hrBase)}): Pause.`); }
+    else if (hr >= hrBase + 7) { up('leicht'); reasons.push(`Ruhepuls ${hr} erhöht (Schnitt ${Math.round(hrBase)}): leichter trainieren.`); }
   }
   if (score <= 11) { up('pause'); reasons.push('Check-in sehr schlecht: aktive Erholung statt Training.'); }
   else if (score <= 15) { up('leicht'); reasons.push('Check-in mäßig: Umfang und Intensität runter.'); }
   if (c.schlaf === 1) { up('leicht'); reasons.push('Kaum geschlafen: keine harte Einheit.'); }
   else if (c.schlaf <= 2 && c.energie <= 2 && score > 15) { up('leicht'); reasons.push('Wenig Schlaf und wenig Energie: heute leichter.'); }
   if (c.kater >= 4) { up('leicht'); reasons.push('Starker Muskelkater: betroffene Muskeln heute nicht belasten.'); }
-  if (g?.bodyBattery != null && g.bodyBattery < 25) { up('leicht'); reasons.push(`Body Battery ${g.bodyBattery}: leicht trainieren.`); }
+  if (g) garminRules(state, date, g, up, reasons);
 
   // Stimmung über mehrere Tage sehr schlecht → Hinweis auf Hilfe (elite-mind-supplement-coach)
   const lowMood = [0, 1, 2, 3, 4].map((i) => state.checkins.find((x) => x.date === addDays(date, -i))).filter(Boolean).filter((x) => x.stimmung <= 1).length;
@@ -63,6 +69,19 @@ export function readiness(state, date) {
   return { mode, score, percent, reasons, doctor, moodHelp, deloadHint };
 }
 
+// Garmin-Werte: Body Battery, HRV (gegen eigenen 28-Tage-Schnitt), Schlaf, Trainingsbelastung
+function garminRules(state, date, g, up, reasons) {
+  const avg = (k) => { const v = []; for (let i = 1; i <= 28; i++) { const x = state.daily.find((d) => d.date === addDays(date, -i))?.[k]; if (x) v.push(x); } return v.length >= 5 ? median(v) : null; };
+  if (g.bodyBattery != null && g.bodyBattery < 25) { up('leicht'); reasons.push(`Body Battery ${g.bodyBattery}: leicht trainieren.`); }
+  if (g.hrv) {
+    const b = avg('hrv');
+    if (b && g.hrv < b * 0.75) { up('pause'); reasons.push(`HRV ${g.hrv} ms deutlich unter deinem Schnitt (${Math.round(b)} ms): Pause, nur Spaziergang.`); }
+    else if (b && g.hrv < b * 0.88) { up('leicht'); reasons.push(`HRV ${g.hrv} ms unter deinem Schnitt (${Math.round(b)} ms): Intensität runter.`); }
+  }
+  if (g.sleepH != null && g.sleepH < 5) { up('leicht'); reasons.push(`Nur ${g.sleepH} h Schlaf (Garmin): heute keine harte Einheit.`); }
+  if (g.load) { const b = avg('load'); if (b && g.load > b * 1.5) { up('leicht'); reasons.push(`Trainingsbelastung ${g.load} deutlich über deinem Schnitt (${Math.round(b)}): Belastung reduzieren.`); } }
+}
+
 // Session an den Schonmodus anpassen
 export function applyReadiness(sessions, r) {
   if (!r || r.mode === 'normal' || r.mode === 'offen') return sessions;
@@ -72,6 +91,8 @@ export function applyReadiness(sessions, r) {
   }
   return sessions.map((s) => {
     if (s.rest) return s;
+    if (s.fixed) return { ...s, title: s.title + ' (nur Technik)', sub: 'Schonmodus · kein Sparring, keine harten Runden', schon: true,
+      blocks: [{ kind: 'main', title: 'Schonmodus', lines: ['Hingehen, aber nur Technik und Pratzen locker.', 'Kein Sparring. Dem Trainer kurz Bescheid sagen.'] }] };
     if (s.run || s.ruck || s.test || ['TB3', 'TB4', 'K4', 'ZIRKEL', 'EILMARSCH'].includes(s.code)) {
       return { ...s, code: 'TBR', title: 'Schonmodus: lockere Einheit', sub: 'statt ' + s.title, min: 30, schon: true,
         blocks: [{ kind: 'main', title: 'Leicht statt hart', lines: ['20–30 min sehr locker (Puls unter 125) oder Rad/Schwimmen locker', 'Mobilität und Faszienrolle 10 min', 'Geplante Einheit nicht nachholen, der Plan läuft weiter.'] }] };

@@ -43,9 +43,34 @@ const shots = process.argv[3] || null;
     while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
   });
 
-  for (const tab of ['plan', 'kraft', 'ausdauer', 'test', 'daten', 'timer']) {
+  for (const tab of ['plan', 'kraft', 'ausdauer', 'test', 'garmin', 'daten', 'timer']) {
     await step('Sport/' + tab, async () => { await page.goto(url + '#/sport/' + tab); await page.waitForTimeout(400); await shot('sport-' + tab); });
   }
+  await step('Verfügbarkeit: kein Studio, kein Bad', async () => {
+    await page.goto(url + '#/sport/plan'); await page.waitForTimeout(300);
+    await page.locator('.chip', { hasText: 'Fitnessstudio' }).click(); await page.waitForTimeout(300);
+    await page.locator('.chip', { hasText: 'Schwimmbad' }).click(); await page.waitForTimeout(300);
+    const txt = await page.locator('.card', { hasText: 'WARUM SO?' }).innerText();
+    if (!/Verfügbarkeit/.test(txt)) throw new Error('Keine Begründung zur Verfügbarkeit');
+    if (/Regelkonflikt/.test(await page.content())) throw new Error('Regelkonflikt angezeigt');
+    await shot('plan-verfuegbarkeit');
+    await page.locator('.chip', { hasText: 'Fitnessstudio' }).click(); await page.waitForTimeout(200);
+    await page.locator('.chip', { hasText: 'Schwimmbad' }).click(); await page.waitForTimeout(200);
+  });
+  await step('Garmin-Werte manuell', async () => {
+    await page.goto(url + '#/sport/garmin'); await page.waitForTimeout(300);
+    await page.getByText('+ Werte heute').click();
+    const f = page.locator('.full input[inputmode=decimal]');
+    await f.nth(0).fill('52'); await f.nth(1).fill('61'); await f.nth(2).fill('7,5');
+    await page.locator('.full').getByText('> Speichern').click(); await page.waitForTimeout(400);
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    await shot('garmin');
+  });
+  await step('Animationen neben Übungen', async () => {
+    await page.goto(url + '#/sport/kraft'); await page.waitForTimeout(400);
+    const n = await page.locator('.list li').count(), t = await page.locator('.list li svg.fig.thumb').count();
+    if (n === 0 || t < n) throw new Error(`Nur ${t} von ${n} Übungen mit Animation/Platzhalter`);
+  });
   await step('Kraft eintragen', async () => {
     await page.goto(url + '#/sport/kraft'); await page.waitForTimeout(300);
     await page.getByText('Klimmzüge (Ristgriff)').first().click();

@@ -5,6 +5,7 @@ import { iso, fmtTime, parseTime, num, fmtDate } from '../core/util.js';
 import { enableReminders, icsFile } from './reminders.js';
 import { giveBadge } from '../core/rewards.js';
 import { celebrate } from '../ui.js';
+import { getNorms, UNITS as REQ_UNITS, REQ_STAND } from '../data/requirements.js';
 
 const UNITS = [['offen', 'Offen'], ['KSK', 'KSK'], ['GSG 9', 'GSG 9'], ['EGB', 'EGB'], ['Kampfschwimmer', 'Kampfschw.']];
 
@@ -61,6 +62,7 @@ export function openSettings(app) {
         h('div', { class: 'm mt' }, 'ANSPRACHE'), seg([['du', 'Du'], ['name', 'Mit Name'], ['rang', 'Mit Dienstgrad']], anrede, (a) => { anrede = a; }),
         field('Name', name), h('div', { class: 'grid2' }, field('Größe (cm)', height), field('Max. Puls', maxhr)),
         h('button', { class: 'btn', onclick: () => { saveProfile(); toast('Gespeichert.'); app.refresh(); } }, 'Speichern')),
+      targetsCard(app),
       card(h('div', { class: 'k' }, '[ ERINNERUNGEN ]'),
         h('div', { class: 'grid2' }, field('Morgens Check-in', mo), field('Abends Mental', ev)),
         h('button', { class: 'btn ' + (s.remindOn ? 'o' : 'f'), onclick: async () => { saveProfile(); try { await enableReminders(app); toast('Benachrichtigungen an.'); } catch (e) { toast(e.message, 4000); } } }, s.remindOn ? 'Benachrichtigungen sind an ✓' : 'Benachrichtigungen erlauben'),
@@ -99,4 +101,36 @@ async function restore(app, closeSettings) {
     await store.replaceState(next);
     closeSettings(); toast('Wiederhergestellt.'); app.refresh();
   } catch (e) { toast('Datei ungültig: ' + e.message, 4000); }
+}
+
+// Zielwerte: wirksame Werte anzeigen, eigene Werte setzen (überschreiben die Konfiguration)
+function targetsCard(app) {
+  const p = store.state.profile;
+  const norms = getNorms(p);
+  const fmt = (n, v) => (v == null ? '' : n.unit === 'zeit' ? fmtTime(v) : String(v));
+  const parse = (n, v) => (v.trim() === '' ? null : n.unit === 'zeit' ? parseTime(v) : num(v));
+  const rows = {};
+  const list = h('div', {}, ...Object.entries(norms).map(([k, n]) => {
+    const goal = h('input', { value: fmt(n, n.goal), placeholder: n.unit === 'zeit' ? 'mm:ss' : '', style: { padding: '6px' } });
+    const top = h('input', { value: fmt(n, n.top), placeholder: n.unit === 'zeit' ? 'mm:ss' : '', style: { padding: '6px' } });
+    rows[k] = { n, goal, top };
+    return h('div', { style: { borderTop: '1px solid var(--line2)', padding: '6px 0' } }, h('div', { class: 'row between' }, h('b', { class: 'small' }, n.label), h('span', { class: 'm' }, n.src)),
+      h('div', { class: 'grid2' }, h('label', {}, h('span', { class: 'm' }, 'ZIEL'), goal), h('label', {}, h('span', { class: 'm' }, 'TOP 0,1 %'), top)));
+  }));
+  const unitInfo = p.unit !== 'offen' && REQ_UNITS[p.unit] ? REQ_UNITS[p.unit] : null;
+  return card(h('div', { class: 'k' }, '[ ZIELWERTE ]'),
+    h('p', { class: 'small dim' }, `Grundlage: ${unitInfo ? unitInfo.name + ' – ' + unitInfo.quelle : 'strengster Wert aus KSK, EGB und GSG 9'} (Stand ${REQ_STAND}). Eigene Werte haben Vorrang. Neue Anforderungen kannst du hier eintragen – der Plan passt sich sofort an.`),
+    unitInfo ? h('ul', { class: 'plain small dim' }, unitInfo.hinweise.map((x) => h('li', {}, x))) : null,
+    h('details', {}, h('summary', { class: 'm', style: { cursor: 'pointer' } }, 'ZIELWERTE ANZEIGEN / ÄNDERN'), list,
+      h('button', { class: 'btn f', onclick: () => {
+        const t = {};
+        for (const [k, r] of Object.entries(rows)) {
+          const g = parse(r.n, r.goal.value), tp = parse(r.n, r.top.value);
+          const base = getNorms({ ...p, targets: {} })[k];
+          const o = {}; if (g != null && g !== base.goal) o.goal = g; if (tp != null && tp !== base.top) o.top = tp;
+          if (Object.keys(o).length) t[k] = o;
+        }
+        p.targets = t; store.save(); toast('Zielwerte gespeichert. Plan neu berechnet.'); app.refresh();
+      } }, 'Zielwerte speichern'),
+      h('button', { class: 'btn', onclick: () => { p.targets = {}; store.save(); toast('Zurück auf Standard.'); app.refresh(); } }, 'Auf Standard zurücksetzen')));
 }

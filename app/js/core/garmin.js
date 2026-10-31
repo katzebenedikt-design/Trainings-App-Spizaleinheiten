@@ -141,6 +141,8 @@ export function parseCSV(txt) {
   const cSleep = col('schlaf', 'sleep');
   const cBB = col('body battery');
   const cVO2 = col('vo2', 'vo2max', 'vo2 max');
+  const cHRV = col('hrv', 'herzfrequenzvariabilität', 'nächtliche hrv', 'overnight hrv');
+  const cLoad = col('trainingsbelastung', 'training load', 'akute belastung', 'acute load');
   const acts = [], daily = [];
   for (const r of rows.slice(1)) {
     const rawDate = cDate >= 0 ? r[cDate] : null;
@@ -152,9 +154,9 @@ export function parseCSV(txt) {
       let dist = numDE(r[cDist]);
       if (dist != null) dist = sport === 'schwimmen' && dist > 20 ? dist : dist * 1000; // Schwimmen meist in m, sonst km
       acts.push({ start: d, sport, distM: dist, durSec: timeToSec(r[cTime]), avgHR: cHR >= 0 ? numDE(r[cHR]) : null });
-    } else if (cRest >= 0 || cSleep >= 0 || cBB >= 0 || cVO2 >= 0) {
+    } else if (cRest >= 0 || cSleep >= 0 || cBB >= 0 || cVO2 >= 0 || cHRV >= 0 || cLoad >= 0) {
       const sl = cSleep >= 0 ? r[cSleep] : null;
-      daily.push({ date: toIso(d), restHR: cRest >= 0 ? numDE(r[cRest]) : null, sleepH: sl ? (sl.includes(':') ? timeToSec(sl) / 3600 * (sl.split(':').length === 2 ? 60 : 1) : numDE(sl)) : null, bodyBattery: cBB >= 0 ? numDE(r[cBB]) : null, vo2max: cVO2 >= 0 ? numDE(r[cVO2]) : null });
+      daily.push({ date: toIso(d), restHR: cRest >= 0 ? numDE(r[cRest]) : null, sleepH: sl ? (sl.includes(':') ? timeToSec(sl) / 3600 * (sl.split(':').length === 2 ? 60 : 1) : numDE(sl)) : null, bodyBattery: cBB >= 0 ? numDE(r[cBB]) : null, vo2max: cVO2 >= 0 ? numDE(r[cVO2]) : null, hrv: cHRV >= 0 ? numDE(r[cHRV]) : null, load: cLoad >= 0 ? numDE(r[cLoad]) : null });
     }
   }
   return { acts, daily };
@@ -213,10 +215,10 @@ const dateOf = (v) => {
 
 // Sammelt Tageswerte und Aktivitäten aus beliebig verschachtelten Garmin-JSON-Dateien
 export function harvestGarminJSON(json, name, acc) {
-  const walk = (o) => {
-    if (Array.isArray(o)) { o.forEach(walk); return; }
+  const walk = (o, parentDay = null) => {
+    if (Array.isArray(o)) { o.forEach((x) => walk(x, parentDay)); return; }
     if (!o || typeof o !== 'object') return;
-    const day = dateOf(o.calendarDate?.date || o.calendarDate || o.sleepStartTimestampLocal || o.summaryDate);
+    const day = dateOf(o.calendarDate?.date || o.calendarDate || o.sleepStartTimestampLocal || o.summaryDate) || parentDay;
     // Aktivitäten (summarizedActivities)
     if (o.activityType && (o.duration != null || o.distance != null) && (o.startTimeLocal || o.beginTimestamp)) {
       const t = (o.activityType.typeKey || o.activityType || '').toString().toLowerCase();
@@ -235,6 +237,10 @@ export function harvestGarminJSON(json, name, acc) {
       if (o.vo2MaxValue || o.vo2Max) d.vo2max = o.vo2MaxValue || o.vo2Max;
       if (o.totalSteps) d.steps = o.totalSteps;
       if (o.averageStressLevel > 0) d.stress = o.averageStressLevel;
+      if (o.lastNightAvg > 0) d.hrv = o.lastNightAvg;
+      else if (o.hrvValue > 0 && !d.hrv) d.hrv = o.hrvValue;
+      const load = o.acuteTrainingLoad ?? o.dailyTrainingLoadAcute ?? o.acwrDailyLoad;
+      if (load > 0) d.load = Math.round(load);
       if (o.bodyBatteryHighestValue != null) d.bodyBattery = o.bodyBatteryHighestValue;
       if (Array.isArray(o.bodyBatteryStatList)) {
         const hi = o.bodyBatteryStatList.find((x) => /HIGHEST|MAX/i.test(x.bodyBatteryStatType || ''));
@@ -242,7 +248,7 @@ export function harvestGarminJSON(json, name, acc) {
         if (wake?.statsValue != null) d.bodyBattery = wake.statsValue; else if (hi?.statsValue != null) d.bodyBattery = hi.statsValue;
       }
     }
-    for (const v of Object.values(o)) if (v && typeof v === 'object') walk(v);
+    for (const v of Object.values(o)) if (v && typeof v === 'object') walk(v, day);
   };
   walk(json);
   return acc;
@@ -251,7 +257,7 @@ export function harvestGarminJSON(json, name, acc) {
 export async function parseGarminZip(buf, onProgress) {
   const entries = zipEntries(buf);
   const acc = { acts: [], daily: {}, files: 0, fit: 0 };
-  const json = entries.filter((e) => /\.json$/i.test(e.name) && /(sleep|uds|wellness|metrics|maxmet|summarized|fitness|hydration|healthstatus|trainingreadiness)/i.test(e.name));
+  const json = entries.filter((e) => /\.json$/i.test(e.name) && /(sleep|uds|wellness|metrics|maxmet|summarized|fitness|hrv|healthstatus|trainingreadiness|trainingload|acute)/i.test(e.name));
   const fits = entries.filter((e) => /\.fit$/i.test(e.name));
   let i = 0;
   for (const e of json) {
@@ -274,4 +280,17 @@ export async function importFile(file, onProgress) {
   if (name.endsWith('.zip')) return parseGarminZip(await file.arrayBuffer(), onProgress);
   if (name.endsWith('.json')) { const acc = { acts: [], daily: {} }; harvestGarminJSON(JSON.parse(await file.text()), name, acc); return { acts: acc.acts, daily: Object.values(acc.daily) }; }
   throw new Error('Dateityp nicht unterstützt (FIT, GPX, TCX, CSV, JSON, ZIP)');
+}
+
+// Tageswerte in den Speicher übernehmen (Datei-Import, manuelle Eingabe, später API). Vorhandenes wird ergänzt, nicht gelöscht.
+export function mergeDaily(state, rows) {
+  let n = 0;
+  for (const d of rows) {
+    if (!d?.date) continue;
+    const clean = Object.fromEntries(Object.entries(d).filter(([, v]) => v != null && v !== ''));
+    const i = state.daily.findIndex((x) => x.date === d.date);
+    if (i >= 0) state.daily[i] = { ...state.daily[i], ...clean }; else state.daily.push(clean);
+    n++;
+  }
+  return n;
 }

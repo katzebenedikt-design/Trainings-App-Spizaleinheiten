@@ -1,6 +1,6 @@
 // Monatlicher Leistungstest mit Diagrammen; danach passt sich der Plan an.
 import { h, card, modal, field, micFor, lineChart, toast, confirmBox, iconBtn, seg } from '../ui.js';
-import { TEST_FIELDS, NORMS, score7D, adaptAfterTest, currentBest } from '../core/plan.js';
+import { TEST_FIELDS, getNorms, score7D, adaptAfterTest, currentBest } from '../core/plan.js';
 import { iso, fmtDate, fmtTime, parseTime, num, sortByDate } from '../core/util.js';
 import { uid } from '../core/store.js';
 
@@ -10,7 +10,7 @@ export function renderTest(el, app) {
   const st = app.state;
   const tests = sortByDate(st.tests);
   el.append(h('div', { class: 'k mt' }, '[ MONATLICHER LEISTUNGSTEST ]'),
-    h('p', { class: 'small dim' }, 'Jede 4. Woche (Entlastungswoche, Samstag). Ausgeruht, gleiche Bedingungen, gleiche Reihenfolge. Danach passt sich der Plan automatisch an.'),
+    h('p', { class: 'small dim' }, 'Jede 4. Woche in der Entlastungswoche: Mittwoch Kraft & Schwimmen, Samstag 3000 m. Ausgeruht, gleiche Bedingungen, gleiche Reihenfolge. Danach passt sich der Plan automatisch an.'),
     h('button', { class: 'btn f', onclick: () => testModal(app) }, '+ Test eintragen'));
 
   if (tests.length) {
@@ -23,6 +23,7 @@ export function renderTest(el, app) {
   }
 
   const start = st.profile.start;
+  const NORMS = getNorms(st.profile);
   for (const k of ['run3000', 'pullups', 'pushups', 'situps', 'swim100', 'ruck7']) {
     const n = NORMS[k];
     const pts = [];

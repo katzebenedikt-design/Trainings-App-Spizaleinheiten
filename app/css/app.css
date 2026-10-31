@@ -206,6 +206,9 @@ nav.bottom { max-width: 100%; }
 
 /* Figuren */
 .fig { width: 100%; max-width: 360px; display: block; margin: 0 auto; }
+.fig.thumb { width: 64px; height: 50px; max-width: none; margin: 0; flex: none; border: 1px solid var(--line2); background: #0d0f0a; }
+.fig.thumb .bone { stroke-width: 7; }
+.fig.thumb .head { stroke-width: 5; }
 .fig .bone { stroke: var(--sand); stroke-width: 4; stroke-linecap: round; fill: none; }
 .fig .joint { fill: var(--olive); }
 .fig .head { stroke: var(--sand); stroke-width: 3; fill: var(--bg); }
