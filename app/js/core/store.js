@@ -1,5 +1,5 @@
 // Dauerhafter Speicher auf dem Gerät (IndexedDB, Fallback localStorage) + Sichern/Wiederherstellen.
-export const SCHEMA = 2;
+export const SCHEMA = 3;
 
 export function defaultState() {
   return {
@@ -11,6 +11,7 @@ export function defaultState() {
       start: { run3000: 836, pullups: 11, pushups: 41, situps: 41, swim100: null },
       maxHR: null, onboarded: false,
       targets: {}, // eigene Zielwerte { pullups: { goal, top } }
+      av: { bestanden: null, ausbildungStart: null, spez: 'beide' }, // Schalter „AV bestanden“
     },
     week: { mode: 'arbeit', overrides: {}, avail: {}, availDefault: null }, // overrides: { '2026-W45': 'schule' }, avail: Verfügbarkeit je Woche
     checkins: [], bodyweight: [], strength: [], runs: [], swims: [], tests: [],
@@ -27,6 +28,7 @@ export function defaultState() {
     lang: { active: 'en', langs: {} },
     cards: {}, // Karteikarten-Status { cardId: { box, due } }
     courses: {},
+    av: { lessons: {}, exams: {} }, // Wissenskurse „Nach dem AV“
     settings: { remindMorning: '06:00', remindEvening: '21:00', remindOn: false, voice: true, lastBackup: null, lastRemind: {} },
   };
 }

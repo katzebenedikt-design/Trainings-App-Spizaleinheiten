@@ -17,7 +17,8 @@ Alle Daten bleiben auf dem Handy (IndexedDB), Sichern/Wiederherstellen als Datei
 - **Kurse:** Kompass & Karte, Rucksack, Waffenkunde, NATO-Alphabet, Dienstgrade, Sprechfunk, Erste Hilfe, Tarnen, Verhalten im Auswahlverfahren
 
 ## Planung (Stand Version 2)
-- **Feste Wochenregeln:** Mo–Do Kraft und Schwimmen · Di/Do Kickboxen (davor nur leichte Einheit ohne Beine) · Fr Ruhetag · Sa/So kein Kraft, kein Schwimmen. Jeder Tag wird nach allen Anpassungen gegen diese Regeln geprüft.
+- **Feste Wochenregeln:** Mo Kraft + Lauf · Di Prophylaxe + Kickboxen · Mi Schwimmen · Do Oberkörper moderat + Kickboxen · Fr Ruhetag (Heimfahrt) · Sa Marsch/Intervalle · So langer Lauf. Kraft und Schwimmen nie am selben Tag, an Kickbox-Tagen kein Laufen/Schwimmen, am Wochenende kein Kraft/Schwimmen. Jeder Tag wird nach allen Anpassungen gegen diese Regeln geprüft.
+- **Nach dem AV:** Bereich mit 5. Symbol unten. Schalter „AV bestanden“ startet 2 Wochen Erholung, danach Maximalkraft, Griff, schweres Tragen und Spezialisierungsblock (Breacher/Waffenspezialist). 7 Wissenskurse mit Mini-Animationen, Quiz je Lektion und Abschlussprüfung (nur Grundlagen aus öffentlichen Quellen).
 - **Anforderungen zentral:** `app/js/data/requirements.js` (Zielwerte je Einheit, Wochenregeln). Eigene Werte in der App unter Einstellungen → Zielwerte.
 - **Schwächen:** aktuelle Werte (Tests, Läufe, Schwimmen, Marsch, Kraft, Garmin-VO2max) gegen Zielwerte; die größten Lücken bekommen Zusatzvolumen. Begründung im Plan unter „Warum so?“.
 - **Verfügbarkeit pro Woche:** Plan → „Verfügbar in KW …“. Übungen werden ersetzt, Einheiten auf die verfügbare Zeit gekürzt.

@@ -43,6 +43,15 @@ export const BADGES = {
   gedaechtnis: { name: 'Gedächtnis', icon: 'M7', desc: 'Merkfähigkeit Level 5 erreicht' },
   garmin: { name: 'Datenlage', icon: 'G', desc: 'Garmin-Daten importiert' },
   backup: { name: 'Gesichert', icon: '⇩', desc: 'Erste Sicherung erstellt' },
+  av_bestanden: { name: 'AV bestanden', icon: 'AV', desc: 'Auswahlverfahren bestanden – Phase „Nach dem AV“ gestartet' },
+  av_sicherheit: { name: 'Sicherheit', icon: '4R', desc: 'Prüfung „Sicherheit & Grundbegriffe“ bestanden' },
+  av_magazin: { name: 'Magazin', icon: 'MAG', desc: 'Prüfung „Magazin“ bestanden' },
+  av_optik: { name: 'Absehen', icon: 'MIL', desc: 'Prüfung „Optik & Absehen“ bestanden' },
+  av_schiessen: { name: 'Schießgrundlagen', icon: '◎', desc: 'Prüfung „Schießgrundlagen“ bestanden' },
+  av_breacher: { name: 'Breacher', icon: 'BR', desc: 'Prüfung „Breacher – Grundlagen“ bestanden' },
+  av_waffen: { name: 'Waffenspezialist', icon: 'WS', desc: 'Prüfung „Waffenspezialist – Rolle“ bestanden' },
+  av_ausbildung: { name: 'Ausbildung', icon: 'AB', desc: 'Prüfung „Die Ausbildung nach dem AV“ bestanden' },
+  av_alle: { name: 'Spezialist in spe', icon: 'S+', desc: 'Alle Wissenskurse „Nach dem AV“ bestanden' },
 };
 
 export function activeDays(state) {

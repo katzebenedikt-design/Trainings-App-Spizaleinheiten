@@ -30,6 +30,7 @@ export const ICONS = {
   mental: 'M12 4a8 8 0 1 0 0 16a8 8 0 1 0 0-16M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6M12 1v3M12 20v3M1 12h3M20 12h3',
   sprache: 'M4 18V8M8 18V4M12 18v-6M16 18V7M20 18v-9M2 21h20',
   kurse: 'M3 6h18v12H3zM3 10h18M7 14h5',
+  nachav: 'M4 20l8-5 8 5M4 14l8-5 8 5M12 2l2 3h3l-2.5 2 1 3-3.5-2-3.5 2 1-3L7 5h3z',
   mic: 'M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3M5 11a7 7 0 0 0 14 0M12 18v3',
   play: 'M7 4l13 8-13 8z', stop: 'M6 6h12v12H6z', back: 'M15 5l-7 7 7 7', gear: 'M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2',
   plus: 'M12 5v14M5 12h14', x: 'M6 6l12 12M18 6L6 18', check: 'M5 12l5 5 9-10', speaker: 'M4 9h4l5-4v14l-5-4H4zM16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12',

@@ -10,7 +10,7 @@ export function renderTest(el, app) {
   const st = app.state;
   const tests = sortByDate(st.tests);
   el.append(h('div', { class: 'k mt' }, '[ MONATLICHER LEISTUNGSTEST ]'),
-    h('p', { class: 'small dim' }, 'Jede 4. Woche in der Entlastungswoche: Mittwoch Kraft & Schwimmen, Samstag 3000 m. Ausgeruht, gleiche Bedingungen, gleiche Reihenfolge. Danach passt sich der Plan automatisch an.'),
+    h('p', { class: 'small dim' }, 'Jede 4. Woche in der Entlastungswoche: Montag Kraft, Mittwoch 100 m Brust, Samstag 3000 m. Ausgeruht, gleiche Bedingungen, gleiche Reihenfolge. Danach passt sich der Plan automatisch an.'),
     h('button', { class: 'btn f', onclick: () => testModal(app) }, '+ Test eintragen'));
 
   if (tests.length) {

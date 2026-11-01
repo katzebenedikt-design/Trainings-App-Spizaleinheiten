@@ -56,10 +56,10 @@ export const fmtVal = (n, v) => (v == null ? '—' : n.unit === 'zeit' ? fmtTime
 
 // Zusatzblöcke je Schwäche. tage = erlaubte Wochentage (0 = Mo); die Wochenregeln prüft rules.js danach erneut.
 export const BOOSTS = {
-  pullups: { tage: [0, 2], code: 'KRAFTPLUS', text: 'Klimmzug-Block: 5× Negativ-Klimmzüge (5 s ablassen) + 3× max. −2', block: 'Zug-Kraft' },
-  pushups: { tage: [0, 2], code: 'KRAFTPLUS', text: 'Liegestütz-Block: 4× 60 % deines Maximums, 60 s Pause', block: 'Druck-Kraftausdauer' },
-  situps: { tage: [0, 2], code: 'KRAFTPLUS', text: 'Sit-up-Block: 4× 60 % deines Maximums + Unterarmstütz 2× 60 s', block: 'Rumpf' },
-  swim100: { tage: [0], code: 'STPLUS', text: 'Zusätzliche Schwimmeinheit: 8× 50 m Brust zügig, 30 s Pause', block: 'Schwimmen' },
+  pullups: { tage: [0], code: 'KRAFTPLUS', text: 'Klimmzug-Block nach der Kraft: 5× Negativ-Klimmzüge (5 s ablassen) + 2× max. −2 (Donnerstag läuft ohnehin Zug)', block: 'Zug-Kraft' },
+  pushups: { tage: [0], code: 'KRAFTPLUS', text: 'Liegestütz-Block: 4× 60 % deines Maximums, 60 s Pause', block: 'Druck-Kraftausdauer' },
+  situps: { tage: [0], code: 'KRAFTPLUS', text: 'Sit-up-Block: 4× 60 % deines Maximums + Unterarmstütz 2× 60 s', block: 'Rumpf' },
+  swim100: { tage: [0], code: 'TROCKEN', text: 'Schwimm-Trockentraining am Montag (nur ein Badtag pro Woche); Mittwoch mehr Intervalle', block: 'Schwimmen' },
   run3000: { tage: [6], code: 'LAUFPLUS', text: 'Nach dem Lauf: 6× 20 s Steigerung + Sonntagslauf +10 min', block: 'Laufen' },
   run5000: { tage: [6], code: 'LAUFPLUS', text: 'Sonntagslauf +10 min, letzte 10 min im Tempo', block: 'Laufen' },
   vo2max: { tage: [6], code: 'LAUFPLUS', text: '4× 4 min zügig (Zone 4) im Sonntagslauf, 3 min Trab', block: 'Ausdauer' },

@@ -193,8 +193,10 @@ function renderPlan(el, app) {
   const { phase, phases, weekTotal } = phaseAt(st, ref);
   el.append(h('div', { class: 'k mt' }, '[ PHASENPLAN BIS ZUM AUSWAHLVERFAHREN ]'));
   const pc = card();
+  const curPhase = phaseAt(st, today).phase;
+  if (['erholung', 'nachav'].includes(curPhase.key)) pc.append(h('div', { style: { padding: '8px 0', borderBottom: '1px solid var(--line2)' } }, h('b', { class: 'sand' }, '▶ ' + curPhase.name), h('p', { class: 'dim small' }, curPhase.desc), h('div', { class: 'm' }, 'ZIELE: ' + curPhase.ziele.join(' · '))));
   for (const p of phases) {
-    const cur = p.key === phaseAt(st, today).phase.key;
+    const cur = p.key === curPhase.key;
     pc.append(h('div', { style: { padding: '8px 0', borderBottom: '1px solid var(--line2)' } },
       h('div', { class: 'row between' }, h('b', { class: cur ? 'sand' : '' }, (cur ? '▶ ' : '') + p.name + ` (LG ${p.lg})`), h('span', { class: 'm' }, `${fmtDate(p.from)}–${fmtDate(p.to)} · ${p.weeks} WO`)),
       cur ? h('div', {}, h('p', { class: 'dim small' }, p.desc), h('div', { class: 'm' }, 'ZIELE: ' + p.ziele.join(' · '))) : null));
@@ -224,7 +226,7 @@ function renderPlan(el, app) {
   const agg = { ...week[0], why: week[0].why, availNotes: week.flatMap((d) => d.availNotes.map((n) => `${TAGE_LANG[weekday(d.date)].slice(0, 2)}: ${n}`)), violations: week.flatMap((d) => d.violations), readiness: null };
   el.append(whyCard(agg));
   el.append(card(h('div', { class: 'k' }, '[ FESTE WOCHENREGELN ]'), h('ul', { class: 'plain small dim' },
-    h('li', {}, 'Mo–Do: Krafttraining und Schwimmen erlaubt'), h('li', {}, 'Di + Do: Kickboxen (fester Termin), davor nur leichte Einheit ohne Beine'),
+    h('li', {}, 'Mo: Kraft + Lauf · Mi: Schwimmen – Kraft und Schwimmen nie am selben Tag'), h('li', {}, 'Di + Do: Kickboxen (fester Termin) – kein Laufen, kein Schwimmen, keine schweren Beine'),
     h('li', {}, 'Fr: Ruhetag – Heimfahrt, kein Training'), h('li', {}, 'Sa + So: kein Kraft, kein Schwimmen – Laufen, Marsch, Kopftraining'))));
   el.append(h('div', { class: 'row mt' }, h('span', { class: 'm' }, 'Standard für neue Wochen:'), seg([['arbeit', 'Arbeit'], ['schule', 'Schule']], st.week.mode, (m) => { st.week.mode = m; app.save(); el.replaceChildren(); renderPlan(el, app); })));
 

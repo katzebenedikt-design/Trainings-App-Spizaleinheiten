@@ -39,36 +39,55 @@ test('Phasen bis 2028 rückwärts geplant', () => {
   for (let i = 1; i < ph.length; i++) assert.equal(addDays(ph[i - 1].to, 1), ph[i].from);
 });
 
-test('Wochenregeln: alle Wochen bis 2028, auch mit Verfügbarkeit und Schonmodus', () => {
+test('Wochenregeln: alle Wochen bis 2028 und nach dem AV, mit Verfügbarkeit und Schonmodus', () => {
   const combos = [{}, { gym: false }, { pool: false }, { ruck: false, bwOnly: true, gym: false, bar: false }, { montage: true }, { minutes: [20, 20, 60, 20, 0, 30, 30] }];
-  for (const av of combos) {
+  const isK = (se) => ['K1', 'K2', 'K4', 'ZIRKEL', 'CAL', 'KRAFTO', 'TESTKRAFT', 'KRAFTPLUS', 'PROPHYLAXE', 'TROCKEN', 'KMAXU', 'KMAXO', 'SPEZ', 'OBENLEICHT'].includes(se.code);
+  for (const av of combos) for (const nachAV of [false, true]) {
     const s = st0();
     s.week.availDefault = { ...AVAIL_DEFAULT, ...av };
-    for (let w = 0; w < 84; w++) {
-      const week = weekPlan(s, addDays('2026-11-02', w * 7));
+    if (nachAV) s.profile.av = { bestanden: '2027-03-01', spez: 'breacher' };
+    s.tests.push({ id: 't', date: '2026-11-01', run3000: 830, pullups: 6, pushups: 30, situps: 30, swim100: 160, ruck7: 3300 });
+    for (let w = 0; w < (nachAV ? 30 : 84); w++) {
+      const week = weekPlan(s, addDays(nachAV ? '2027-03-01' : '2026-11-02', w * 7));
       for (const d of week) assert.deepEqual(d.violations, [], d.date + ' ' + JSON.stringify(av) + ' ' + d.sessions.map((x) => x.code));
       const codes = week.map((d) => d.sessions.map((x) => x.code));
       assert.ok(codes[1].includes('KICKBOX') && codes[3].includes('KICKBOX'), 'Kickboxen Di/Do');
+      for (const i of [1, 3]) for (const se of week[i].sessions) assert.ok(!se.run && !se.ruck && !se.swim, 'Kickbox-Tag ohne Lauf/Schwimmen ' + se.code);
       assert.deepEqual(codes[4], ['REST'], 'Freitag kompletter Ruhetag');
-      assert.equal(week[4].sessions[0].title, 'Ruhetag · Heimfahrt');
-      for (const i of [5, 6]) for (const se of week[i].sessions) { assert.ok(!se.gym && !se.swim, 'Wochenende ' + se.code); }
-      if (week[0].deload && week[0].phase.key !== 'taper') { assert.ok(codes[2].includes('TESTKRAFT')); assert.ok(codes[5].includes('TESTLAUF')); }
+      for (const i of [5, 6]) for (const se of week[i].sessions) assert.ok(!isK(se) && !se.swim, 'Wochenende ' + se.code);
+      for (const d of week) assert.ok(!(d.sessions.some(isK) && d.sessions.some((x) => x.swim)), 'Kraft + Schwimmen am selben Tag ' + d.date);
     }
   }
+  // Grundplan: Mo Kraft+Lauf, Mi Schwimmen, Sa/So Laufen/Marsch; Entlastungswoche mit Tests
+  const s = st0();
+  const wk = weekPlan(s, '2026-11-02').map((d) => d.sessions.map((x) => x.code));
+  assert.deepEqual(wk[0].slice(0, 2), ['K1', 'TB1']); assert.deepEqual(wk[2], ['ST']); assert.ok(wk[6].includes('TB1'));
+  const deloadWeek = [...Array(8)].map((_, i) => weekPlan(s, addDays('2026-11-02', i * 7))).find((w) => w[0].deload);
+  assert.deepEqual(deloadWeek.map((d) => d.sessions[0].code).filter((c) => c.startsWith('TEST')), ['TESTKRAFT', 'TESTSCHWIMMEN', 'TESTLAUF']);
+  // Nach dem AV: Erholung, dann neue Phase
+  s.profile.av = { bestanden: '2027-03-01', spez: 'waffen' };
+  assert.equal(plannedDay(s, '2027-03-02').phase.key, 'erholung');
+  const n = weekPlan(s, '2027-03-22');
+  assert.equal(n[0].phase.key, 'nachav');
+  assert.ok(n[0].sessions.some((x) => x.code === 'KMAXU') && n[1].sessions.some((x) => x.code === 'SPEZ') && n[5].sessions.some((x) => x.code === 'MTSCHWER'));
+  assert.match(n[1].sessions.find((x) => x.code === 'SPEZ').title, /Waffen/);
+  // Marschgewicht steigt höchstens 2 kg pro Woche
+  let prev = null;
+  for (let w = 0; w < 30; w++) { const day = plannedDay(s, addDays('2027-03-27', w * 7)); const sa = day.sessions.find((x) => x.code === 'MTSCHWER'); if (!sa || day.deload) continue; const kg = Number(sa.sub.match(/(\d+) kg/)[1]); if (prev != null) assert.ok(kg - prev <= 2 && kg <= 35, `Marsch ${prev} → ${kg} kg`); prev = kg; }
   // Schonmodus an einem Kickbox-Tag
-  const s = st0(); const di = '2026-11-03';
-  s.checkins.push({ date: di, schlaf: 2, energie: 2, kater: 3, schmerz: 1, stimmung: 3 });
-  const d = plannedDay(s, di, { withReadiness: true });
+  const s2 = st0(); const di = '2026-11-03';
+  s2.checkins.push({ date: di, schlaf: 2, energie: 2, kater: 3, schmerz: 1, stimmung: 3 });
+  const d = plannedDay(s2, di, { withReadiness: true });
   assert.deepEqual(d.violations, []);
   assert.ok(d.sessions.some((x) => x.code === 'KICKBOX' && /Technik/.test(x.title)));
-  s.checkins[0].schmerz = 5;
-  const p = plannedDay(s, di, { withReadiness: true });
-  assert.deepEqual(p.sessions.map((x) => x.code), ['REST']);
+  s2.checkins[0].schmerz = 5;
+  assert.deepEqual(plannedDay(s2, di, { withReadiness: true }).sessions.map((x) => x.code), ['REST']);
   // Prüffunktion erkennt Verstöße
   assert.ok(violations('2026-11-07', [{ code: 'K1', title: 'K1' }]).length > 0);
-  assert.ok(violations('2026-11-06', [{ code: 'TB1', title: 'Lauf' }]).length > 0);
   assert.ok(violations('2026-11-06', [{ code: 'MOB', title: 'Mobility' }]).length > 0);
-  assert.ok(violations('2026-11-03', [{ code: 'K2', variant: 'unten', title: 'Beine' }, { code: 'KICKBOX', title: 'KB' }]).length > 0);
+  assert.ok(violations('2026-11-03', [{ code: 'TB1', title: 'Lauf', run: true }, { code: 'KICKBOX', title: 'KB' }]).length > 0);
+  assert.ok(violations('2026-11-05', [{ code: 'ST', title: 'Schwimmen', swim: true }, { code: 'KICKBOX', title: 'KB' }]).length > 0);
+  assert.ok(violations('2026-11-02', [{ code: 'K1', title: 'Kraft' }, { code: 'ST', title: 'Schwimmen', swim: true }]).length > 0);
 });
 
 test('Zielwerte aus der Konfiguration, strengster Wert, eigene Werte', () => {
@@ -111,7 +130,7 @@ test('Verfügbarkeit ersetzt Übungen', () => {
 test('Alte Sicherung (Version 1) bleibt vollständig erhalten', () => {
   const old = { schema: 1, profile: { name: 'Alt', start: { run3000: 800 } }, checkins: [{ date: '2026-10-01', schlaf: 3 }], week: { mode: 'schule', overrides: { '2026-W44': 'arbeit' } }, daily: [{ date: '2026-10-01', restHR: 50 }] };
   const n = parseBackup(JSON.stringify({ app: 'trainings-app-spezialeinheiten', state: old }));
-  assert.equal(n.schema, 2); assert.equal(n.profile.name, 'Alt'); assert.equal(n.checkins.length, 1); assert.equal(n.week.mode, 'schule');
+  assert.equal(n.schema, 3); assert.equal(n.profile.name, 'Alt'); assert.equal(n.profile.av.bestanden, null); assert.deepEqual(n.av, { lessons: {}, exams: {} }); assert.equal(n.checkins.length, 1); assert.equal(n.week.mode, 'schule');
   assert.equal(n.week.overrides['2026-W44'], 'arbeit'); assert.deepEqual(n.week.avail, {}); assert.deepEqual(n.profile.targets, {}); assert.equal(n.daily[0].restHR, 50);
 });
 
@@ -280,4 +299,27 @@ test('Garmin: HRV/Schlaf/Belastung senken die Intensität, auch ohne Check-in', 
   const acc = { acts: [], daily: {} };
   harvestGarminJSON([{ calendarDate: '2026-10-02', hrvSummary: { lastNightAvg: 55 }, acuteTrainingLoad: 410 }], 'hrv.json', acc);
   assert.equal(acc.daily['2026-10-02'].hrv, 55); assert.equal(acc.daily['2026-10-02'].load, 410);
+});
+
+test('Wissenskurse „Nach dem AV“: vollständig, Sicherheit zuerst, Quiz gültig', async () => {
+  const { AV_COURSES, QUELLEN, SAFETY } = await import('../app/js/data/nachav.js');
+  const { BADGES } = await import('../app/js/core/rewards.js');
+  assert.ok(AV_COURSES.length >= 7);
+  const ids = AV_COURSES.map((c) => c.id);
+  for (const need of ['magazin', 'optik', 'breacher', 'waffenspez', 'sicherheit']) assert.ok(ids.includes(need), need);
+  for (const c of AV_COURSES) {
+    assert.ok(BADGES[c.badge], 'Abzeichen ' + c.badge);
+    assert.ok(c.exam.length >= 1 && c.links.every((k) => QUELLEN[k]));
+    for (const l of c.lessons) {
+      assert.match(l.cards[0], /^Sicherheit zuerst/, `${c.id}/${l.title}: Sicherheit zuerst`);
+      assert.ok(l.quiz.length >= 3);
+      for (const q of [...l.quiz, ...c.exam]) { assert.ok(q.ok >= 0 && q.ok < q.a.length, q.q); assert.equal(new Set(q.a).size, q.a.length); assert.ok(q.why); }
+    }
+  }
+  // Keine Sprengladungs-Anleitungen
+  const all = JSON.stringify(AV_COURSES).toLowerCase();
+  for (const bad of ['gramm sprengstoff', 'ladungsberechnung', 'zünder bauen', 'sprengladung bauen']) assert.ok(!all.includes(bad));
+  assert.ok(SAFETY.includes('Mündung'));
+  // Rechnen im Optik-Kurs stimmt: 1,8 m bei 3,6 mrad = 500 m
+  assert.equal((1.8 * 1000) / 3.6, 500);
 });

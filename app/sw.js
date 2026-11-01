@@ -1,5 +1,5 @@
 // Service Worker: App läuft offline, Erinnerungen per Benachrichtigung.
-const VERSION = '2956a26b7e';
+const VERSION = '9698a9991e';
 const ASSETS = [
  "./",
  "./css/app.css",
@@ -35,16 +35,19 @@ const ASSETS = [
  "./js/data/english.js",
  "./js/data/exercises.js",
  "./js/data/mental.js",
+ "./js/data/nachav.js",
  "./js/data/requirements.js",
  "./js/ui.js",
  "./js/views/ausdauer.js",
  "./js/views/availability.js",
+ "./js/views/avvisuals.js",
  "./js/views/figures.js",
  "./js/views/games.js",
  "./js/views/garmin.js",
  "./js/views/kraft.js",
  "./js/views/kurse.js",
  "./js/views/mental.js",
+ "./js/views/nachav.js",
  "./js/views/profile.js",
  "./js/views/reminders.js",
  "./js/views/settings.js",

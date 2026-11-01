@@ -39,17 +39,19 @@ export const UNITS = {
 };
 
 // Feste Wochenregeln (0 = Montag). Der Planer prüft jeden Tag gegen diese Regeln.
+// Zusätzlich gilt immer: Krafttraining und Schwimmen nie am selben Tag (KRAFT_SCHWIMMEN_GETRENNT).
 export const WEEK_RULES = {
   0: { kraft: true, schwimmen: true },
-  1: { kraft: true, schwimmen: true, fest: 'KICKBOX', keineSchwerenBeine: true },
+  1: { kraft: true, schwimmen: false, laufen: false, fest: 'KICKBOX', keineSchwerenBeine: true },
   2: { kraft: true, schwimmen: true },
-  3: { kraft: true, schwimmen: true, fest: 'KICKBOX', keineSchwerenBeine: true },
+  3: { kraft: true, schwimmen: false, laufen: false, fest: 'KICKBOX', keineSchwerenBeine: true },
   4: { ruhetag: true, notiz: 'Heimfahrt' }, // kompletter Ruhetag, kein Training
   5: { kraft: false, schwimmen: false },
   6: { kraft: false, schwimmen: false },
 };
+export const KRAFT_SCHWIMMEN_GETRENNT = true;
 
-export const KICKBOX = { titel: 'Kickboxen', min: 90, zeit: 'abends (fester Termin)' };
+export const KICKBOX = { titel: 'Kickboxen', min: 90, zeit: 'abends' };
 
 // Wirksame Zielwerte: Einheit gewählt → Einheit über Richtwerten; „offen“ → strengster Wert je Disziplin.
 // Eigene Werte aus den Einstellungen (profile.targets) haben immer Vorrang.

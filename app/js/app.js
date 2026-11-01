@@ -6,6 +6,7 @@ import { sportTabs } from './views/sport.js';
 import { mentalTabs } from './views/mental.js';
 import { spracheTabs } from './views/sprache.js';
 import { kurseTabs } from './views/kurse.js';
+import { nachavTabs } from './views/nachav.js';
 import { openSettings, onboarding } from './views/settings.js';
 import { checkReminders } from './views/reminders.js';
 
@@ -14,6 +15,7 @@ const AREAS = [
   { key: 'mental', label: 'Mental', icon: 'mental', tabs: mentalTabs },
   { key: 'sprache', label: 'Sprache', icon: 'sprache', tabs: spracheTabs },
   { key: 'kurse', label: 'Kurse', icon: 'kurse', tabs: kurseTabs },
+  { key: 'nachav', label: 'Nach AV', icon: 'nachav', tabs: nachavTabs },
 ];
 
 const root = document.getElementById('app');

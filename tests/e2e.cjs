@@ -167,6 +167,46 @@ const shots = process.argv[3] || null;
     while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
   });
 
+  for (const tab of ['phase', 'kurse', 'spez']) await step('Nach AV/' + tab, async () => { await page.goto(url + '#/nachav/' + tab); await page.waitForTimeout(400); await shot('nachav-' + tab); });
+  await step('Wissenskurs Magazin: Lektion + Quiz', async () => {
+    await page.goto(url + '#/nachav/kurse'); await page.waitForTimeout(300);
+    await page.getByText('Magazin: Aufbau & Handhabung').click();
+    await page.locator('.full').last().getByText('1. Aufbau eines Kastenmagazins').click();
+    for (let i = 0; i < 10; i++) {
+      const full = page.locator('.full').last();
+      if (await full.locator('svg.fig').count()) await shot('nachav-animation');
+      const q = full.getByText('> Quiz zur Lektion'); if (await q.count()) { await q.click(); break; }
+      await full.getByText('Weiter', { exact: true }).click();
+    }
+    for (let i = 0; i < 5; i++) {
+      const full = page.locator('.full').last();
+      if (await full.getByText(/BESTANDEN/).count()) break;
+      await full.locator('.choice button').first().click();
+      await full.getByText('Weiter', { exact: true }).click();
+    }
+    await shot('nachav-quiz-ende');
+  });
+  await step('Absehen-Animation', async () => {
+    await page.goto(url + '#/nachav/kurse'); await page.waitForTimeout(300);
+    await page.getByText('Optik & Absehen richtig ablesen').click();
+    await page.locator('.full').last().getByText('2. Entfernung schätzen mit dem Absehen').click();
+    await page.locator('.full').last().getByText('Weiter', { exact: true }).click();
+    await page.getByText('800 m', { exact: true }).click(); await page.waitForTimeout(300);
+    const txt = await page.locator('.full').last().innerText();
+    if (!/2,3 MRAD/.test(txt)) throw new Error('Absehen-Rechnung fehlt');
+    await shot('nachav-absehen');
+  });
+  await step('AV bestanden: Phase wechselt', async () => {
+    await page.goto(url + '#/nachav/phase'); await page.waitForTimeout(300);
+    await page.getByText('> AV bestanden – Phase starten').click();
+    await page.getByText('Umstellen', { exact: true }).click(); await page.waitForTimeout(500);
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    const txt = await page.locator('#app').innerText();
+    if (!/Maximalkraft Unterkörper/.test(txt)) throw new Error('Woche der neuen Phase fehlt');
+    if (/Regelkonflikt/.test(txt)) throw new Error('Regelkonflikt');
+    await shot('nachav-aktiv');
+    await page.getByText('Schalter zurücksetzen').click(); await page.getByText('Zurücksetzen', { exact: true }).click(); await page.waitForTimeout(300);
+  });
   await step('Sicherung herunterladen + wiederherstellen', async () => {
     await page.goto(url + '#/sport/heute'); await page.waitForTimeout(400);
     await page.locator('[title=Einstellungen]').click();

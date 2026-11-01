@@ -39,7 +39,7 @@ export const EXERCISES = [
   { id: 'wadendruecken', name: 'Wadendrücken', typ: 'last', gruppe: 'Beine', fig: 'wade',
     cue: 'Fußspitzen auf Erhöhung, auf die Zehenspitzen drücken, Fersen kontrolliert absenken.' },
   { id: 'farmers', name: 'Farmer’s Carry', typ: 'last', gruppe: 'Ganzkörper', fig: null,
-    cue: 'Schwere Kurzhanteln seitlich, aufrecht und zügig gehen, Schultern nicht hochziehen.' },
+    cue: 'Schwere Kurzhanteln seitlich, aufrecht und zügig gehen, Schultern nicht hochziehen. Beim Eintragen: Feld „Wdh.“ = Meter.' },
   // Alternativen ohne Studio (Rucksack oder nur Körpergewicht)
   { id: 'rucksack_kniebeuge', name: 'Kniebeuge mit Rucksack', typ: 'last', gruppe: 'Beine', fig: 'kniebeuge', alt: true,
     cue: 'Rucksack eng auf beiden Schultern oder vor der Brust. Wie Langhantel-Kniebeuge: Oberschenkel waagerecht, Fersen am Boden.' },
