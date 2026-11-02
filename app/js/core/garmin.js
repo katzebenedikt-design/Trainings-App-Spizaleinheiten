@@ -128,7 +128,7 @@ const numDE = (s) => { if (s == null) return null; s = String(s).trim().replace(
 const timeToSec = (s) => { if (!s) return null; const p = String(s).trim().split(':').map((x) => parseFloat(x.replace(',', '.'))); if (p.some(isNaN)) return null; return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p.length === 2 ? p[0] * 60 + p[1] : p[0]; };
 
 export function parseCSV(txt) {
-  const rows = splitCSV(txt.replace(/^﻿/, ''));
+  const rows = splitCSV(txt.replace(/^\uFEFF/, ''));
   if (rows.length < 2) throw new Error('CSV ist leer');
   const head = rows[0].map((h) => h.trim().toLowerCase());
   const col = (...names) => head.findIndex((h) => names.some((n) => h === n || h.startsWith(n)));

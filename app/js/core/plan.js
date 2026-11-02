@@ -132,7 +132,6 @@ const K2_SETS = {
   oben: ['bankdruecken', 'klimmzug', 'schulterdruecken', 'rudern', 'dips'],
   unten: ['kniebeuge', 'kreuzheben', 'ausfallschritt', 'wadendruecken', 'hyperextension'],
 };
-const K4_SET = ['kniebeuge', 'kreuzheben', 'bankdruecken', 'klimmzug'];
 const KMAX_U = ['kreuzheben', 'kniebeuge', 'ausfallschritt'];
 const KMAX_O = ['bankdruecken', 'klimmzug', 'schulterdruecken', 'rudern'];
 

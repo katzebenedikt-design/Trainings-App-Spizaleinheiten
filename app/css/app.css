@@ -205,18 +205,29 @@ nav.bottom { max-width: 100%; }
 .flash { min-height: 180px; display: grid; place-items: center; text-align: center; border: 1px solid var(--line); background: var(--card); font: 700 26px var(--head); padding: 16px; cursor: pointer; }
 
 /* Figuren */
-.fig { width: 100%; max-width: 360px; display: block; margin: 0 auto; }
-.fig.thumb { width: 64px; height: 50px; max-width: none; margin: 0; flex: none; border: 1px solid var(--line2); background: #0d0f0a; }
-.fig.thumb .bone { stroke-width: 7; }
-.fig.thumb .head { stroke-width: 5; }
-.fig .bone { stroke: var(--sand); stroke-width: 4; stroke-linecap: round; fill: none; }
-.fig .joint { fill: var(--olive); }
-.fig .head { stroke: var(--sand); stroke-width: 3; fill: var(--bg); }
-.fig .gear { stroke: var(--dim); stroke-width: 3; fill: none; }
-.fig .ground { stroke: var(--line); stroke-width: 2; }
-.fig .hint { font: 10px var(--mono); fill: var(--olive); }
-.fig .guide { stroke: var(--olive); stroke-width: 1; stroke-dasharray: 3 3; }
+.fig { width: 100%; max-width: 420px; display: block; margin: 0 auto; border: 1px solid var(--line); }
+.fig.thumb { width: 76px; height: 61px; max-width: none; margin: 0; flex: none; border: 1px solid var(--line2); }
+.fig .bone { stroke: #f1e4bf; stroke-width: 9; stroke-linecap: round; fill: none; }
+.fig .bone.far { stroke: #7d775c; stroke-width: 7; }
+.fig .bone.torso { stroke-width: 13; }
+.fig .torso-poly { fill: #f1e4bf; stroke: #f1e4bf; stroke-width: 6; stroke-linejoin: round; }
+.fig .joint { fill: #8a9a4a; }
+.fig .head { stroke: #f1e4bf; stroke-width: 4; fill: #0a0b09; }
+.fig .hint { font: 13px var(--mono); fill: #c9b47e; letter-spacing: .04em; }
+.fig .viewtag { font: 11px var(--mono); fill: #7f8a5a; letter-spacing: .1em; }
+.fig.thumb .bone { stroke-width: 14; }
+.fig.thumb .bone.far { stroke-width: 11; }
+.fig.thumb .head { stroke-width: 6; }
 
 .waffe .part { fill: #1b1e14; stroke: var(--dim); stroke-width: 1.5; transition: all .3s; }
 .waffe .part.hl { fill: #c9b47e33; stroke: var(--sand); stroke-width: 2.5; }
 .waffe text { font: 11px var(--mono); fill: var(--sand); }
+
+/* Quellen & PDF-Seiten */
+.quelle { border-top: 1px solid var(--line2); padding: 10px 0; }
+.quelle:first-of-type { border-top: 0; }
+.quelle.haupt b { color: var(--sand); }
+.pdfseite { display: block; width: 100%; background: #fff; border: 1px solid var(--line); padding: 0; cursor: zoom-in; margin-top: 6px; }
+.pdfseite img { width: 100%; max-height: 260px; object-fit: cover; object-position: top; display: block; }
+.pdfseite span { display: block; background: var(--card2); padding: 6px; }
+.zoombox { overflow: auto; margin-top: 10px; border: 1px solid var(--line); background: #fff; max-height: calc(100vh - 170px); touch-action: pan-x pan-y; }

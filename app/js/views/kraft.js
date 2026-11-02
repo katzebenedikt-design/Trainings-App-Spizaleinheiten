@@ -1,12 +1,13 @@
 // Krafttracker: Übungsart, Sätze, Wiederholungen, Pausen, Bestwerte, Verlauf, Diagramm, Vorschlag.
-import { h, card, modal, field, micFor, lineChart, toast, seg, scale, confirmBox, iconBtn } from '../ui.js';
-import { EXERCISES, TYP_LABEL, exById } from '../data/exercises.js';
-import { bests, history, sessionStats, suggestNext, parseRange, effLoad } from '../core/strength.js';
+import { h, card, modal, field, lineChart, toast, seg, scale, confirmBox, iconBtn } from '../ui.js';
+import { EXERCISES, TYP_LABEL } from '../data/exercises.js';
+import { bests, history, sessionStats, suggestNext, parseRange } from '../core/strength.js';
 import { bodyweightOn } from '../core/plan.js';
 import { iso, fmtDate, fmtNum, num } from '../core/util.js';
 import { uid } from '../core/store.js';
 import { showExercise } from './sport.js';
 import { figure } from './figures.js';
+import { exerciseInfo } from './exinfo.js';
 import { speak, beep, vibrate } from '../core/speech.js';
 
 export function renderKraft(el, app) {
@@ -42,6 +43,7 @@ function exerciseDetail(app, ex) {
       wrap.append(h('div', { class: 'k' }, `[ ${TYP_LABEL[ex.typ].toUpperCase()} ]`), h('h1', {}, ex.name), figure(ex.fig),
         h('div', { class: 'row' }, h('button', { class: 'btn s', onclick: () => showExercise(ex) }, 'Ablauf ansehen'), h('button', { class: 'btn s f', onclick: () => logStrengthModal(app, ex, { onSaved: draw }) }, '+ Training')),
         card(h('div', { class: 'k' }, '[ VORSCHLAG NÄCHSTES TRAINING ]'), h('p', {}, sug.text)),
+        h('details', { class: 'card' }, h('summary', { class: 'k', style: { cursor: 'pointer' } }, '[ WARUM · WOFÜR · QUELLE ]'), exerciseInfo(ex)),
         h('div', { class: 'grid3 mt' },
           ex.typ === 'zeit' ? tile('Längste', b.maxSec ? b.maxSec.v + ' s' : '—') : tile('Max. Wdh.', b.maxReps?.v ?? '—'),
           ex.typ === 'last' || ex.typ === 'kgplus' ? tile(ex.typ === 'kgplus' ? 'Max. Zusatz' : 'Max. kg', b.maxKg ? fmtNum(b.maxKg.v) : '—') : tile('Einheiten', hist.length),

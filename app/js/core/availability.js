@@ -18,7 +18,7 @@ export function availFor(state, date) {
 const ALT = {
   kniebeuge: ['rucksack_kniebeuge', 'bulgarian'], ausfallschritt: ['ausfallschritt', 'bulgarian'], kreuzheben: ['rucksack_kreuzheben', 'glute_bridge'],
   bankdruecken: ['liegestuetz_erhoeht', 'liegestuetz_erhoeht'], butterfly: ['liegestuetz', 'liegestuetz'], latzug: ['klimmzug', 'tischrudern'],
-  rudern: ['rucksack_rudern', 'tischrudern'], schulterdruecken: ['pike', 'pike'], bizeps: ['rucksack_curl', 'tischrudern'],
+  rudern: ['rucksack_rudern', 'tischrudern'], schulterdruecken: ['pike', 'liegestuetz_erhoeht'], bizeps: ['rucksack_curl', 'tischrudern'],
   trizeps: ['diamant', 'diamant'], wadendruecken: ['wadendruecken', 'wadendruecken'], hyperextension: ['hyperextension', 'hyperextension'],
   dips: ['dips', 'diamant'], farmers: ['farmers', 'plank'],
 };

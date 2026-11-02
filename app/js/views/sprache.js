@@ -1,8 +1,8 @@
 // Bereich Sprache: Lernpfad wie Duolingo (Lektionen, Levels, Serie, Punkte), Karteikarten, Gespräche, weitere Sprachen.
-import { h, card, modal, seg, toast, iconBtn, progressBar, celebrate } from '../ui.js';
+import { h, card, modal, toast, progressBar, celebrate } from '../ui.js';
 import { UNITS_EN, PHASES_EN, FUNK_DECK, DIALOGS, OTHER_LANGS } from '../data/english.js';
-import { buildExercises, flatChunks, levelLabel, checkAnswer, similarity, norm, review, isDue } from '../core/lang.js';
-import { speak, speakScript, stopSpeaking, listen, sttAvailable } from '../core/speech.js';
+import { buildExercises, flatChunks, levelLabel, checkAnswer, norm, review, isDue } from '../core/lang.js';
+import { speak, stopSpeaking, listen, sttAvailable } from '../core/speech.js';
 import { iso, daysBetween, shuffle } from '../core/util.js';
 import { giveBadge, streak } from '../core/rewards.js';
 

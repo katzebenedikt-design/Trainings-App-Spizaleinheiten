@@ -1,8 +1,8 @@
 // Bereich Mental: Box-Atmung, vorgelesene Texte, Minispiele, Mein Warum + Checkliste.
 import { h, card, modal, seg, toast, lineChart, iconBtn, confirmBox } from '../ui.js';
-import { speak, speakScript, stopSpeaking, beep, vibrate, ttsAvailable } from '../core/speech.js';
+import { speak, speakScript, stopSpeaking, vibrate, ttsAvailable } from '../core/speech.js';
 import { TEXTE, CHECKLISTE } from '../data/mental.js';
-import { iso, fmtDate, weekday, sortByDate } from '../core/util.js';
+import { iso, fmtDate, weekday } from '../core/util.js';
 import { GAMES, runGame } from './games.js';
 import { uid } from '../core/store.js';
 

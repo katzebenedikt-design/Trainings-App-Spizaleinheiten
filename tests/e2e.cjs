@@ -71,6 +71,30 @@ const shots = process.argv[3] || null;
     const n = await page.locator('.list li').count(), t = await page.locator('.list li svg.fig.thumb').count();
     if (n === 0 || t < n) throw new Error(`Nur ${t} von ${n} Übungen mit Animation/Platzhalter`);
   });
+  await step('Jede Übung: Animation, Erklärung, Quelle, PDF-Bild, Zoom', async () => {
+    await page.goto(url + '#/sport/kraft'); await page.waitForTimeout(400);
+    const names = await page.locator('.list li b').allInnerTexts();
+    if (names.length < 29) throw new Error('Nur ' + names.length + ' Übungen');
+    const bad = [];
+    for (const [i, name] of names.entries()) {
+      await page.goto(url + '#/sport/kraft'); await page.waitForTimeout(150);
+      await page.locator('.list li').nth(i).click();
+      const full = page.locator('.full').last();
+      await full.locator('summary', { hasText: 'WARUM' }).click();
+      if (await full.locator('svg.fig.placeholder').count()) bad.push(name + ': Platzhalter statt Animation');
+      if (!(await full.locator('svg.fig:not(.placeholder)').count())) bad.push(name + ': keine Animation');
+      const txt = await full.innerText();
+      for (const t of ['WARUM IST DIE ÜBUNG DRIN?', 'WOFÜR IST SIE GUT?', 'PRAXISBEISPIELE', 'HAUPTQUELLE']) if (!txt.includes(t)) bad.push(name + ': ' + t + ' fehlt');
+      const imgs = full.locator('.pdfseite img');
+      const n = await imgs.count();
+      if (!n) bad.push(name + ': kein PDF-Bild');
+      for (let k = 0; k < n; k++) { await imgs.nth(k).scrollIntoViewIfNeeded(); await page.waitForTimeout(60); const ok = await imgs.nth(k).evaluate((im) => im.complete && im.naturalWidth > 500); if (!ok) bad.push(name + ': Bild ' + k + ' nicht geladen'); }
+      if (i === 5) { await full.locator('.pdfseite').first().click(); await page.waitForTimeout(300); await shot('pdf-zoom'); await page.locator('.full').last().getByText('+', { exact: true }).click(); const w = await page.locator('.zoombox img').evaluate((im) => im.style.width); if (w !== '150%') bad.push('Zoom funktioniert nicht'); }
+      if (i === 0) await shot('uebung-info');
+      await page.evaluate(() => document.querySelectorAll('.full,.modal-bg').forEach((e) => e.remove()));
+    }
+    if (bad.length) throw new Error(bad.join(' | '));
+  });
   await step('Kraft eintragen', async () => {
     await page.goto(url + '#/sport/kraft'); await page.waitForTimeout(300);
     await page.getByText('Klimmzüge (Ristgriff)').first().click();

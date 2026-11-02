@@ -1,5 +1,5 @@
 // Monatlicher Leistungstest mit Diagrammen; danach passt sich der Plan an.
-import { h, card, modal, field, micFor, lineChart, toast, confirmBox, iconBtn, seg } from '../ui.js';
+import { h, card, modal, field, micFor, lineChart, toast, confirmBox, iconBtn } from '../ui.js';
 import { TEST_FIELDS, getNorms, score7D, adaptAfterTest, currentBest } from '../core/plan.js';
 import { iso, fmtDate, fmtTime, parseTime, num, sortByDate } from '../core/util.js';
 import { uid } from '../core/store.js';

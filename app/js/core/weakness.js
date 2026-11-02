@@ -2,7 +2,7 @@
 // Quellen: Monatstests, eingetragene Läufe/Märsche/Schwimmeinheiten, Kraft-Einträge, Garmin-VO2max.
 import { getNorms } from '../data/requirements.js';
 import { normProgress } from './plan.js';
-import { addDays, sortByDate, last, fmtTime, fmtDate } from './util.js';
+import { addDays, sortByDate, last, fmtTime } from './util.js';
 
 const WINDOW = 90; // Tage, in denen Werte als aktuell gelten
 

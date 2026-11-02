@@ -1,6 +1,6 @@
 // Bereich Sport: Startseite (Countdown + Tagesbefehl), Plan, Kraft, Ausdauer, Test, Daten, Timer.
 import { h, card, iconBtn, modal, scale, field, micFor, ring, countUp, progressBar, toast, seg } from '../ui.js';
-import { iso, addDays, daysBetween, fmtDateLong, fmtDate, fmtMonth, fmtTime, TAGE_LANG, mondayOf, isoWeekKey, num, weekday } from '../core/util.js';
+import { iso, addDays, daysBetween, fmtDateLong, fmtDate, fmtMonth, TAGE_LANG, mondayOf, isoWeekKey, num, weekday } from '../core/util.js';
 import { phaseAt, normProgress } from '../core/plan.js';
 import { plannedDay, weekPlan } from '../core/planner.js';
 import { CHECK_ITEMS } from '../core/readiness.js';
@@ -9,7 +9,8 @@ import { renderAvailability } from './availability.js';
 import { REQ_STAND } from '../data/requirements.js';
 import { rankFor, streak } from '../core/rewards.js';
 import { exById, videoLink } from '../data/exercises.js';
-import { figure, FIGS } from './figures.js';
+import { figure } from './figures.js';
+import { exerciseInfo } from './exinfo.js';
 import { renderKraft, logStrengthModal } from './kraft.js';
 import { renderAusdauer, logRunModal, renderDaten } from './ausdauer.js';
 import { renderTest } from './test.js';
@@ -183,14 +184,15 @@ export function showExercise(ex) {
   modal(() => h('div', {}, h('div', { class: 'k' }, '[ AUSFÜHRUNG ]'), h('h2', {}, ex.name),
     figure(ex.fig),
     h('p', {}, ex.cue || ''),
+    exerciseInfo(ex),
     h('a', { class: 'btn', href: videoLink(ex.name), target: '_blank', rel: 'noopener' }, 'Videos ansehen (YouTube)'),
-    h('p', { class: 'm' }, 'Hinweis: Videos stammen von Dritten. Im Zweifel einen Trainer im Studio fragen.')));
+    h('p', { class: 'm' }, 'Hinweis: Videos stammen von Dritten. Im Zweifel einen Trainer im Studio fragen.')), { full: true });
 }
 
 function renderPlan(el, app) {
   const st = app.state; const today = iso();
   let ref = el.dataset.ref || today;
-  const { phase, phases, weekTotal } = phaseAt(st, ref);
+  const { phases, weekTotal } = phaseAt(st, ref);
   el.append(h('div', { class: 'k mt' }, '[ PHASENPLAN BIS ZUM AUSWAHLVERFAHREN ]'));
   const pc = card();
   const curPhase = phaseAt(st, today).phase;

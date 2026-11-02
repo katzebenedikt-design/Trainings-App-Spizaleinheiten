@@ -24,6 +24,11 @@ Alle Daten bleiben auf dem Handy (IndexedDB), Sichern/Wiederherstellen als Datei
 - **Verfügbarkeit pro Woche:** Plan → „Verfügbar in KW …“. Übungen werden ersetzt, Einheiten auf die verfügbare Zeit gekürzt.
 - **Garmin:** Reiter Sport → Garmin. Manuelle Eingabe, Datei-Import, Verläufe. HRV, Schlaf und Belastung senken bei Bedarf die Intensität. Automatische Anbindung: siehe `docs/garmin-anbindung.md`.
 
+## Übungen: Erklärung, Quelle, Animation
+- Jede Kraftübung hat „Warum ist die Übung drin?“, „Wofür ist sie gut?“, Praxisbeispiele und ihre Fundstellen in den PDFs (`app/js/data/exercise-info.js`). Die Fundstellen werden von `tests/sources.test.mjs` gegen den PDF-Text geprüft.
+- PDF-Seiten als Bilder: `node tools/render-pdf-pages.mjs` (braucht `pdftoppm`) schreibt nach `app/pdfseiten/`. In der App antippen = Vollbild mit Zoom.
+- Animationen: `app/js/views/figures.js` – Blickwinkel je Übung (z. B. Klimmzug von hinten), Equipment, gemeinsame Animationsschleife.
+
 ## Entwicklung
 - App liegt in `app/` (reines HTML/CSS/JS, kein Build nötig). Nach Änderungen `node tools/build-sw.mjs` ausführen (Offline-Cache).
 - Tests: `node --test tests/*.test.mjs` (Logik) und `node tests/e2e.cjs http://localhost:8765/` (Browser, App vorher mit `cd app && python3 -m http.server 8765` starten).

@@ -1,5 +1,5 @@
 // Intervall-Timer mit deutscher Sprachansage.
-import { h, card, modal, field, toast } from '../ui.js';
+import { h, modal, field, toast } from '../ui.js';
 import { speak, beep, vibrate, stopSpeaking } from '../core/speech.js';
 import { fmtTime, parseTime } from '../core/util.js';
 
