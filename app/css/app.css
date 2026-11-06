@@ -269,3 +269,14 @@ table.memo th { font: 11px var(--mono); color: var(--mut); letter-spacing: .08em
 .d2 b { font: 22px/1.1 var(--mono); }
 .d2.on { border-color: var(--sand); background: #c9b47e33; }
 .d2.hit { border-color: var(--olive); background: #8a9a4a44; } .d2.miss { border-color: var(--sand); background: #c9b47e44; } .d2.fa { border-color: var(--bad); background: #c4613f44; }
+
+/* Psychologengespräch */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.chip { border: 1px solid var(--line); background: var(--card); color: var(--dim); padding: 8px 10px; font: 12px var(--mono); letter-spacing: .06em; cursor: pointer; }
+.chip.on { border-color: var(--sand); color: var(--sand); background: #c9b47e1f; }
+.chkrow { border-bottom: 1px solid var(--line2); padding: 8px 0; }
+.chkrow .seg { margin-top: 6px; }
+.likert { display: grid; gap: 6px; margin-top: 10px; }
+.likert button { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); background: var(--card); color: var(--txt); padding: 13px 12px; font: 17px var(--head); text-align: left; cursor: pointer; }
+.likert button b { font: 18px var(--mono); color: var(--sand); width: 18px; }
+audio { width: 100%; margin-top: 8px; }

@@ -3,6 +3,16 @@ import { fmtDate, fmtTime } from './core/util.js';
 import { BADGES } from './core/rewards.js';
 import { listen, sttAvailable, vibrate, beep } from './core/speech.js';
 
+// Bedingte Inhalte (`bedingung ? knoten : null`) dürfen nie als Text „null“ erscheinen:
+// append/prepend/replaceChildren überspringen null, undefined und false – wie h() unten.
+if (typeof Element !== 'undefined' && !Element.prototype.__nullSafe) {
+  for (const fn of ['append', 'prepend', 'replaceChildren']) {
+    const orig = Element.prototype[fn];
+    Element.prototype[fn] = function (...nodes) { return orig.apply(this, nodes.filter((n) => n != null && n !== false)); };
+  }
+  Element.prototype.__nullSafe = true;
+}
+
 export function h(tag, attrs = {}, ...kids) {
   const el = tag === 'frag' ? document.createDocumentFragment() : document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {

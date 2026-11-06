@@ -4,8 +4,8 @@ const url = process.argv[2] || 'http://localhost:8765/';
 const shots = process.argv[3] || null;
 
 (async () => {
-  const browser = await chromium.launch();
-  const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, acceptDownloads: true });
+  const browser = await chromium.launch({ args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'] });
+  const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, acceptDownloads: true, permissions: ['microphone'] });
   const page = await ctx.newPage();
   page.setDefaultTimeout(6000);
   const errors = [];
@@ -277,6 +277,58 @@ const shots = process.argv[3] || null;
     await shot('cat-verlauf');
     await page.goto(url + '#/sport/heute'); await page.waitForTimeout(400);
     if (!(await page.getByText(/^CAT-Training:/).count())) throw new Error('Kein CAT-Vorschlag im Tagesbefehl');
+  });
+
+  for (const tab of ['gespraech', 'schriftlich', 'tagebuch']) await step('Auswahl/' + tab, async () => { await page.goto(url + '#/auswahl/' + tab); await page.waitForTimeout(400); await shot('auswahl-' + tab); await noOverflow('auswahl/' + tab); });
+  await step('Psychologengespräch: 3 Fragen mit Aufnahme + Nachfrage', async () => {
+    await page.goto(url + '#/auswahl/gespraech'); await page.waitForTimeout(300);
+    await page.locator('.seg button', { hasText: /^3$/ }).click();
+    await page.getByText('> Übung starten').click();
+    for (let q = 0; q < 4; q++) {
+      const full = page.locator('.full').last();
+      await full.getByText('🎙 Antwort aufnehmen').click(); await page.waitForTimeout(1600);
+      await full.getByText('■ Antwort beenden').click(); await page.waitForTimeout(500);
+      if (q === 0) await shot('psych-bewertung');
+      const rows = full.locator('.chkrow'); for (let k = 0; k < 4; k++) await rows.nth(k).getByText(k === 1 ? 'Teils' : 'Ja', { exact: true }).click();
+      await full.locator('textarea').fill('Konkretes Beispiel nennen.');
+      if (!(await full.locator('audio').count())) throw new Error('Keine Aufnahme zum Anhören');
+      if (q === 0) await full.getByText('Speichern + Nachfrage stellen').click(); else await full.getByText(/^Speichern – (nächste Frage|fertig)$/).click();
+      await page.waitForTimeout(400);
+    }
+    const full = page.locator('.full').last(); await full.getByText('[ ÜBUNG BEENDET ]').waitFor(); await shot('psych-ende');
+    await full.getByText('Fertig', { exact: true }).click();
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    await page.waitForTimeout(500);
+    if ((await page.getByText(/^▶ Anhören/).count()) < 4) throw new Error('Antworten mit Aufnahme fehlen');
+    await page.getByText(/^▶ Anhören/).first().click(); await page.waitForTimeout(500);
+    if (!(await page.locator('audio').count())) throw new Error('Aufnahme lässt sich nicht abspielen');
+    if (!(await page.getByText('NACHFRAGE', { exact: false }).count())) throw new Error('Nachfrage nicht gespeichert');
+    await shot('psych-verlauf');
+  });
+  await step('Lebenslauf + Motivationsschreiben', async () => {
+    await page.goto(url + '#/auswahl/schriftlich'); await page.waitForTimeout(300);
+    await page.locator('textarea').first().fill('Realschule 2019, Ausbildung Kältetechnik seit 2024');
+    await page.locator('.seg button', { hasText: 'Motivation' }).click(); await page.waitForTimeout(200);
+    await page.locator('textarea').first().fill('Weil ich im Team Verantwortung tragen will.');
+    await page.getByText('Aus meinen Antworten zusammensetzen').click(); await page.waitForTimeout(200);
+    const v = await page.locator('textarea').last().inputValue(); if (!v.includes('Verantwortung')) throw new Error('Entwurf leer');
+    await shot('motivation');
+  });
+  await step('Übungsfragebogen', async () => {
+    await page.goto(url + '#/auswahl/schriftlich'); await page.locator('.seg button', { hasText: 'Fragebögen' }).click(); await page.waitForTimeout(200);
+    await page.getByText(/^> Übungsfragebogen/).click();
+    for (let i = 0; i < 20; i++) await page.locator('.likert button').nth(i % 5).click();
+    await page.getByText('[ AUSWERTUNG · KEINE DIAGNOSE ]').waitFor(); await shot('fragebogen');
+    await page.locator('.full').last().getByText('Fertig', { exact: true }).click();
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+  });
+  await step('Tagebuch', async () => {
+    await page.goto(url + '#/auswahl/tagebuch'); await page.waitForTimeout(300);
+    await page.locator('textarea').first().fill('Heute bei der Arbeit ruhig geblieben, als es hektisch wurde.');
+    await page.getByText('Speichern', { exact: true }).click(); await page.waitForTimeout(600);
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    await page.reload(); await page.waitForTimeout(900); await page.goto(url + '#/auswahl/tagebuch'); await page.waitForTimeout(400);
+    if (!(await page.locator('textarea').first().inputValue()).includes('ruhig geblieben')) throw new Error('Tagebuch nicht gespeichert');
   });
 
   await step('Kurse', async () => { await page.goto(url + '#/kurse'); await page.waitForTimeout(300); await shot('kurse'); });

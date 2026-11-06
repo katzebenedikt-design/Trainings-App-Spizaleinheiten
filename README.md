@@ -13,7 +13,8 @@ Alle Daten bleiben auf dem Handy (IndexedDB), Sichern/Wiederherstellen als Datei
 ## Bereiche
 - **Sport:** Startseite mit Countdown, Bereitschafts-Ring und Tagesbefehl · Morgen-Check-in · Phasenplan bis 2028 · Wochenplan (Arbeits-/Berufsschulwoche) · Krafttracker · Laufen/Marsch/Schwimmen · Körpergewicht · Monatstest mit automatischer Plananpassung · Schonmodus · Garmin-Import · Intervall-Timer mit Sprachansage · Übungsfiguren
 - **Mental:** Box-Atmung mit Stimme · vorgelesene Entspannungstexte und Szenarien · 5 Minispiele mit Levels · Mein Warum · Checkliste
-- **Sprache:** Englisch ab null (26 Wochen, 3 Phasen, 18 Einheiten) · Karteikarten inkl. Funkvokabular · Gespräche per Mikrofon · Überlebens-Sets für 5 weitere Sprachen
+- **Sprache:** Intensivmethode nach FSI/DLI · GER-Pfad A1–C2 mit Einstufungs- und Stufentests · Tageseinheit 10/20/30/60 min · Shadowing · Wiederholung nach SM-2 · freies Sprechen mit Aufnahme · ehrlicher Lernstunden-Richtwert · Englisch bis C2 (Inhalte bis B2, danach echte Quellen) inkl. Funk, Befehle, SITREP/9-Line · Spanisch, Französisch, Russisch, Arabisch, Niederländisch, Polnisch
+- **Auswahl:** CAT-Test (Profile Bundeswehr-Karrierecenter und Bundespolizei, 8 Bereiche, Simulation mit Zeitlimit und Training mit Lösungsweg, adaptiv, Auswertung, Verlauf) · Psychologengespräch (Fragen vorlesen, Antwort aufnehmen, Selbstbewertung, Nachfragen) · Schriftlich (Lebenslauf, Motivationsschreiben, Persönlichkeitsfragebögen) · Reflexionstagebuch
 - **Kurse:** Kompass & Karte, Rucksack, Waffenkunde, NATO-Alphabet, Dienstgrade, Sprechfunk, Erste Hilfe, Tarnen, Verhalten im Auswahlverfahren
 
 ## Planung (Stand Version 2)
@@ -28,6 +29,13 @@ Alle Daten bleiben auf dem Handy (IndexedDB), Sichern/Wiederherstellen als Datei
 - Jede Kraftübung hat „Warum ist die Übung drin?“, „Wofür ist sie gut?“, Praxisbeispiele und ihre Fundstellen in den PDFs (`app/js/data/exercise-info.js`). Die Fundstellen werden von `tests/sources.test.mjs` gegen den PDF-Text geprüft.
 - PDF-Seiten als Bilder: `node tools/render-pdf-pages.mjs` (braucht `pdftoppm`) schreibt nach `app/pdfseiten/`. In der App antippen = Vollbild mit Zoom.
 - Animationen: `app/js/views/figures.js` – Blickwinkel je Übung (z. B. Klimmzug von hinten), Equipment, gemeinsame Animationsschleife.
+
+## Sprachen, CAT, Psychologe: Konfiguration
+- **Neue Sprache ohne Code:** JSON-Datei nach `app/sprachen/` legen und in `app/sprachen/index.json` eintragen – oder in der App unter Sprache → Sprachen → „Vorlage speichern“, ausfüllen, „Sprachpaket importieren“. Aufbau: `code`, `name`, `tts` (z. B. `it-IT`), `fsi` (1–4), `ziel`, `stufen` (A1–C2) mit `einheiten` (Lektionen aus Paaren `["Fremdsprache", "Deutsch"]`), `shadowing`, `quellen`, `sprechen`, `test`. Die App prüft die Datei beim Import und nennt Fehler.
+- **Lernstunden-Richtwert:** Cambridge-Richtwerte je GER-Stufe × FSI-Faktor der Sprache, abzüglich erfasster Lernzeit (`app/js/core/langpacks.js`).
+- **CAT-Profile:** `app/js/data/cat.js` (Module, Aufgabenzahl, Zeiten, Gewichtung, Aufgabenbanken). Alles Übungsaufgaben, keine Originalaufgaben.
+- **Psychologengespräch:** Themen, Fragen, Checkliste, Leitfragen in `app/js/data/psych.js`. Aufnahmen liegen nur auf dem Gerät (eigene Datenbank, die letzten 30) und sind bewusst nicht in der Sicherungsdatei.
+- **KI-Bewertung (vorgemerkt):** braucht einen API-Zugang, einen eigenen kleinen Server (der Schlüssel darf nicht in die öffentliche App), Spracherkennung der Aufnahme und deine Zustimmung zur Datenübertragung.
 
 ## Entwicklung
 - App liegt in `app/` (reines HTML/CSS/JS, kein Build nötig). Nach Änderungen `node tools/build-sw.mjs` ausführen (Offline-Cache).
