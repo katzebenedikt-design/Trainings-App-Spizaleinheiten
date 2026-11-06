@@ -18,6 +18,7 @@ import { renderGarmin } from './garmin.js';
 import { renderTimer, openTimer } from './timer.js';
 import { voiceCommand } from './voice.js';
 import { spracheHome } from './sprache.js';
+import { catHome } from './cat.js';
 
 export const sportTabs = [
   { key: 'heute', label: 'Heute', render: renderHeute },
@@ -79,6 +80,8 @@ function renderHeute(el, app) {
   const nl = spracheHome(st);
   const fri = weekday(today) === 4;
   if (nl) items.push({ id: 'sprache', t: nl.t, sub: fri ? 'OPTIONAL · Z. B. IM ZUG' : nl.sub, act: () => app.go('#/sprache'), optional: fri });
+  const ct = catHome(st);
+  if (ct) items.push({ id: 'cat', t: ct.t, sub: ct.sub, act: () => app.go('#/auswahl/cat'), optional: true });
   items.push({ id: 'mental', t: weekday(today) === 6 ? 'Mein Warum lesen + überarbeiten' : 'Box-Atmung oder Abendtext', sub: fri ? 'OPTIONAL · NACH DER HEIMFAHRT' : 'ABENDS · 5 MIN', act: () => app.go(weekday(today) === 6 ? '#/mental/warum' : '#/mental'), optional: fri });
   const lb = st.settings.lastBackup;
   if (!lb || daysBetween(lb.slice(0, 10), today) > 14) items.push({ id: 'backup', t: 'Daten sichern', sub: lb ? 'LETZTE SICHERUNG ' + fmtDate(lb.slice(0, 10)) : 'NOCH NIE GESICHERT', act: () => app.settings() });

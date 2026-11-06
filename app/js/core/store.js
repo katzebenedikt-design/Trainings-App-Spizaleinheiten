@@ -29,6 +29,7 @@ export function defaultState() {
     cards: {}, // Karteikarten-Status { cardId: { box, due } }
     courses: {},
     av: { lessons: {}, exams: {} }, // Wissenskurse „Nach dem AV“
+    cat: { profile: 'bw', levels: {}, sims: [], train: [] }, // CAT-Test: Stufen je Bereich, Simulationen, Training
     settings: { remindMorning: '06:00', remindEvening: '21:00', remindOn: false, voice: true, lastBackup: null, lastRemind: {} },
   };
 }

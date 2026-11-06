@@ -12,7 +12,7 @@ const shots = process.argv[3] || null;
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   const shot = async (n) => { if (shots) await page.screenshot({ path: `${shots}/${n}.png` }); };
-  const step = async (name, fn) => { if (name !== 'Ersteinrichtung') await page.evaluate(() => document.querySelectorAll('.full,.modal-bg,.reward').forEach((e) => e.remove())).catch(() => {}); try { await fn(); console.log('✓', name); } catch (e) { errors.push(`${name}: ${e.message.split('\n')[0]}`); console.log('✗', name, e.message.split('\n').slice(0, 4).join(' | ')); } };
+  const step = async (name, fn) => { if (name !== 'Ersteinrichtung') await page.evaluate(() => document.querySelectorAll('.full,.modal-bg,.reward').forEach((e) => e.remove())).catch(() => {}); try { await fn(); console.log('✓', name); } catch (e) { await shot('FEHLER-' + name.replace(/[^\w]/g, '_')).catch(() => {}); errors.push(`${name}: ${e.message.split('\n')[0]}`); console.log('✗', name, e.message.split('\n').slice(0, 4).join(' | ')); } };
   const close = async () => { const b = page.locator('.close .icon-btn').last(); if (await b.count()) await b.click(); };
 
   await page.goto(url);
@@ -237,6 +237,46 @@ const shots = process.argv[3] || null;
     await fc.setFiles(await dl.path()); await page.waitForTimeout(400);
     if (!(await page.locator('.card', { hasText: 'Italienisch' }).count())) throw new Error('Importiertes Paket fehlt');
     await shot('sprachen-import');
+  });
+
+  const catLoop = async (endText) => {
+    for (let i = 0; i < 200; i++) {
+      if (await page.locator('.reward').count()) { await page.locator('.reward').first().click(); continue; }
+      const full = page.locator('.full').last();
+      if (await full.getByText(endText).count()) return;
+      const start = full.getByText('> Start', { exact: true }); if (await start.count()) { await start.click(); continue; }
+      const weiter = full.getByText('Weiter', { exact: true }); if (await weiter.count()) { await weiter.click(); continue; }
+      const ready = full.getByText('Ich bin so weit'); if (await ready.count()) { await ready.click(); await page.waitForTimeout(1200); continue; }
+      const d2 = full.locator('.d2'); if (await d2.count()) { for (let k = 0; k < 6; k++) await d2.nth(k).click(); await full.getByText('Fertig', { exact: true }).click(); await page.waitForTimeout(250); continue; }
+      const opt = full.locator('.catopts button'); if (await opt.count()) { await opt.first().click(); await page.waitForTimeout(260); continue; }
+      await page.waitForTimeout(300);
+    }
+    throw new Error('Ende nicht erreicht: ' + endText);
+  };
+  await step('Auswahl/CAT', async () => { await page.goto(url + '#/auswahl/cat'); await page.waitForTimeout(400); await shot('cat'); await noOverflow('auswahl/cat'); });
+  for (const mod of ['Sprache', 'Mathe', 'Logik', 'Raum', 'Technik', 'Merken', 'Konzentr.', 'Wissen']) await step('CAT-Training ' + mod, async () => {
+    await page.goto(url + '#/auswahl/cat'); await page.waitForTimeout(300);
+    await page.locator('.tile', { hasText: mod }).click();
+    await page.waitForTimeout(300); await shot('cat-train-' + mod.replace('.', ''));
+    await catLoop('ABGESCHLOSSEN ]');
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    await page.locator('.full').last().getByText('Fertig', { exact: true }).click();
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+  });
+  await step('CAT-Kurz-Simulation Bundespolizei', async () => {
+    await page.goto(url + '#/auswahl/cat'); await page.waitForTimeout(300);
+    await page.locator('.seg button', { hasText: 'Bundespolizei' }).click(); await page.waitForTimeout(300);
+    await page.getByText(/^Kurz-Simulation/).click();
+    await catLoop('[ AUSWERTUNG ]');
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    await shot('cat-auswertung');
+    await page.locator('.full').last().getByText('Fertig', { exact: true }).click();
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    await page.waitForTimeout(400);
+    if (!(await page.getByText('[ EMPFOHLEN: SCHWÄCHSTE BEREICHE ]').count())) throw new Error('Keine Empfehlung nach Simulation');
+    await shot('cat-verlauf');
+    await page.goto(url + '#/sport/heute'); await page.waitForTimeout(400);
+    if (!(await page.getByText(/^CAT-Training:/).count())) throw new Error('Kein CAT-Vorschlag im Tagesbefehl');
   });
 
   await step('Kurse', async () => { await page.goto(url + '#/kurse'); await page.waitForTimeout(300); await shot('kurse'); });

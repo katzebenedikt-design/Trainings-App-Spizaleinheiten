@@ -248,3 +248,24 @@ nav.bottom { max-width: 100%; }
 .card.activec { border-color: var(--sand); }
 a.card.linkc { display: block; color: var(--txt); text-decoration: none; }
 a.card.linkc b { color: var(--sand); }
+
+/* CAT-Test */
+.catq { white-space: pre-line; font-size: 19px; line-height: 1.35; margin: 6px 0 10px; }
+.catmatrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; max-width: 260px; margin: 0 auto 8px; }
+.catmatrix > div { border: 1px solid var(--line); aspect-ratio: 1; display: grid; place-items: center; background: var(--card); font: 28px var(--mono); }
+.catrow { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; font: 26px var(--mono); }
+.catopts { grid-template-columns: 1fr; }
+.catopts.v { grid-template-columns: 1fr 1fr; }
+.catopts button { display: flex; align-items: center; gap: 10px; font: 17px var(--head); text-align: left; padding: 12px; }
+.catopts.v button { flex-direction: column; justify-content: center; padding: 8px; }
+.catopts button small { color: var(--mut); }
+.catopts button.sel { border-color: var(--sand); background: #c9b47e22; }
+table.memo { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 15px; }
+table.memo th, table.memo td { border-bottom: 1px solid var(--line2); padding: 7px 4px; text-align: left; }
+table.memo th { font: 11px var(--mono); color: var(--mut); letter-spacing: .08em; text-transform: uppercase; }
+.d2grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; margin: 8px 0; }
+.d2 { border: 1px solid var(--line); background: var(--card); color: var(--txt); padding: 2px 0; display: flex; flex-direction: column; align-items: center; line-height: 1; cursor: pointer; min-height: 52px; }
+.d2 i { font: 11px/1 var(--mono); font-style: normal; height: 11px; letter-spacing: 1px; color: var(--dim); }
+.d2 b { font: 22px/1.1 var(--mono); }
+.d2.on { border-color: var(--sand); background: #c9b47e33; }
+.d2.hit { border-color: var(--olive); background: #8a9a4a44; } .d2.miss { border-color: var(--sand); background: #c9b47e44; } .d2.fa { border-color: var(--bad); background: #c4613f44; }
