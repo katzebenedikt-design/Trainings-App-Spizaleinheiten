@@ -231,3 +231,20 @@ nav.bottom { max-width: 100%; }
 .pdfseite img { width: 100%; max-height: 260px; object-fit: cover; object-position: top; display: block; }
 .pdfseite span { display: block; background: var(--card2); padding: 6px; }
 .zoombox { overflow: auto; margin-top: 10px; border: 1px solid var(--line); background: #fff; max-height: calc(100vh - 170px); touch-action: pan-x pan-y; }
+
+/* Sprache: GER-Stufen, Tageseinheit, Karten */
+.lvstrip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-top: 8px; }
+.lvstrip span { border: 1px solid var(--line); text-align: center; padding: 6px 0; font: 13px var(--mono); color: var(--mut); }
+.lvstrip span.done { border-color: var(--olive); color: var(--olive); background: #8a9a4a1f; }
+.lvstrip span.cur { border-color: var(--sand); color: var(--sand); box-shadow: 0 0 10px #c9b47e44; }
+.steps { margin-top: 8px; }
+.step { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); background: var(--card); padding: 12px; margin-bottom: 6px; cursor: pointer; }
+.step .chk { width: 26px; height: 26px; border: 1px solid var(--line); display: grid; place-items: center; font: 16px var(--mono); color: var(--olive); flex: none; }
+.step.done { opacity: .6; } .step.done .chk { border-color: var(--olive); }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+.grid4 .btn { margin: 0; padding: 10px 2px; font-size: 13px; }
+.grid4 .btn small { display: block; font: 11px var(--mono); opacity: .75; margin-top: 2px; }
+.node.open { border-color: var(--dim); }
+.card.activec { border-color: var(--sand); }
+a.card.linkc { display: block; color: var(--txt); text-decoration: none; }
+a.card.linkc b { color: var(--sand); }

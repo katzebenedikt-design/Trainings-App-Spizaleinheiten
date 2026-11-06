@@ -1,0 +1,582 @@
+{
+ "code": "fr",
+ "name": "Französisch",
+ "tts": "fr-FR",
+ "fsi": 1,
+ "ziel": "B2",
+ "hinweis": "FSI-Kategorie I. Wichtig für Einsätze in West- und Nordafrika und mit französischen Partnern. Funk: „À vous“ = kommen, „Reçu“ = verstanden.",
+ "stufen": {
+  "A1": {
+   "ziel": "Überleben, vorstellen, Checkpoint, Wege und Zahlen",
+   "einheiten": [
+    {
+     "id": "s",
+     "titel": "Überlebens-Set",
+     "lektionen": [
+      [
+       [
+        "Bonjour",
+        "Hallo / Guten Tag"
+       ],
+       [
+        "Merci",
+        "Danke"
+       ],
+       [
+        "S'il vous plaît",
+        "Bitte"
+       ],
+       [
+        "Oui / Non",
+        "Ja / Nein"
+       ],
+       [
+        "Pardon",
+        "Entschuldigung"
+       ],
+       [
+        "Je ne comprends pas",
+        "Ich verstehe nicht"
+       ],
+       [
+        "Plus lentement, s’il vous plaît",
+        "Langsamer bitte"
+       ]
+      ],
+      [
+       [
+        "Vous parlez anglais ?",
+        "Sprechen Sie Englisch?"
+       ],
+       [
+        "Où est … ?",
+        "Wo ist …?"
+       ],
+       [
+        "Combien ?",
+        "Wie viel?"
+       ],
+       [
+        "Au secours !",
+        "Hilfe!"
+       ],
+       [
+        "J'ai besoin d'un médecin",
+        "Ich brauche einen Arzt"
+       ],
+       [
+        "un, deux, trois, quatre, cinq",
+        "1, 2, 3, 4, 5"
+       ],
+       [
+        "six, sept, huit, neuf, dix",
+        "6, 7, 8, 9, 10"
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "fr1",
+     "titel": "Vorstellen",
+     "lektionen": [
+      [
+       [
+        "Je m'appelle Ben.",
+        "Ich heiße Ben."
+       ],
+       [
+        "Je viens d'Allemagne.",
+        "Ich komme aus Deutschland."
+       ],
+       [
+        "Je suis allemand.",
+        "Ich bin Deutscher."
+       ],
+       [
+        "Enchanté.",
+        "Freut mich."
+       ],
+       [
+        "Comment tu t'appelles ?",
+        "Wie heißt du?"
+       ]
+      ],
+      [
+       [
+        "Tu viens d'où ?",
+        "Woher kommst du?"
+       ],
+       [
+        "Je parle un peu français.",
+        "Ich spreche ein bisschen Französisch."
+       ],
+       [
+        "Je suis apprenti.",
+        "Ich bin Auszubildender."
+       ],
+       [
+        "Quelle heure est-il ?",
+        "Wie spät ist es?"
+       ],
+       [
+        "Il est sept heures.",
+        "Es ist sieben Uhr."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "fr2",
+     "titel": "Checkpoint & Hilfe",
+     "lektionen": [
+      [
+       [
+        "Halte !",
+        "Halt!"
+       ],
+       [
+        "Les mains en l'air !",
+        "Hände hoch!"
+       ],
+       [
+        "Ne bougez pas.",
+        "Bewegen Sie sich nicht."
+       ],
+       [
+        "Calmez-vous, nous sommes là pour aider.",
+        "Beruhigen Sie sich, wir sind hier, um zu helfen."
+       ],
+       [
+        "Montrez-moi vos papiers.",
+        "Zeigen Sie mir Ihre Papiere."
+       ]
+      ],
+      [
+       [
+        "Vous êtes blessé ?",
+        "Sind Sie verletzt?"
+       ],
+       [
+        "Où avez-vous mal ?",
+        "Wo tut es Ihnen weh?"
+       ],
+       [
+        "Nous avons besoin d'eau.",
+        "Wir brauchen Wasser."
+       ],
+       [
+        "Attendez ici.",
+        "Warten Sie hier."
+       ],
+       [
+        "Il y a quelqu'un d'autre ?",
+        "Ist noch jemand da?"
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "fr3",
+     "titel": "Wege & Zahlen",
+     "lektionen": [
+      [
+       [
+        "à gauche",
+        "links"
+       ],
+       [
+        "à droite",
+        "rechts"
+       ],
+       [
+        "tout droit",
+        "geradeaus"
+       ],
+       [
+        "près / loin",
+        "nah / weit"
+       ],
+       [
+        "le pont",
+        "die Brücke"
+       ]
+      ],
+      [
+       [
+        "vingt, trente, quarante",
+        "20, 30, 40"
+       ],
+       [
+        "cent",
+        "100"
+       ],
+       [
+        "Ils sont combien ?",
+        "Wie viele sind es?"
+       ],
+       [
+        "Ils sont quatre.",
+        "Es sind vier."
+       ],
+       [
+        "au nord",
+        "im Norden"
+       ]
+      ]
+     ]
+    }
+   ],
+   "shadowing": [
+    {
+     "id": "fr-a1-1",
+     "titel": "Vorstellen",
+     "saetze": [
+      [
+       "Bonjour, je m'appelle Ben.",
+       "Hallo, ich heiße Ben."
+      ],
+      [
+       "Je viens d'Allemagne.",
+       "Ich komme aus Deutschland."
+      ],
+      [
+       "Je parle un peu français.",
+       "Ich spreche ein bisschen Französisch."
+      ],
+      [
+       "Enchanté.",
+       "Freut mich."
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "TV5MONDE – Apprendre le français",
+     "url": "https://apprendre.tv5monde.com/",
+     "art": "Videos mit Übungen",
+     "text": "Kurze Videos nach Niveau (A1–C1) mit Übungen."
+    }
+   ],
+   "sprechen": [
+    "Stell dich auf Französisch vor: Name, Herkunft, Beruf.",
+    "Halte an einem gedachten Checkpoint ein Auto an und frag nach den Papieren.",
+    "Frag, ob jemand verletzt ist und wo es wehtut."
+   ],
+   "test": [
+    {
+     "typ": "hoeren",
+     "text": "Je m'appelle Paul. Je viens du Canada.",
+     "frage": "Woher kommt Paul?",
+     "optionen": [
+      "Kanada",
+      "Frankreich",
+      "Belgien",
+      "Deutschland"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Was heißt „Je ne comprends pas“?",
+     "optionen": [
+      "Ich verstehe nicht",
+      "Ich weiß nicht",
+      "Ich komme nicht",
+      "Ich will nicht"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Les mains en l'air !",
+     "frage": "Was wird gerufen?",
+     "optionen": [
+      "Hände hoch!",
+      "Halt!",
+      "Hilfe!",
+      "Hinlegen!"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Wie sagt man „rechts“?",
+     "optionen": [
+      "à droite",
+      "à gauche",
+      "tout droit",
+      "près"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "J'ai besoin d'un médecin.",
+     "frage": "Was braucht die Person?",
+     "optionen": [
+      "Einen Arzt",
+      "Wasser",
+      "Den Weg",
+      "Papiere"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "„Où avez-vous mal ?“ bedeutet …",
+     "optionen": [
+      "Wo tut es Ihnen weh?",
+      "Wo wohnen Sie?",
+      "Wie heißen Sie?",
+      "Was ist passiert?"
+     ],
+     "loesung": 0
+    }
+   ]
+  },
+  "A2": {
+   "ziel": "Erzählen, Körper und Wetter, einfacher Funk und Meldungen",
+   "einheiten": [
+    {
+     "id": "fr4",
+     "titel": "Erzählen",
+     "lektionen": [
+      [
+       [
+        "Hier, j'ai couru dix kilomètres.",
+        "Gestern bin ich zehn Kilometer gelaufen."
+       ],
+       [
+        "Je suis fatigué.",
+        "Ich bin müde."
+       ],
+       [
+        "J'ai faim.",
+        "Ich habe Hunger."
+       ],
+       [
+        "Demain, on va s'entraîner.",
+        "Morgen werden wir trainieren."
+       ],
+       [
+        "Il fait très froid.",
+        "Es ist sehr kalt."
+       ]
+      ],
+      [
+       [
+        "Il pleut.",
+        "Es regnet."
+       ],
+       [
+        "J'ai mal au genou.",
+        "Mein Knie tut weh."
+       ],
+       [
+        "Vous pouvez répéter, s'il vous plaît ?",
+        "Können Sie das bitte wiederholen?"
+       ],
+       [
+        "Pas de problème.",
+        "Kein Problem."
+       ],
+       [
+        "On y va.",
+        "Los gehts."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "fr5",
+     "titel": "Funk & Meldung",
+     "lektionen": [
+      [
+       [
+        "À vous.",
+        "Kommen (Funk)."
+       ],
+       [
+        "Reçu.",
+        "Verstanden."
+       ],
+       [
+        "Deux véhicules se dirigent vers le sud.",
+        "Zwei Fahrzeuge fahren nach Süden."
+       ],
+       [
+        "Répétez.",
+        "Wiederholen."
+       ],
+       [
+        "Rien à signaler.",
+        "Nichts zu melden."
+       ]
+      ],
+      [
+       [
+        "Il nous faut un médecin, urgent.",
+        "Wir brauchen dringend einen Arzt."
+       ],
+       [
+        "Le blessé est conscient.",
+        "Der Verletzte ist bei Bewusstsein."
+       ],
+       [
+        "Il respire.",
+        "Er atmet."
+       ],
+       [
+        "Nous arrivons dans dix minutes.",
+        "Wir kommen in zehn Minuten an."
+       ],
+       [
+        "Point de ralliement : le pont.",
+        "Sammelpunkt: die Brücke."
+       ]
+      ]
+     ]
+    }
+   ],
+   "shadowing": [
+    {
+     "id": "fr-a2-1",
+     "titel": "Meldung",
+     "saetze": [
+      [
+       "Deux véhicules se dirigent vers le sud.",
+       "Zwei Fahrzeuge fahren nach Süden."
+      ],
+      [
+       "Rien à signaler au pont.",
+       "An der Brücke nichts zu melden."
+      ],
+      [
+       "Nous arrivons dans dix minutes.",
+       "Wir kommen in zehn Minuten an."
+      ],
+      [
+       "À vous.",
+       "Kommen."
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "RFI – Français facile",
+     "url": "https://francaisfacile.rfi.fr/",
+     "art": "Nachrichten (langsam)",
+     "text": "Nachrichten in einfachem Französisch mit Text."
+    }
+   ],
+   "sprechen": [
+    "Erzähl auf Französisch, was du gestern gemacht hast.",
+    "Gib eine kurze Meldung: Fahrzeuge, Richtung, Uhrzeit.",
+    "Erkläre einem Arzt, was dir wehtut."
+   ],
+   "test": [
+    {
+     "typ": "hoeren",
+     "text": "Hier, j'ai couru dix kilomètres.",
+     "frage": "Was hat die Person gemacht?",
+     "optionen": [
+      "Gestern 10 km gelaufen",
+      "Morgen 10 km laufen",
+      "10 Minuten gewartet",
+      "10 km gefahren"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "„Reçu“ im Funk bedeutet …",
+     "optionen": [
+      "Verstanden",
+      "Kommen",
+      "Ende",
+      "Wiederholen"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Deux véhicules se dirigent vers le sud.",
+     "frage": "Was wird gemeldet?",
+     "optionen": [
+      "Zwei Fahrzeuge nach Süden",
+      "Zwei Männer nach Norden",
+      "Ein Fahrzeug nach Süden",
+      "Zwei Fahrzeuge nach Westen"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "„J'ai mal au genou“ bedeutet …",
+     "optionen": [
+      "Mein Knie tut weh",
+      "Mein Kopf tut weh",
+      "Ich bin müde",
+      "Ich habe Hunger"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Wie sagt man „Es regnet“?",
+     "optionen": [
+      "Il pleut.",
+      "Il fait froid.",
+      "Il fait beau.",
+      "Il neige."
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Le blessé est conscient.",
+     "frage": "Wie geht es dem Verletzten?",
+     "optionen": [
+      "Er ist bei Bewusstsein",
+      "Er ist bewusstlos",
+      "Er ist weg",
+      "Er schläft"
+     ],
+     "loesung": 0
+    }
+   ]
+  },
+  "B1": {
+   "ziel": "Mit echten Quellen: Nachrichten verstehen, frei erzählen",
+   "einheiten": [],
+   "quellen": [
+    {
+     "titel": "RFI – Français facile",
+     "url": "https://francaisfacile.rfi.fr/",
+     "art": "Nachrichten",
+     "text": "„Journal en français facile“ täglich hören."
+    },
+    {
+     "titel": "TV5MONDE – Apprendre le français",
+     "url": "https://apprendre.tv5monde.com/",
+     "art": "Videos",
+     "text": "Übungen auf B1–B2."
+    }
+   ]
+  },
+  "B2": {
+   "ziel": "Diskutieren, Fachgespräche, Nachrichten ohne Hilfe",
+   "einheiten": [],
+   "quellen": [
+    {
+     "titel": "franceinfo",
+     "url": "https://www.francetvinfo.fr/",
+     "art": "Nachrichten",
+     "text": "Normale Nachrichten in Originaltempo."
+    }
+   ]
+  }
+ }
+}

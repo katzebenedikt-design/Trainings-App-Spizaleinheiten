@@ -1,5 +1,5 @@
 // Service Worker: App läuft offline, Erinnerungen per Benachrichtigung.
-const VERSION = '1008f3059d';
+const VERSION = '228246cca3';
 // eslint-disable-next-line no-undef -- Platzhalter, wird von tools/build-sw.mjs ersetzt
 const ASSETS = [
  "./",
@@ -21,9 +21,11 @@ const ASSETS = [
  "./js/core/garmin-source.js",
  "./js/core/garmin.js",
  "./js/core/lang.js",
+ "./js/core/langpacks.js",
  "./js/core/plan.js",
  "./js/core/planner.js",
  "./js/core/readiness.js",
+ "./js/core/recorder.js",
  "./js/core/rewards.js",
  "./js/core/rules.js",
  "./js/core/speech.js",
@@ -33,7 +35,6 @@ const ASSETS = [
  "./js/core/voiceparse.js",
  "./js/core/weakness.js",
  "./js/data/courses.js",
- "./js/data/english.js",
  "./js/data/exercise-info.js",
  "./js/data/exercises.js",
  "./js/data/mental.js",
@@ -59,7 +60,15 @@ const ASSETS = [
  "./js/views/test.js",
  "./js/views/timer.js",
  "./js/views/voice.js",
- "./manifest.webmanifest"
+ "./manifest.webmanifest",
+ "./sprachen/ar.json",
+ "./sprachen/en.json",
+ "./sprachen/es.json",
+ "./sprachen/fr.json",
+ "./sprachen/index.json",
+ "./sprachen/nl.json",
+ "./sprachen/pl.json",
+ "./sprachen/ru.json"
 ];
 const CACHE = 'auswahl-' + VERSION;
 

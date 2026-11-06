@@ -1,0 +1,577 @@
+{
+ "code": "es",
+ "name": "Spanisch",
+ "tts": "es-ES",
+ "fsi": 1,
+ "ziel": "B2",
+ "hinweis": "Für Deutschsprachige eine der schnellsten Sprachen (FSI-Kategorie I). Funk: „Cambio“ = kommen, „Recibido“ = verstanden.",
+ "stufen": {
+  "A1": {
+   "ziel": "Überleben, vorstellen, Checkpoint, Wege und Zahlen",
+   "einheiten": [
+    {
+     "id": "s",
+     "titel": "Überlebens-Set",
+     "lektionen": [
+      [
+       [
+        "Hola",
+        "Hallo"
+       ],
+       [
+        "Gracias",
+        "Danke"
+       ],
+       [
+        "Por favor",
+        "Bitte"
+       ],
+       [
+        "Sí / No",
+        "Ja / Nein"
+       ],
+       [
+        "Perdón",
+        "Entschuldigung"
+       ],
+       [
+        "No entiendo",
+        "Ich verstehe nicht"
+       ],
+       [
+        "Más despacio, por favor",
+        "Langsamer bitte"
+       ]
+      ],
+      [
+       [
+        "¿Habla inglés?",
+        "Sprechen Sie Englisch?"
+       ],
+       [
+        "¿Dónde está …?",
+        "Wo ist …?"
+       ],
+       [
+        "¿Cuánto cuesta?",
+        "Wie viel kostet das?"
+       ],
+       [
+        "¡Ayuda!",
+        "Hilfe!"
+       ],
+       [
+        "Necesito un médico",
+        "Ich brauche einen Arzt"
+       ],
+       [
+        "uno, dos, tres, cuatro, cinco",
+        "1, 2, 3, 4, 5"
+       ],
+       [
+        "seis, siete, ocho, nueve, diez",
+        "6, 7, 8, 9, 10"
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "es1",
+     "titel": "Vorstellen",
+     "lektionen": [
+      [
+       [
+        "Me llamo Ben.",
+        "Ich heiße Ben.",
+        "Mi nombre es Ben."
+       ],
+       [
+        "Soy de Alemania.",
+        "Ich komme aus Deutschland."
+       ],
+       [
+        "Soy alemán.",
+        "Ich bin Deutscher."
+       ],
+       [
+        "Mucho gusto.",
+        "Freut mich."
+       ],
+       [
+        "¿Cómo te llamas?",
+        "Wie heißt du?"
+       ]
+      ],
+      [
+       [
+        "¿De dónde eres?",
+        "Woher kommst du?"
+       ],
+       [
+        "Hablo un poco de español.",
+        "Ich spreche ein bisschen Spanisch."
+       ],
+       [
+        "Soy aprendiz.",
+        "Ich bin Auszubildender."
+       ],
+       [
+        "¿Qué hora es?",
+        "Wie spät ist es?"
+       ],
+       [
+        "Son las siete.",
+        "Es ist sieben Uhr."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "es2",
+     "titel": "Checkpoint & Hilfe",
+     "lektionen": [
+      [
+       [
+        "¡Alto!",
+        "Halt!"
+       ],
+       [
+        "¡Manos arriba!",
+        "Hände hoch!"
+       ],
+       [
+        "No se mueva.",
+        "Bewegen Sie sich nicht."
+       ],
+       [
+        "Tranquilo, estamos aquí para ayudar.",
+        "Ruhig, wir sind hier, um zu helfen."
+       ],
+       [
+        "Muéstreme su documento.",
+        "Zeigen Sie mir Ihren Ausweis."
+       ]
+      ],
+      [
+       [
+        "¿Está herido?",
+        "Sind Sie verletzt?"
+       ],
+       [
+        "¿Dónde le duele?",
+        "Wo tut es Ihnen weh?"
+       ],
+       [
+        "Necesitamos agua.",
+        "Wir brauchen Wasser."
+       ],
+       [
+        "Espere aquí.",
+        "Warten Sie hier."
+       ],
+       [
+        "¿Hay alguien más?",
+        "Ist noch jemand da?"
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "es3",
+     "titel": "Wege & Zahlen",
+     "lektionen": [
+      [
+       [
+        "a la izquierda",
+        "links"
+       ],
+       [
+        "a la derecha",
+        "rechts"
+       ],
+       [
+        "todo recto",
+        "geradeaus"
+       ],
+       [
+        "cerca / lejos",
+        "nah / weit"
+       ],
+       [
+        "el puente",
+        "die Brücke"
+       ]
+      ],
+      [
+       [
+        "veinte, treinta, cuarenta",
+        "20, 30, 40"
+       ],
+       [
+        "cien",
+        "100"
+       ],
+       [
+        "¿Cuántos son?",
+        "Wie viele sind es?"
+       ],
+       [
+        "Son cuatro hombres.",
+        "Es sind vier Männer."
+       ],
+       [
+        "en el norte",
+        "im Norden"
+       ]
+      ]
+     ]
+    }
+   ],
+   "shadowing": [
+    {
+     "id": "es-a1-1",
+     "titel": "Vorstellen",
+     "saetze": [
+      [
+       "Hola, me llamo Ben.",
+       "Hallo, ich heiße Ben."
+      ],
+      [
+       "Soy de Alemania.",
+       "Ich komme aus Deutschland."
+      ],
+      [
+       "Hablo un poco de español.",
+       "Ich spreche ein bisschen Spanisch."
+      ],
+      [
+       "Mucho gusto.",
+       "Freut mich."
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "Coffee Break Spanish",
+     "url": "https://coffeebreaklanguages.com/",
+     "art": "Podcast",
+     "text": "Kostenloser Einsteiger-Podcast, Erklärungen auf Englisch."
+    }
+   ],
+   "sprechen": [
+    "Stell dich auf Spanisch vor: Name, Herkunft, Beruf.",
+    "Halte an einem gedachten Checkpoint ein Auto an und frag nach dem Ausweis.",
+    "Frag, ob jemand verletzt ist und wo es wehtut."
+   ],
+   "test": [
+    {
+     "typ": "hoeren",
+     "text": "Me llamo Ana. Soy de México.",
+     "frage": "Woher kommt Ana?",
+     "optionen": [
+      "Mexiko",
+      "Spanien",
+      "Argentinien",
+      "Deutschland"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Was heißt „No entiendo“?",
+     "optionen": [
+      "Ich verstehe nicht",
+      "Ich weiß nicht",
+      "Ich komme nicht",
+      "Ich will nicht"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "¡Manos arriba!",
+     "frage": "Was wird gerufen?",
+     "optionen": [
+      "Hände hoch!",
+      "Halt!",
+      "Hilfe!",
+      "Hinlegen!"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Wie sagt man „links“?",
+     "optionen": [
+      "a la izquierda",
+      "a la derecha",
+      "todo recto",
+      "cerca"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Necesito un médico.",
+     "frage": "Was braucht die Person?",
+     "optionen": [
+      "Einen Arzt",
+      "Wasser",
+      "Den Weg",
+      "Einen Ausweis"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "„¿Dónde le duele?“ bedeutet …",
+     "optionen": [
+      "Wo tut es Ihnen weh?",
+      "Wo wohnen Sie?",
+      "Wie heißen Sie?",
+      "Was ist passiert?"
+     ],
+     "loesung": 0
+    }
+   ]
+  },
+  "A2": {
+   "ziel": "Erzählen, Körper und Wetter, einfacher Funk und Meldungen",
+   "einheiten": [
+    {
+     "id": "es4",
+     "titel": "Erzählen",
+     "lektionen": [
+      [
+       [
+        "Ayer corrí diez kilómetros.",
+        "Gestern bin ich zehn Kilometer gelaufen."
+       ],
+       [
+        "Estoy cansado.",
+        "Ich bin müde."
+       ],
+       [
+        "Tengo hambre.",
+        "Ich habe Hunger."
+       ],
+       [
+        "Mañana vamos a entrenar.",
+        "Morgen werden wir trainieren."
+       ],
+       [
+        "Hace mucho frío.",
+        "Es ist sehr kalt."
+       ]
+      ],
+      [
+       [
+        "Llueve.",
+        "Es regnet."
+       ],
+       [
+        "Me duele la rodilla.",
+        "Mein Knie tut weh."
+       ],
+       [
+        "¿Puede repetir, por favor?",
+        "Können Sie das bitte wiederholen?"
+       ],
+       [
+        "No pasa nada.",
+        "Kein Problem."
+       ],
+       [
+        "Vamos.",
+        "Los gehts."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "es5",
+     "titel": "Funk & Meldung",
+     "lektionen": [
+      [
+       [
+        "Cambio.",
+        "Kommen (Funk)."
+       ],
+       [
+        "Recibido.",
+        "Verstanden."
+       ],
+       [
+        "Dos vehículos van hacia el sur.",
+        "Zwei Fahrzeuge fahren nach Süden."
+       ],
+       [
+        "Repita, por favor.",
+        "Wiederholen Sie bitte."
+       ],
+       [
+        "Todo tranquilo.",
+        "Alles ruhig."
+       ]
+      ],
+      [
+       [
+        "Necesitamos un médico urgente.",
+        "Wir brauchen dringend einen Arzt."
+       ],
+       [
+        "El herido está consciente.",
+        "Der Verletzte ist bei Bewusstsein."
+       ],
+       [
+        "Respira.",
+        "Er atmet."
+       ],
+       [
+        "Llegamos en diez minutos.",
+        "Wir kommen in zehn Minuten an."
+       ],
+       [
+        "Punto de encuentro: el puente.",
+        "Sammelpunkt: die Brücke."
+       ]
+      ]
+     ]
+    }
+   ],
+   "shadowing": [
+    {
+     "id": "es-a2-1",
+     "titel": "Meldung",
+     "saetze": [
+      [
+       "Dos vehículos van hacia el sur.",
+       "Zwei Fahrzeuge fahren nach Süden."
+      ],
+      [
+       "Todo tranquilo en el puente.",
+       "An der Brücke ist alles ruhig."
+      ],
+      [
+       "Llegamos en diez minutos.",
+       "Wir kommen in zehn Minuten an."
+      ],
+      [
+       "Cambio.",
+       "Kommen."
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "Coffee Break Spanish",
+     "url": "https://coffeebreaklanguages.com/",
+     "art": "Podcast",
+     "text": "Fortgeschrittene Staffeln, danach eigene Sätze laut bilden."
+    }
+   ],
+   "sprechen": [
+    "Erzähl auf Spanisch, was du gestern gemacht hast.",
+    "Gib eine kurze Meldung: Fahrzeuge, Richtung, Uhrzeit.",
+    "Erkläre einem Arzt, was dir wehtut."
+   ],
+   "test": [
+    {
+     "typ": "hoeren",
+     "text": "Ayer corrí diez kilómetros.",
+     "frage": "Was hat die Person gemacht?",
+     "optionen": [
+      "Gestern 10 km gelaufen",
+      "Morgen 10 km laufen",
+      "10 Minuten gewartet",
+      "10 km gefahren"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "„Recibido“ im Funk bedeutet …",
+     "optionen": [
+      "Verstanden",
+      "Kommen",
+      "Ende",
+      "Wiederholen"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Dos vehículos van hacia el sur.",
+     "frage": "Was wird gemeldet?",
+     "optionen": [
+      "Zwei Fahrzeuge nach Süden",
+      "Zwei Männer nach Norden",
+      "Ein Fahrzeug nach Süden",
+      "Zwei Fahrzeuge nach Westen"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "„Me duele la rodilla“ bedeutet …",
+     "optionen": [
+      "Mein Knie tut weh",
+      "Mein Kopf tut weh",
+      "Ich bin müde",
+      "Ich habe Hunger"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Wie sagt man „Es regnet“?",
+     "optionen": [
+      "Llueve.",
+      "Hace frío.",
+      "Hace sol.",
+      "Nieva."
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "El herido está consciente.",
+     "frage": "Wie geht es dem Verletzten?",
+     "optionen": [
+      "Er ist bei Bewusstsein",
+      "Er ist bewusstlos",
+      "Er ist weg",
+      "Er schläft"
+     ],
+     "loesung": 0
+    }
+   ]
+  },
+  "B1": {
+   "ziel": "Mit echten Quellen: Nachrichten verstehen, frei erzählen",
+   "einheiten": [],
+   "quellen": [
+    {
+     "titel": "RTVE Play",
+     "url": "https://www.rtve.es/play/",
+     "art": "Nachrichten & Serien",
+     "text": "Spanisches Fernsehen und Radio. Erst kurze Nachrichten, dann Serien."
+    }
+   ]
+  },
+  "B2": {
+   "ziel": "Diskutieren, Fachgespräche, Nachrichten ohne Hilfe",
+   "einheiten": [],
+   "quellen": [
+    {
+     "titel": "RTVE Play",
+     "url": "https://www.rtve.es/play/",
+     "art": "Nachrichten & Doku",
+     "text": "Dokumentationen ohne Untertitel, danach laut zusammenfassen."
+    }
+   ]
+  }
+ }
+}

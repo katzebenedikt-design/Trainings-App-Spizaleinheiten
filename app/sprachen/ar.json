@@ -1,0 +1,381 @@
+{
+ "code": "ar",
+ "name": "Arabisch (Hocharabisch)",
+ "tts": "ar-SA",
+ "fsi": 4,
+ "ziel": "B2",
+ "hinweis": "FSI-Kategorie IV: eine der schwersten Sprachen für Deutschsprachige. Die App nutzt Hocharabisch (MSA); im Einsatz sprechen die Menschen oft Dialekt. Lautschrift in Klammern.",
+ "stufen": {
+  "A1": {
+   "ziel": "Überleben, grüßen, Checkpoint, Wege und Zahlen",
+   "einheiten": [
+    {
+     "id": "s",
+     "titel": "Überlebens-Set",
+     "lektionen": [
+      [
+       [
+        "مرحبا (marhaban)",
+        "Hallo"
+       ],
+       [
+        "شكرا (shukran)",
+        "Danke"
+       ],
+       [
+        "من فضلك (min fadlak)",
+        "Bitte"
+       ],
+       [
+        "نعم / لا (na’am / la)",
+        "Ja / Nein"
+       ],
+       [
+        "آسف (asif)",
+        "Entschuldigung"
+       ],
+       [
+        "لا أفهم (la afham)",
+        "Ich verstehe nicht"
+       ],
+       [
+        "ببطء من فضلك (bi-but’ min fadlak)",
+        "Langsam bitte"
+       ]
+      ],
+      [
+       [
+        "هل تتكلم الإنجليزية؟ (hal tatakallam al-ingliziyya)",
+        "Sprechen Sie Englisch?"
+       ],
+       [
+        "أين المستشفى؟ (ayna al-mustashfa)",
+        "Wo ist das Krankenhaus?"
+       ],
+       [
+        "كم؟ (kam)",
+        "Wie viel?"
+       ],
+       [
+        "النجدة! (an-najda)",
+        "Hilfe!"
+       ],
+       [
+        "أحتاج إلى طبيب (ahtaju ila tabib)",
+        "Ich brauche einen Arzt"
+       ],
+       [
+        "واحد، اثنان، ثلاثة (wahid, ithnan, thalatha)",
+        "1, 2, 3"
+       ],
+       [
+        "أربعة، خمسة (arba’a, khamsa)",
+        "4, 5"
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "ar1",
+     "titel": "Grüßen & Vorstellen",
+     "lektionen": [
+      [
+       [
+        "السلام عليكم (as-salamu alaykum)",
+        "Friede sei mit euch (Gruß)"
+       ],
+       [
+        "وعليكم السلام (wa-alaykum as-salam)",
+        "Und mit euch sei Friede (Antwort)"
+       ],
+       [
+        "اسمي بن (ismi Ben)",
+        "Ich heiße Ben."
+       ],
+       [
+        "أنا من ألمانيا (ana min almanya)",
+        "Ich komme aus Deutschland."
+       ],
+       [
+        "ما اسمك؟ (ma ismuk)",
+        "Wie heißt du?"
+       ]
+      ],
+      [
+       [
+        "صباح الخير (sabah al-khayr)",
+        "Guten Morgen"
+       ],
+       [
+        "مساء الخير (masa’ al-khayr)",
+        "Guten Abend"
+       ],
+       [
+        "كيف حالك؟ (kayfa haluk)",
+        "Wie geht es dir?"
+       ],
+       [
+        "أنا بخير (ana bikhayr)",
+        "Mir geht es gut"
+       ],
+       [
+        "مع السلامة (ma’a as-salama)",
+        "Auf Wiedersehen"
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "ar2",
+     "titel": "Checkpoint & Hilfe",
+     "lektionen": [
+      [
+       [
+        "قف! (qif)",
+        "Halt!"
+       ],
+       [
+        "ارفع يديك! (irfa’ yadayk)",
+        "Hände hoch!"
+       ],
+       [
+        "لا تتحرك! (la tataharrak)",
+        "Nicht bewegen!"
+       ],
+       [
+        "نحن هنا للمساعدة (nahnu huna lil-musa’ada)",
+        "Wir sind hier, um zu helfen."
+       ],
+       [
+        "أرني هويتك (arini hawiyyatak)",
+        "Zeig mir deinen Ausweis."
+       ]
+      ],
+      [
+       [
+        "هل أنت مصاب؟ (hal anta musab)",
+        "Bist du verletzt?"
+       ],
+       [
+        "أين الألم؟ (ayna al-alam)",
+        "Wo ist der Schmerz?"
+       ],
+       [
+        "نحتاج إلى ماء (nahtaju ila ma’)",
+        "Wir brauchen Wasser."
+       ],
+       [
+        "انتظر هنا (intazir huna)",
+        "Warte hier."
+       ],
+       [
+        "اهدأ (ihda’)",
+        "Beruhige dich."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "ar3",
+     "titel": "Wege & Zahlen",
+     "lektionen": [
+      [
+       [
+        "يسار (yasar)",
+        "links"
+       ],
+       [
+        "يمين (yamin)",
+        "rechts"
+       ],
+       [
+        "إلى الأمام (ila al-amam)",
+        "nach vorn / geradeaus"
+       ],
+       [
+        "الجسر (al-jisr)",
+        "die Brücke"
+       ],
+       [
+        "قريب / بعيد (qarib / ba’id)",
+        "nah / weit"
+       ]
+      ],
+      [
+       [
+        "ستة، سبعة، ثمانية (sitta, sab’a, thamaniya)",
+        "6, 7, 8"
+       ],
+       [
+        "تسعة، عشرة (tis’a, ashara)",
+        "9, 10"
+       ],
+       [
+        "كم عددهم؟ (kam adaduhum)",
+        "Wie viele sind es?"
+       ],
+       [
+        "في الشمال (fi ash-shamal)",
+        "im Norden"
+       ],
+       [
+        "سيارة (sayyara)",
+        "Auto"
+       ]
+      ]
+     ]
+    }
+   ],
+   "shadowing": [
+    {
+     "id": "ar-a1-1",
+     "titel": "Grüßen",
+     "saetze": [
+      [
+       "السلام عليكم (as-salamu alaykum)",
+       "Friede sei mit euch"
+      ],
+      [
+       "اسمي بن (ismi Ben)",
+       "Ich heiße Ben."
+      ],
+      [
+       "أنا من ألمانيا (ana min almanya)",
+       "Ich komme aus Deutschland."
+      ],
+      [
+       "نحن هنا للمساعدة (nahnu huna lil-musa’ada)",
+       "Wir sind hier, um zu helfen."
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "Al Jazeera Learning Arabic",
+     "url": "https://learning.aljazeera.net/",
+     "art": "Kurse",
+     "text": "Kostenlose Hocharabisch-Kurse nach Niveau."
+    }
+   ],
+   "sprechen": [
+    "Begrüße jemanden auf Arabisch und stell dich vor.",
+    "Halte an einem gedachten Checkpoint jemanden an: Halt, Hände hoch, Ausweis.",
+    "Frag, ob jemand verletzt ist und wo der Schmerz ist."
+   ],
+   "test": [
+    {
+     "typ": "wahl",
+     "frage": "Was bedeutet „شكرا (shukran)“?",
+     "optionen": [
+      "Danke",
+      "Bitte",
+      "Hallo",
+      "Hilfe"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "قف!",
+     "frage": "Was wird gerufen?",
+     "optionen": [
+      "Halt!",
+      "Hilfe!",
+      "Hände hoch!",
+      "Warte!"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Antwort auf „As-salamu alaykum“?",
+     "optionen": [
+      "Wa-alaykum as-salam",
+      "Sabah al-khayr",
+      "Ma’a as-salama",
+      "Shukran"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "أحتاج إلى طبيب",
+     "frage": "Was braucht die Person?",
+     "optionen": [
+      "Einen Arzt",
+      "Wasser",
+      "Den Weg",
+      "Einen Ausweis"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "„يمين (yamin)“ bedeutet …",
+     "optionen": [
+      "rechts",
+      "links",
+      "geradeaus",
+      "weit"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "أين الألم؟",
+     "frage": "Was wird gefragt?",
+     "optionen": [
+      "Wo ist der Schmerz?",
+      "Wie heißt du?",
+      "Wo ist die Brücke?",
+      "Wie viele sind es?"
+     ],
+     "loesung": 0
+    }
+   ]
+  },
+  "A2": {
+   "ziel": "Mit Kursen und eigenen Karten weiter",
+   "einheiten": [],
+   "quellen": [
+    {
+     "titel": "Al Jazeera Learning Arabic",
+     "url": "https://learning.aljazeera.net/",
+     "art": "Kurse",
+     "text": "Nächste Stufe der Kurse, Wörter als eigene Karten anlegen."
+    }
+   ]
+  },
+  "B1": {
+   "ziel": "Nachrichten verstehen",
+   "einheiten": [],
+   "quellen": [
+    {
+     "titel": "DW Arabisch",
+     "url": "https://www.dw.com/ar/",
+     "art": "Nachrichten",
+     "text": "Kurze Nachrichten in Hocharabisch."
+    },
+    {
+     "titel": "BBC Arabisch",
+     "url": "https://www.bbc.com/arabic",
+     "art": "Nachrichten",
+     "text": "Artikel mit Audio und Video."
+    }
+   ]
+  },
+  "B2": {
+   "ziel": "Diskutieren, Fachgespräche",
+   "einheiten": [],
+   "quellen": [
+    {
+     "titel": "BBC Arabisch",
+     "url": "https://www.bbc.com/arabic",
+     "art": "Nachrichten",
+     "text": "Ohne Hilfe hören, laut zusammenfassen."
+    }
+   ]
+  }
+ }
+}

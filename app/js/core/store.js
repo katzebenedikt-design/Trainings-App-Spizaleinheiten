@@ -25,7 +25,7 @@ export function defaultState() {
       checklist: null, breath: [], reads: [],
       games: {},
     },
-    lang: { active: 'en', langs: {} },
+    lang: { active: 'en', langs: {}, custom: {} }, // custom: importierte Sprachpakete
     cards: {}, // Karteikarten-Status { cardId: { box, due } }
     courses: {},
     av: { lessons: {}, exams: {} }, // Wissenskurse „Nach dem AV“

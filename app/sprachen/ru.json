@@ -1,0 +1,375 @@
+{
+ "code": "ru",
+ "name": "Russisch",
+ "tts": "ru-RU",
+ "fsi": 3,
+ "ziel": "B2",
+ "hinweis": "FSI-Kategorie III: deutlich mehr Zeit als Englisch oder Spanisch. Kyrillisch mit Lautschrift in Klammern; die Aussprache prüft die App am kyrillischen Text.",
+ "stufen": {
+  "A1": {
+   "ziel": "Überleben, vorstellen, Checkpoint, Wege und Zahlen",
+   "einheiten": [
+    {
+     "id": "s",
+     "titel": "Überlebens-Set",
+     "lektionen": [
+      [
+       [
+        "Здравствуйте (sdrastwujtje)",
+        "Guten Tag"
+       ],
+       [
+        "Спасибо (spassiba)",
+        "Danke"
+       ],
+       [
+        "Пожалуйста (paschalsta)",
+        "Bitte"
+       ],
+       [
+        "Да / Нет (da / njet)",
+        "Ja / Nein"
+       ],
+       [
+        "Извините (iswinitje)",
+        "Entschuldigung"
+       ],
+       [
+        "Я не понимаю (ja nje panimaju)",
+        "Ich verstehe nicht"
+       ],
+       [
+        "Медленнее, пожалуйста (medlennjeje, paschalsta)",
+        "Langsamer bitte"
+       ]
+      ],
+      [
+       [
+        "Вы говорите по-английски? (wy gawaritje pa-anglijski)",
+        "Sprechen Sie Englisch?"
+       ],
+       [
+        "Где …? (gdje)",
+        "Wo ist …?"
+       ],
+       [
+        "Сколько? (skolka)",
+        "Wie viel?"
+       ],
+       [
+        "Помогите! (pamagitje)",
+        "Hilfe!"
+       ],
+       [
+        "Мне нужен врач (mnje nushen wratsch)",
+        "Ich brauche einen Arzt"
+       ],
+       [
+        "один, два, три (adin, dwa, tri)",
+        "1, 2, 3"
+       ],
+       [
+        "четыре, пять (tschetyrje, pjat)",
+        "4, 5"
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "ru1",
+     "titel": "Vorstellen",
+     "lektionen": [
+      [
+       [
+        "Меня зовут Бен. (menja sawut Ben)",
+        "Ich heiße Ben."
+       ],
+       [
+        "Я из Германии. (ja is germanii)",
+        "Ich komme aus Deutschland."
+       ],
+       [
+        "Очень приятно. (otschen prijatna)",
+        "Sehr angenehm."
+       ],
+       [
+        "Как вас зовут? (kak was sawut)",
+        "Wie heißen Sie?"
+       ],
+       [
+        "Я немного говорю по-русски. (ja nemnoga gawarju pa-russki)",
+        "Ich spreche ein bisschen Russisch."
+       ]
+      ],
+      [
+       [
+        "Который час? (katory tschas)",
+        "Wie spät ist es?"
+       ],
+       [
+        "Хорошо. (charascho)",
+        "Gut."
+       ],
+       [
+        "Я устал. (ja ustal)",
+        "Ich bin müde."
+       ],
+       [
+        "Я хочу пить. (ja chatschu pit)",
+        "Ich habe Durst."
+       ],
+       [
+        "До свидания. (da swidanja)",
+        "Auf Wiedersehen."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "ru2",
+     "titel": "Checkpoint & Hilfe",
+     "lektionen": [
+      [
+       [
+        "Стой! (stoj)",
+        "Halt!"
+       ],
+       [
+        "Руки вверх! (ruki wwerch)",
+        "Hände hoch!"
+       ],
+       [
+        "Не двигайтесь! (nje dwigajtes)",
+        "Nicht bewegen!"
+       ],
+       [
+        "Мы здесь, чтобы помочь. (my sdes, schtoby pamotsch)",
+        "Wir sind hier, um zu helfen."
+       ],
+       [
+        "Покажите документы. (pakashitje dakumenty)",
+        "Zeigen Sie die Papiere."
+       ]
+      ],
+      [
+       [
+        "Вы ранены? (wy ranjeny)",
+        "Sind Sie verletzt?"
+       ],
+       [
+        "Где болит? (gdje balit)",
+        "Wo tut es weh?"
+       ],
+       [
+        "Нам нужна вода. (nam nushna wada)",
+        "Wir brauchen Wasser."
+       ],
+       [
+        "Ждите здесь. (shditje sdes)",
+        "Warten Sie hier."
+       ],
+       [
+        "Здесь есть ещё кто-нибудь? (sdes jest jeschtscho kto-nibud)",
+        "Ist hier noch jemand?"
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "ru3",
+     "titel": "Wege & Zahlen",
+     "lektionen": [
+      [
+       [
+        "налево (naljewa)",
+        "links"
+       ],
+       [
+        "направо (naprawa)",
+        "rechts"
+       ],
+       [
+        "прямо (prjama)",
+        "geradeaus"
+       ],
+       [
+        "мост (most)",
+        "Brücke"
+       ],
+       [
+        "на севере (na sewerje)",
+        "im Norden"
+       ]
+      ],
+      [
+       [
+        "шесть, семь, восемь (schest, sem, wossem)",
+        "6, 7, 8"
+       ],
+       [
+        "девять, десять (djewjat, djessjat)",
+        "9, 10"
+       ],
+       [
+        "Сколько их? (skolka ich)",
+        "Wie viele sind es?"
+       ],
+       [
+        "Их четверо. (ich tschetwera)",
+        "Es sind vier."
+       ],
+       [
+        "близко / далеко (blisko / daljeko)",
+        "nah / weit"
+       ]
+      ]
+     ]
+    }
+   ],
+   "shadowing": [
+    {
+     "id": "ru-a1-1",
+     "titel": "Vorstellen",
+     "saetze": [
+      [
+       "Здравствуйте! (sdrastwujtje)",
+       "Guten Tag!"
+      ],
+      [
+       "Меня зовут Бен. (menja sawut Ben)",
+       "Ich heiße Ben."
+      ],
+      [
+       "Я из Германии. (ja is germanii)",
+       "Ich komme aus Deutschland."
+      ],
+      [
+       "Очень приятно. (otschen prijatna)",
+       "Sehr angenehm."
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "DW Russisch",
+     "url": "https://www.dw.com/ru/",
+     "art": "Nachrichten",
+     "text": "Für später (ab B1). Am Anfang: nur die App-Lektionen und Shadowing."
+    }
+   ],
+   "sprechen": [
+    "Stell dich auf Russisch vor: Name, Herkunft.",
+    "Halte an einem gedachten Checkpoint jemanden an: Halt, Hände hoch, Papiere.",
+    "Frag, ob jemand verletzt ist und wo es wehtut."
+   ],
+   "test": [
+    {
+     "typ": "hoeren",
+     "text": "Меня зовут Иван. Я из Москвы.",
+     "frage": "Woher kommt Iwan?",
+     "optionen": [
+      "Moskau",
+      "Berlin",
+      "Kiew",
+      "Minsk"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Was heißt „Я не понимаю“?",
+     "optionen": [
+      "Ich verstehe nicht",
+      "Ich weiß nicht",
+      "Ich komme nicht",
+      "Ich will nicht"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Руки вверх!",
+     "frage": "Was wird gerufen?",
+     "optionen": [
+      "Hände hoch!",
+      "Halt!",
+      "Hilfe!",
+      "Hinlegen!"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Wie sagt man „links“?",
+     "optionen": [
+      "налево",
+      "направо",
+      "прямо",
+      "близко"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Мне нужен врач.",
+     "frage": "Was braucht die Person?",
+     "optionen": [
+      "Einen Arzt",
+      "Wasser",
+      "Den Weg",
+      "Papiere"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "„Где болит?“ bedeutet …",
+     "optionen": [
+      "Wo tut es weh?",
+      "Wo wohnen Sie?",
+      "Wie heißen Sie?",
+      "Was ist passiert?"
+     ],
+     "loesung": 0
+    }
+   ]
+  },
+  "A2": {
+   "ziel": "Mit echten Quellen und eigenen Karten weiter",
+   "einheiten": [],
+   "quellen": [
+    {
+     "titel": "DW Russisch",
+     "url": "https://www.dw.com/ru/",
+     "art": "Nachrichten",
+     "text": "Kurze Meldungen, Wörter als eigene Karten anlegen."
+    }
+   ]
+  },
+  "B1": {
+   "ziel": "Nachrichten verstehen, frei erzählen",
+   "einheiten": [],
+   "quellen": [
+    {
+     "titel": "BBC Russisch",
+     "url": "https://www.bbc.com/russian",
+     "art": "Nachrichten",
+     "text": "Artikel mit Audio und Video."
+    }
+   ]
+  },
+  "B2": {
+   "ziel": "Diskutieren, Fachgespräche",
+   "einheiten": [],
+   "quellen": [
+    {
+     "titel": "BBC Russisch",
+     "url": "https://www.bbc.com/russian",
+     "art": "Nachrichten",
+     "text": "Ohne Hilfe hören, laut zusammenfassen."
+    }
+   ]
+  }
+ }
+}

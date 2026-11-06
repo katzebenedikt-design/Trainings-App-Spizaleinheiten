@@ -1,0 +1,2830 @@
+{
+ "code": "en",
+ "name": "Englisch",
+ "tts": "en-US",
+ "fsi": 1,
+ "ziel": "C2",
+ "stufen": {
+  "A1": {
+   "ziel": "Vorstellen, Zahlen, Uhrzeit, Nachfragen, NATO-Alphabet, Funkzahlen",
+   "einheiten": [
+    {
+     "id": "u1",
+     "titel": "Begrüßen & Vorstellen",
+     "lektionen": [
+      [
+       [
+        "Hello, my name is Ben.",
+        "Hallo, ich heiße Ben.",
+        "Hi, my name is Ben."
+       ],
+       [
+        "Nice to meet you.",
+        "Freut mich, dich kennenzulernen.",
+        "Pleased to meet you."
+       ],
+       [
+        "I am from Germany.",
+        "Ich komme aus Deutschland.",
+        "I'm from Germany."
+       ],
+       [
+        "How are you?",
+        "Wie geht es dir?"
+       ],
+       [
+        "I am fine, thank you.",
+        "Mir geht es gut, danke.",
+        "I'm fine, thanks.",
+        "I'm good, thank you."
+       ]
+      ],
+      [
+       [
+        "I am an apprentice.",
+        "Ich bin Auszubildender.",
+        "I'm an apprentice.",
+        "I am a trainee."
+       ],
+       [
+        "I work in refrigeration.",
+        "Ich arbeite in der Kältetechnik."
+       ],
+       [
+        "I want to join the special forces.",
+        "Ich will zu den Spezialkräften.",
+        "I want to join special forces."
+       ],
+       [
+        "What is your name?",
+        "Wie heißt du?",
+        "What's your name?"
+       ],
+       [
+        "See you tomorrow.",
+        "Bis morgen."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u2",
+     "titel": "Zahlen & Uhrzeit",
+     "lektionen": [
+      [
+       [
+        "one, two, three, four, five",
+        "eins, zwei, drei, vier, fünf"
+       ],
+       [
+        "six, seven, eight, nine, ten",
+        "sechs, sieben, acht, neun, zehn"
+       ],
+       [
+        "twenty, thirty, forty, fifty",
+        "zwanzig, dreißig, vierzig, fünfzig"
+       ],
+       [
+        "one hundred",
+        "hundert",
+        "a hundred"
+       ],
+       [
+        "How many?",
+        "Wie viele?"
+       ]
+      ],
+      [
+       [
+        "What time is it?",
+        "Wie spät ist es?",
+        "What's the time?"
+       ],
+       [
+        "It is seven o’clock.",
+        "Es ist sieben Uhr.",
+        "It's seven o'clock.",
+        "It is seven o clock"
+       ],
+       [
+        "It is half past four.",
+        "Es ist halb fünf.",
+        "It's half past four."
+       ],
+       [
+        "in ten minutes",
+        "in zehn Minuten"
+       ],
+       [
+        "We start at six.",
+        "Wir fangen um sechs an.",
+        "We start at six o’clock."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u3",
+     "titel": "Nachfragen",
+     "lektionen": [
+      [
+       [
+        "Sorry, again please?",
+        "Entschuldigung, nochmal bitte?",
+        "Sorry, again, please?"
+       ],
+       [
+        "Can you say that again?",
+        "Kannst du das wiederholen?",
+        "Could you say that again?"
+       ],
+       [
+        "Please speak slowly.",
+        "Bitte sprich langsam.",
+        "Speak slowly, please."
+       ],
+       [
+        "I don’t understand.",
+        "Ich verstehe nicht.",
+        "I don't understand.",
+        "I do not understand."
+       ],
+       [
+        "What does that mean?",
+        "Was bedeutet das?"
+       ]
+      ],
+      [
+       [
+        "How do you say that in English?",
+        "Wie sagt man das auf Englisch?"
+       ],
+       [
+        "Can you spell that?",
+        "Kannst du das buchstabieren?",
+        "Could you spell that?"
+       ],
+       [
+        "Is that correct?",
+        "Ist das richtig?",
+        "Is that right?"
+       ],
+       [
+        "I have a question.",
+        "Ich habe eine Frage."
+       ],
+       [
+        "Understood.",
+        "Verstanden.",
+        "I understand."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u4",
+     "titel": "NATO-Alphabet",
+     "lektionen": [
+      [
+       [
+        "Alfa, Bravo, Charlie, Delta",
+        "A, B, C, D",
+        "Alpha, Bravo, Charlie, Delta"
+       ],
+       [
+        "Echo, Foxtrot, Golf, Hotel",
+        "E, F, G, H"
+       ],
+       [
+        "India, Juliett, Kilo, Lima",
+        "I, J, K, L",
+        "India, Juliet, Kilo, Lima"
+       ],
+       [
+        "Mike, November, Oscar, Papa",
+        "M, N, O, P"
+       ],
+       [
+        "Quebec, Romeo, Sierra, Tango",
+        "Q, R, S, T"
+       ]
+      ],
+      [
+       [
+        "Uniform, Victor, Whiskey",
+        "U, V, W",
+        "Uniform, Victor, Whisky"
+       ],
+       [
+        "X-ray, Yankee, Zulu",
+        "X, Y, Z",
+        "Xray, Yankee, Zulu"
+       ],
+       [
+        "My name is Bravo, Echo, November.",
+        "Mein Name ist B-E-N."
+       ],
+       [
+        "I spell: Kilo, Sierra, Kilo.",
+        "Ich buchstabiere: K-S-K."
+       ],
+       [
+        "Say again your call sign.",
+        "Wiederhole dein Rufzeichen.",
+        "Say again your callsign."
+       ]
+      ]
+     ],
+     "nato": true
+    },
+    {
+     "id": "u5",
+     "titel": "Zahlen im Funk",
+     "lektionen": [
+      [
+       [
+        "niner",
+        "9 im Funk (niner)",
+        "nine"
+       ],
+       [
+        "tree",
+        "3 im Funk (tree)",
+        "three"
+       ],
+       [
+        "fife",
+        "5 im Funk (fife)",
+        "five"
+       ],
+       [
+        "one-five-zero-zero",
+        "1500 (Ziffern einzeln)",
+        "one five zero zero"
+       ],
+       [
+        "time now one-four-three-zero",
+        "Uhrzeit jetzt 14:30",
+        "time now one four three zero"
+       ]
+      ],
+      [
+       [
+        "grid one-two-tree, four-fife-six",
+        "Planquadrat 123 456",
+        "grid one two three four five six"
+       ],
+       [
+        "distance two hundred meters",
+        "Entfernung zweihundert Meter",
+        "distance two hundred metres"
+       ],
+       [
+        "heading niner-zero",
+        "Kurs 90",
+        "heading nine zero"
+       ],
+       [
+        "two klicks north",
+        "zwei Kilometer nördlich",
+        "two clicks north"
+       ],
+       [
+        "figures",
+        "Zahlen folgen (figures)"
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u6",
+     "titel": "Wege & Orte",
+     "lektionen": [
+      [
+       [
+        "Where is the station?",
+        "Wo ist der Bahnhof?",
+        "Where is the train station?"
+       ],
+       [
+        "Go straight ahead.",
+        "Geh geradeaus.",
+        "Go straight on."
+       ],
+       [
+        "Turn left.",
+        "Bieg links ab."
+       ],
+       [
+        "Turn right at the bridge.",
+        "An der Brücke rechts abbiegen."
+       ],
+       [
+        "It is near the river.",
+        "Es ist in der Nähe des Flusses.",
+        "It's near the river."
+       ]
+      ],
+      [
+       [
+        "How far is it?",
+        "Wie weit ist es?"
+       ],
+       [
+        "About two kilometers.",
+        "Ungefähr zwei Kilometer.",
+        "About two kilometres."
+       ],
+       [
+        "behind the building",
+        "hinter dem Gebäude"
+       ],
+       [
+        "in front of the gate",
+        "vor dem Tor"
+       ],
+       [
+        "Follow me.",
+        "Folge mir."
+       ]
+      ]
+     ]
+    }
+   ],
+   "shadowing": [
+    {
+     "id": "en-a1-1",
+     "titel": "Mich vorstellen",
+     "saetze": [
+      [
+       "Hello, my name is Ben.",
+       "Hallo, ich heiße Ben."
+      ],
+      [
+       "I am from Germany.",
+       "Ich komme aus Deutschland."
+      ],
+      [
+       "I am an apprentice.",
+       "Ich bin Auszubildender."
+      ],
+      [
+       "I train every day.",
+       "Ich trainiere jeden Tag."
+      ],
+      [
+       "I want to join the special forces.",
+       "Ich will zu den Spezialkräften."
+      ]
+     ]
+    },
+    {
+     "id": "en-a1-2",
+     "titel": "Funk-Grundlagen",
+     "saetze": [
+      [
+       "Radio check, over.",
+       "Funkprobe, kommen."
+      ],
+      [
+       "Loud and clear, over.",
+       "Laut und klar, kommen."
+      ],
+      [
+       "Say again, over.",
+       "Wiederholen, kommen."
+      ],
+      [
+       "Roger, out.",
+       "Verstanden, Ende."
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "BBC Learning English",
+     "url": "https://www.bbc.co.uk/learningenglish",
+     "art": "Kurse & Hören",
+     "text": "Kostenlose Kurse für Anfänger mit Audio und Untertiteln."
+    },
+    {
+     "titel": "VOA Learning English – Let’s Learn English",
+     "url": "https://learningenglish.voanews.com/",
+     "art": "Video & Hören",
+     "text": "Langsam gesprochenes amerikanisches Englisch, ideal zum Mitsprechen."
+    }
+   ],
+   "sprechen": [
+    "Stell dich vor: Name, Herkunft, Beruf, warum du hier bist.",
+    "Buchstabiere deinen vollen Namen im NATO-Alphabet.",
+    "Sag, wie spät es gerade ist, und was du heute noch machst.",
+    "Beschreibe deinen Tag in fünf einfachen Sätzen.",
+    "Frag nach dem Weg zum Bahnhof und erkläre ihn zurück."
+   ],
+   "test": [
+    {
+     "typ": "hoeren",
+     "text": "My name is Tom. I am from Canada.",
+     "frage": "Woher kommt Tom?",
+     "optionen": [
+      "Kanada",
+      "England",
+      "Deutschland",
+      "USA"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Wie sagt man „Ich verstehe nicht“?",
+     "optionen": [
+      "I don't understand.",
+      "I am not understand.",
+      "I no understand.",
+      "I understand not."
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "It is half past seven.",
+     "frage": "Wie spät ist es?",
+     "optionen": [
+      "7:30",
+      "6:30",
+      "7:15",
+      "8:30"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "NATO-Alphabet: Welches Wort steht für M?",
+     "optionen": [
+      "Mike",
+      "Mary",
+      "Metro",
+      "Mama"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: She ___ from Spain.",
+     "optionen": [
+      "is",
+      "are",
+      "am",
+      "be"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Turn left at the next street.",
+     "frage": "Was sollst du tun?",
+     "optionen": [
+      "An der nächsten Straße links abbiegen",
+      "Geradeaus gehen",
+      "Rechts abbiegen",
+      "Umdrehen"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Was bedeutet „Wilco“ im Funk?",
+     "optionen": [
+      "Verstanden, wird ausgeführt",
+      "Wiederholen",
+      "Ende",
+      "Warten"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: ___ you speak English?",
+     "optionen": [
+      "Do",
+      "Are",
+      "Is",
+      "Does"
+     ],
+     "loesung": 0
+    }
+   ]
+  },
+  "A2": {
+   "ziel": "Funkverfahren, Befehle, Körper, Sport, Ausbildung, Wege",
+   "einheiten": [
+    {
+     "id": "u7",
+     "titel": "Funkverfahren",
+     "lektionen": [
+      [
+       [
+        "Radio check, over.",
+        "Funkprobe, kommen."
+       ],
+       [
+        "Loud and clear, over.",
+        "Laut und klar, kommen.",
+        "Loud and clear."
+       ],
+       [
+        "Roger.",
+        "Verstanden (Roger).",
+        "Roger that."
+       ],
+       [
+        "Wilco.",
+        "Verstanden, wird ausgeführt."
+       ],
+       [
+        "Say again, over.",
+        "Wiederholen, kommen.",
+        "Say again."
+       ]
+      ],
+      [
+       [
+        "Bravo two, this is Alfa one, over.",
+        "Bravo zwo, hier Alfa eins, kommen.",
+        "Bravo two this is Alpha one over"
+       ],
+       [
+        "Wait, out.",
+        "Warten, Ende.",
+        "Wait out."
+       ],
+       [
+        "Affirmative.",
+        "Ja (bestätigt)."
+       ],
+       [
+        "Negative.",
+        "Nein (negativ)."
+       ],
+       [
+        "Copy, out.",
+        "Verstanden, Ende.",
+        "Copy that, out."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u8",
+     "titel": "Befehle & Bewegung",
+     "lektionen": [
+      [
+       [
+        "Move!",
+        "Los, bewegen!",
+        "Move"
+       ],
+       [
+        "Get down!",
+        "Runter!",
+        "Get down"
+       ],
+       [
+        "Take cover!",
+        "In Deckung!",
+        "Cover!"
+       ],
+       [
+        "Contact front!",
+        "Feindkontakt vorne!",
+        "Contact front"
+       ],
+       [
+        "Hold position.",
+        "Position halten."
+       ]
+      ],
+      [
+       [
+        "Fall back!",
+        "Zurückziehen!"
+       ],
+       [
+        "On me!",
+        "Zu mir!",
+        "On me"
+       ],
+       [
+        "Contact left, at your nine o’clock!",
+        "Kontakt links, auf neun Uhr!",
+        "Contact left, nine o'clock"
+       ],
+       [
+        "Advance to the tree line.",
+        "Vorrücken bis zur Baumgrenze."
+       ],
+       [
+        "Clear!",
+        "Gesichert / Frei!",
+        "Clear"
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u9",
+     "titel": "Körper & Gesundheit",
+     "lektionen": [
+      [
+       [
+        "My knee hurts.",
+        "Mein Knie tut weh."
+       ],
+       [
+        "I have a blister.",
+        "Ich habe eine Blase."
+       ],
+       [
+        "I need water.",
+        "Ich brauche Wasser."
+       ],
+       [
+        "I am tired.",
+        "Ich bin müde.",
+        "I'm tired."
+       ],
+       [
+        "I feel good.",
+        "Ich fühle mich gut."
+       ]
+      ],
+      [
+       [
+        "head, shoulder, arm, hand",
+        "Kopf, Schulter, Arm, Hand"
+       ],
+       [
+        "leg, knee, foot, back",
+        "Bein, Knie, Fuß, Rücken"
+       ],
+       [
+        "I need a doctor.",
+        "Ich brauche einen Arzt."
+       ],
+       [
+        "Where does it hurt?",
+        "Wo tut es weh?"
+       ],
+       [
+        "Take a break.",
+        "Mach eine Pause."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u10",
+     "titel": "Sport & Training",
+     "lektionen": [
+      [
+       [
+        "ten push-ups",
+        "zehn Liegestütze",
+        "10 push-ups",
+        "ten pushups"
+       ],
+       [
+        "pull-ups",
+        "Klimmzüge",
+        "pullups"
+       ],
+       [
+        "sit-ups",
+        "Sit-ups",
+        "situps"
+       ],
+       [
+        "ruck march",
+        "Marsch mit Gepäck"
+       ],
+       [
+        "Keep the pace!",
+        "Halte das Tempo!",
+        "Keep the pace"
+       ]
+      ],
+      [
+       [
+        "Three sets of twenty.",
+        "Drei Sätze à zwanzig.",
+        "3 sets of 20"
+       ],
+       [
+        "Rest one minute.",
+        "Eine Minute Pause."
+       ],
+       [
+        "Last one!",
+        "Letzte!",
+        "Last one"
+       ],
+       [
+        "Again!",
+        "Nochmal!",
+        "Again"
+       ],
+       [
+        "Run faster!",
+        "Schneller laufen!",
+        "Run faster"
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u11",
+     "titel": "Arbeit & Ausbildung",
+     "lektionen": [
+      [
+       [
+        "I start work at seven fifteen.",
+        "Ich fange um 7:15 an zu arbeiten.",
+        "I start work at 7:15."
+       ],
+       [
+        "I finish at four fifteen.",
+        "Ich bin um 16:15 fertig.",
+        "I finish at 4:15."
+       ],
+       [
+        "I go to vocational school.",
+        "Ich gehe zur Berufsschule."
+       ],
+       [
+        "I repair cooling systems.",
+        "Ich repariere Kühlanlagen."
+       ],
+       [
+        "My job is hard work.",
+        "Meine Arbeit ist harte Arbeit."
+       ]
+      ],
+      [
+       [
+        "I train every evening.",
+        "Ich trainiere jeden Abend."
+       ],
+       [
+        "I go to the gym on weekdays.",
+        "Unter der Woche gehe ich ins Fitnessstudio."
+       ],
+       [
+        "On Saturday I march.",
+        "Am Samstag marschiere ich."
+       ],
+       [
+        "Sunday is my rest day.",
+        "Sonntag ist mein Ruhetag."
+       ],
+       [
+        "I have a plan.",
+        "Ich habe einen Plan."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u12",
+     "titel": "Essen & Einkaufen",
+     "lektionen": [
+      [
+       [
+        "How much is it?",
+        "Wie viel kostet das?",
+        "How much is this?"
+       ],
+       [
+        "I would like a coffee.",
+        "Ich hätte gern einen Kaffee.",
+        "I'd like a coffee."
+       ],
+       [
+        "The bill, please.",
+        "Die Rechnung, bitte.",
+        "Can I have the bill, please?"
+       ],
+       [
+        "Do you have water?",
+        "Haben Sie Wasser?"
+       ],
+       [
+        "Can I pay by card?",
+        "Kann ich mit Karte zahlen?"
+       ]
+      ],
+      [
+       [
+        "I am hungry.",
+        "Ich habe Hunger.",
+        "I'm hungry."
+       ],
+       [
+        "That is enough.",
+        "Das reicht.",
+        "That's enough."
+       ],
+       [
+        "Where can I buy food?",
+        "Wo kann ich Essen kaufen?"
+       ],
+       [
+        "It is closed.",
+        "Es ist geschlossen.",
+        "It's closed."
+       ],
+       [
+        "Thank you very much.",
+        "Vielen Dank.",
+        "Thanks a lot."
+       ]
+      ]
+     ]
+    }
+   ],
+   "shadowing": [
+    {
+     "id": "en-a2-1",
+     "titel": "Mein Training",
+     "saetze": [
+      [
+       "I train six days a week.",
+       "Ich trainiere sechs Tage pro Woche."
+      ],
+      [
+       "On Monday I go to the gym.",
+       "Am Montag gehe ich ins Studio."
+      ],
+      [
+       "On Saturday I march with a heavy backpack.",
+       "Am Samstag marschiere ich mit schwerem Rucksack."
+      ],
+      [
+       "Yesterday I ran ten kilometers.",
+       "Gestern bin ich zehn Kilometer gelaufen."
+      ],
+      [
+       "My legs were tired, but I finished.",
+       "Meine Beine waren müde, aber ich bin durchgekommen."
+      ]
+     ]
+    },
+    {
+     "id": "en-a2-2",
+     "titel": "Positionsmeldung",
+     "saetze": [
+      [
+       "Alfa one, this is Charlie three.",
+       "Alfa eins, hier Charlie drei."
+      ],
+      [
+       "My position is grid one-two-tree, four-fife-six.",
+       "Meine Position ist Planquadrat 123 456."
+      ],
+      [
+       "We are moving north.",
+       "Wir bewegen uns nach Norden."
+      ],
+      [
+       "ETA two-zero minutes, over.",
+       "Ankunft in 20 Minuten, kommen."
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "VOA Learning English",
+     "url": "https://learningenglish.voanews.com/",
+     "art": "Nachrichten (langsam)",
+     "text": "Nachrichten in langsamem, einfachem Englisch. Erst hören, dann mitlesen."
+    },
+    {
+     "titel": "BBC Learning English",
+     "url": "https://www.bbc.co.uk/learningenglish",
+     "art": "Kurse & Hören",
+     "text": "Kurse für Fortgeschrittene Anfänger, kurze Videos."
+    }
+   ],
+   "sprechen": [
+    "Erzähl, was du gestern gemacht hast (Vergangenheit).",
+    "Beschreibe dein Training dieser Woche.",
+    "Melde deine Position im Funkverfahren (ausgedachte Koordinaten).",
+    "Erkläre einem Arzt, was dir wehtut und seit wann.",
+    "Beschreibe den Weg von deiner Wohnung zur Arbeit."
+   ],
+   "test": [
+    {
+     "typ": "hoeren",
+     "text": "Yesterday I ran ten kilometers in the rain.",
+     "frage": "Was hat die Person gestern gemacht?",
+     "optionen": [
+      "Zehn Kilometer im Regen gelaufen",
+      "Zehn Kilometer marschiert",
+      "Im Regen gewartet",
+      "Zehn Minuten trainiert"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: Last week I ___ very tired.",
+     "optionen": [
+      "was",
+      "were",
+      "am",
+      "be"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Was heißt „Take cover!“?",
+     "optionen": [
+      "In Deckung!",
+      "Zurückziehen!",
+      "Los, bewegen!",
+      "Position halten!"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Bravo two, this is Alfa one, send your position, over.",
+     "frage": "Was will Alfa eins?",
+     "optionen": [
+      "Die Position von Bravo zwei",
+      "Eine Funkprobe",
+      "Einen Sanitäter",
+      "Den Abbruch"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: We ___ going to the range tomorrow.",
+     "optionen": [
+      "are",
+      "is",
+      "be",
+      "am"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "My knee hurts. I need a doctor.",
+     "frage": "Was ist das Problem?",
+     "optionen": [
+      "Das Knie tut weh",
+      "Er hat Hunger",
+      "Er hat sich verlaufen",
+      "Er ist müde"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Was bedeutet „rally point“?",
+     "optionen": [
+      "Sammelpunkt",
+      "Kontrollpunkt",
+      "Landeplatz",
+      "Startpunkt"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: How ___ is it to the station?",
+     "optionen": [
+      "far",
+      "long",
+      "much",
+      "many"
+     ],
+     "loesung": 0
+    }
+   ]
+  },
+  "B1": {
+   "ziel": "Karte, Erste Hilfe, Lagemeldung, Checkpoint, erzählen",
+   "einheiten": [
+    {
+     "id": "u13",
+     "titel": "Orientierung & Karte",
+     "lektionen": [
+      [
+       [
+        "What is your position?",
+        "Was ist deine Position?",
+        "What's your position?"
+       ],
+       [
+        "My position is grid four-five-six, seven-eight-niner.",
+        "Meine Position ist Planquadrat 456 789."
+       ],
+       [
+        "bearing two-seven-zero",
+        "Marschrichtung 270 Grad",
+        "bearing two seven zero"
+       ],
+       [
+        "We are at the checkpoint.",
+        "Wir sind am Kontrollpunkt."
+       ],
+       [
+        "Rally point is the bridge.",
+        "Sammelpunkt ist die Brücke."
+       ]
+      ],
+      [
+       [
+        "ridge, hill, valley",
+        "Bergrücken, Hügel, Tal"
+       ],
+       [
+        "Follow the road north.",
+        "Folge der Straße nach Norden."
+       ],
+       [
+        "We cross the river here.",
+        "Wir überqueren hier den Fluss."
+       ],
+       [
+        "landing zone",
+        "Landezone"
+       ],
+       [
+        "We are lost. Check the map.",
+        "Wir haben uns verlaufen. Karte prüfen."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u14",
+     "titel": "Erste Hilfe im Einsatz",
+     "lektionen": [
+      [
+       [
+        "Man down!",
+        "Mann am Boden!",
+        "Man down"
+       ],
+       [
+        "Medic!",
+        "Sanitäter!",
+        "Medic"
+       ],
+       [
+        "Where are you hit?",
+        "Wo bist du getroffen?"
+       ],
+       [
+        "Stay with me.",
+        "Bleib bei mir."
+       ],
+       [
+        "Apply pressure.",
+        "Druck ausüben.",
+        "Apply pressure here."
+       ]
+      ],
+      [
+       [
+        "He is bleeding from the leg.",
+        "Er blutet am Bein.",
+        "He's bleeding from the leg."
+       ],
+       [
+        "Tourniquet on, time one-two-zero-zero.",
+        "Tourniquet angelegt, Zeit 12:00."
+       ],
+       [
+        "He is conscious and breathing.",
+        "Er ist bei Bewusstsein und atmet.",
+        "He's conscious and breathing."
+       ],
+       [
+        "We need evacuation.",
+        "Wir brauchen eine Evakuierung.",
+        "We need a medevac."
+       ],
+       [
+        "One casualty, urgent.",
+        "Ein Verwundeter, dringend."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u15",
+     "titel": "Lagemeldung & Briefing",
+     "lektionen": [
+      [
+       [
+        "This is the mission.",
+        "Das ist der Auftrag."
+       ],
+       [
+        "Our objective is the bridge.",
+        "Unser Ziel ist die Brücke."
+       ],
+       [
+        "Timeline: we move at zero-four-hundred.",
+        "Zeitplan: Abmarsch um 04:00.",
+        "We move at zero four hundred."
+       ],
+       [
+        "Any questions?",
+        "Noch Fragen?"
+       ],
+       [
+        "Threat: enemy patrol in the north.",
+        "Bedrohung: Feindpatrouille im Norden."
+       ]
+      ],
+      [
+       [
+        "Report: two vehicles moving south.",
+        "Meldung: zwei Fahrzeuge fahren nach Süden."
+       ],
+       [
+        "Time now one-six-hundred.",
+        "Uhrzeit jetzt 16:00."
+       ],
+       [
+        "We need more ammunition.",
+        "Wir brauchen mehr Munition."
+       ],
+       [
+        "Weather: rain, low visibility.",
+        "Wetter: Regen, schlechte Sicht."
+       ],
+       [
+        "Mission complete.",
+        "Auftrag erfüllt.",
+        "Mission accomplished."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u16",
+     "titel": "Checkpoint & Zivilisten",
+     "lektionen": [
+      [
+       [
+        "Stop!",
+        "Halt!",
+        "Stop"
+       ],
+       [
+        "Hands up!",
+        "Hände hoch!",
+        "Hands up"
+       ],
+       [
+        "Show me your ID.",
+        "Zeigen Sie mir Ihren Ausweis.",
+        "Show me your ID, please."
+       ],
+       [
+        "Where are you going?",
+        "Wohin gehen Sie?"
+       ],
+       [
+        "Do you speak English?",
+        "Sprechen Sie Englisch?"
+       ]
+      ],
+      [
+       [
+        "Stay calm.",
+        "Bleiben Sie ruhig.",
+        "Stay calm, please."
+       ],
+       [
+        "We are here to help.",
+        "Wir sind hier, um zu helfen.",
+        "We're here to help."
+       ],
+       [
+        "Do you need help?",
+        "Brauchen Sie Hilfe?"
+       ],
+       [
+        "Wait here, please.",
+        "Bitte hier warten.",
+        "Please wait here."
+       ],
+       [
+        "You can go.",
+        "Sie können gehen."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u17",
+     "titel": "Wetter & Natur",
+     "lektionen": [
+      [
+       [
+        "It is raining.",
+        "Es regnet.",
+        "It's raining."
+       ],
+       [
+        "It is very cold tonight.",
+        "Heute Nacht ist es sehr kalt.",
+        "It's very cold tonight."
+       ],
+       [
+        "The wind is strong.",
+        "Der Wind ist stark."
+       ],
+       [
+        "fog in the valley",
+        "Nebel im Tal"
+       ],
+       [
+        "The sun rises at six.",
+        "Die Sonne geht um sechs auf."
+       ]
+      ],
+      [
+       [
+        "forest, field, river",
+        "Wald, Feld, Fluss"
+       ],
+       [
+        "The ground is wet.",
+        "Der Boden ist nass."
+       ],
+       [
+        "We sleep outside.",
+        "Wir schlafen draußen."
+       ],
+       [
+        "It will be dark soon.",
+        "Es wird bald dunkel."
+       ],
+       [
+        "Check the weather.",
+        "Prüf das Wetter."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u18",
+     "titel": "Pläne & Vergangenheit",
+     "lektionen": [
+      [
+       [
+        "Yesterday I ran ten kilometers.",
+        "Gestern bin ich zehn Kilometer gelaufen.",
+        "Yesterday I ran 10 kilometers."
+       ],
+       [
+        "Last week I was tired.",
+        "Letzte Woche war ich müde."
+       ],
+       [
+        "I did my best.",
+        "Ich habe mein Bestes gegeben."
+       ],
+       [
+        "We marched for five hours.",
+        "Wir sind fünf Stunden marschiert."
+       ],
+       [
+        "I passed the test.",
+        "Ich habe den Test bestanden."
+       ]
+      ],
+      [
+       [
+        "Tomorrow I will swim.",
+        "Morgen werde ich schwimmen.",
+        "Tomorrow I'll swim."
+       ],
+       [
+        "Next year I will apply.",
+        "Nächstes Jahr bewerbe ich mich.",
+        "Next year I'll apply."
+       ],
+       [
+        "My goal is the selection course.",
+        "Mein Ziel ist das Auswahlverfahren."
+       ],
+       [
+        "I am going to train harder.",
+        "Ich werde härter trainieren.",
+        "I'm going to train harder."
+       ],
+       [
+        "I will never quit.",
+        "Ich werde niemals aufgeben.",
+        "I'll never quit."
+       ]
+      ]
+     ]
+    }
+   ],
+   "shadowing": [
+    {
+     "id": "en-b1-1",
+     "titel": "Lagemeldung",
+     "saetze": [
+      [
+       "Report: two vehicles moving south on the main road.",
+       "Meldung: zwei Fahrzeuge fahren auf der Hauptstraße nach Süden."
+      ],
+      [
+       "Time now one-six-hundred.",
+       "Uhrzeit jetzt 16:00."
+      ],
+      [
+       "No contact so far.",
+       "Bisher kein Kontakt."
+      ],
+      [
+       "We will hold our position until last light.",
+       "Wir halten die Stellung bis zum letzten Licht."
+      ],
+      [
+       "Request further instructions, over.",
+       "Erbitte weitere Weisung, kommen."
+      ]
+     ]
+    },
+    {
+     "id": "en-b1-2",
+     "titel": "Eine schwere Woche",
+     "saetze": [
+      [
+       "Last week was one of the hardest weeks of my training.",
+       "Letzte Woche war eine der härtesten Wochen meines Trainings."
+      ],
+      [
+       "I had to work long hours and still train every evening.",
+       "Ich musste lange arbeiten und trotzdem jeden Abend trainieren."
+      ],
+      [
+       "On Saturday it rained the whole time.",
+       "Am Samstag hat es die ganze Zeit geregnet."
+      ],
+      [
+       "I wanted to stop, but I kept going.",
+       "Ich wollte aufhören, aber ich habe weitergemacht."
+      ],
+      [
+       "Now I know that I can do more than I think.",
+       "Jetzt weiß ich, dass ich mehr kann, als ich denke."
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "BBC Learning English – 6 Minute English",
+     "url": "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english",
+     "art": "Podcast",
+     "text": "Sechs Minuten Gespräch zu einem Thema, mit Vokabeln. Ideal für den Arbeitsweg."
+    },
+    {
+     "titel": "VOA Learning English",
+     "url": "https://learningenglish.voanews.com/",
+     "art": "Nachrichten",
+     "text": "Nachrichten mit Text. Erst ohne Text hören, dann mit."
+    }
+   ],
+   "sprechen": [
+    "Erzähl 1 Minute von einer schwierigen Situation und wie du sie gelöst hast.",
+    "Gib eine Lagemeldung: Was siehst du gerade um dich herum?",
+    "Erkläre, warum du zu einer Spezialeinheit willst.",
+    "Fasse die letzten Nachrichten, die du gehört hast, zusammen.",
+    "Beschreibe deinen Ausbildungsberuf einem Ausländer."
+   ],
+   "test": [
+    {
+     "typ": "hoeren",
+     "text": "Report: two vehicles moving south on the main road. Time now sixteen hundred.",
+     "frage": "Was wird gemeldet?",
+     "optionen": [
+      "Zwei Fahrzeuge fahren nach Süden",
+      "Zwei Soldaten gehen nach Norden",
+      "Ein Fahrzeug steht still",
+      "Zwei Fahrzeuge fahren nach Westen"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: If I ___ more time, I would train twice a day.",
+     "optionen": [
+      "had",
+      "have",
+      "will have",
+      "would have"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: He has been waiting ___ ten minutes.",
+     "optionen": [
+      "for",
+      "since",
+      "during",
+      "from"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Tourniquet on, time twelve hundred. He is conscious and breathing.",
+     "frage": "Was stimmt?",
+     "optionen": [
+      "Er ist bei Bewusstsein und atmet",
+      "Er ist bewusstlos",
+      "Das Tourniquet wurde um 14 Uhr angelegt",
+      "Er atmet nicht"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Welcher Satz ist korrekt?",
+     "optionen": [
+      "I have never been to England.",
+      "I have never went to England.",
+      "I never have gone England.",
+      "I was never be in England."
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Was bedeutet „bearing two-seven-zero“?",
+     "optionen": [
+      "Marschrichtung 270 Grad",
+      "Entfernung 270 Meter",
+      "Planquadrat 270",
+      "Höhe 270 Meter"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Follow the road north until you reach the bridge, then wait for my signal.",
+     "frage": "Was sollst du an der Brücke tun?",
+     "optionen": [
+      "Auf das Signal warten",
+      "Die Brücke überqueren",
+      "Nach Süden gehen",
+      "Eine Funkprobe machen"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: The briefing ___ at fourteen hundred tomorrow.",
+     "optionen": [
+      "will start",
+      "started",
+      "has started",
+      "was starting"
+     ],
+     "loesung": 0
+    }
+   ]
+  },
+  "B2": {
+   "ziel": "Befehle verstehen, Meldungen absetzen, diskutieren, Vorstellungsgespräch und Nachbesprechung auf Englisch",
+   "einheiten": [
+    {
+     "id": "u19",
+     "titel": "Befehlsausgabe (SMEAC)",
+     "lektionen": [
+      [
+       [
+        "Situation: enemy forces are holding the village.",
+        "Lage: Feindkräfte halten das Dorf."
+       ],
+       [
+        "Our mission is to clear the compound by first light.",
+        "Unser Auftrag ist, das Gehöft bis zum ersten Licht zu räumen."
+       ],
+       [
+        "Execution will be in three phases.",
+        "Die Durchführung erfolgt in drei Phasen."
+       ],
+       [
+        "Support: a medic will move with the second team.",
+        "Unterstützung: Ein Sanitäter geht mit dem zweiten Trupp."
+       ],
+       [
+        "The call sign for the team leader is Alfa one.",
+        "Das Rufzeichen des Truppführers ist Alfa eins."
+       ]
+      ],
+      [
+       [
+        "Any questions before we move out?",
+        "Noch Fragen vor dem Abmarsch?"
+       ],
+       [
+        "Let me confirm the timings.",
+        "Ich bestätige noch einmal die Zeiten."
+       ],
+       [
+        "What do we do if we lose comms?",
+        "Was tun wir bei Funkausfall?"
+       ],
+       [
+        "The fallback position is the farm to the east.",
+        "Die Ausweichstellung ist der Bauernhof im Osten."
+       ],
+       [
+        "The rules of engagement have not changed.",
+        "Die Einsatzregeln haben sich nicht geändert.",
+        "The rules of engagement haven't changed."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u20",
+     "titel": "Meldungen: SITREP & 9-Line",
+     "lektionen": [
+      [
+       [
+        "Send a situation report every hour.",
+        "Schick jede Stunde eine Lagemeldung."
+       ],
+       [
+        "Sitrep: all quiet, no change, over.",
+        "Lagemeldung: alles ruhig, keine Veränderung, kommen."
+       ],
+       [
+        "We have observed four armed men near the bridge.",
+        "Wir haben vier bewaffnete Männer nahe der Brücke beobachtet."
+       ],
+       [
+        "They are moving east on foot.",
+        "Sie bewegen sich zu Fuß nach Osten."
+       ],
+       [
+        "Request instructions, over.",
+        "Erbitte Weisung, kommen."
+       ]
+      ],
+      [
+       [
+        "I have a nine-line medevac request, over.",
+        "Ich habe eine 9-Line-Verwundetenanforderung, kommen.",
+        "I have a nine line medevac request, over."
+       ],
+       [
+        "Line one: grid four-five-six, seven-eight-niner.",
+        "Punkt eins: Planquadrat 456 789."
+       ],
+       [
+        "Two patients, urgent.",
+        "Zwei Patienten, dringend."
+       ],
+       [
+        "The landing zone is marked with green smoke.",
+        "Der Landeplatz ist mit grünem Rauch markiert."
+       ],
+       [
+        "The landing zone is secure.",
+        "Der Landeplatz ist gesichert.",
+        "The LZ is secure."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u21",
+     "titel": "Multinationale Ausbildung",
+     "lektionen": [
+      [
+       [
+        "Which unit are you with?",
+        "Bei welcher Einheit bist du?"
+       ],
+       [
+        "We train together with the Dutch marines.",
+        "Wir trainieren zusammen mit den niederländischen Marineinfanteristen."
+       ],
+       [
+        "Could you walk me through the drill?",
+        "Kannst du mir den Ablauf Schritt für Schritt zeigen?"
+       ],
+       [
+        "In our army we do it slightly differently.",
+        "In unserer Armee machen wir das etwas anders."
+       ],
+       [
+        "Let's run it again until it is smooth.",
+        "Lass es uns wiederholen, bis es flüssig läuft.",
+        "Let's do it again until it's smooth."
+       ]
+      ],
+      [
+       [
+        "I did not catch the last part.",
+        "Den letzten Teil habe ich nicht mitbekommen.",
+        "I didn't catch the last part."
+       ],
+       [
+        "Just to make sure I understood you correctly …",
+        "Nur um sicherzugehen, dass ich dich richtig verstanden habe …"
+       ],
+       [
+        "That makes sense.",
+        "Das ergibt Sinn.",
+        "Makes sense."
+       ],
+       [
+        "What is the standard here?",
+        "Was ist hier der Standard?"
+       ],
+       [
+        "I will brief my team on that.",
+        "Ich weise meinen Trupp darin ein.",
+        "I'll brief my team on that."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u22",
+     "titel": "Diskutieren & begründen",
+     "lektionen": [
+      [
+       [
+        "In my opinion, we should wait.",
+        "Meiner Meinung nach sollten wir warten."
+       ],
+       [
+        "I see your point, but the risk is too high.",
+        "Ich verstehe deinen Punkt, aber das Risiko ist zu hoch."
+       ],
+       [
+        "On the one hand it is faster, on the other hand it is louder.",
+        "Einerseits ist es schneller, andererseits lauter."
+       ],
+       [
+        "The main reason is time.",
+        "Der Hauptgrund ist die Zeit."
+       ],
+       [
+        "That is why I would choose the second route.",
+        "Deshalb würde ich die zweite Route wählen.",
+        "That's why I would choose the second route."
+       ]
+      ],
+      [
+       [
+        "Let me put it another way.",
+        "Lass es mich anders ausdrücken."
+       ],
+       [
+        "What would happen if the weather changed?",
+        "Was würde passieren, wenn sich das Wetter ändert?"
+       ],
+       [
+        "I am not convinced yet.",
+        "Ich bin noch nicht überzeugt.",
+        "I'm not convinced yet."
+       ],
+       [
+        "Fair enough.",
+        "Na gut, einverstanden."
+       ],
+       [
+        "We agree to disagree.",
+        "Wir bleiben bei unterschiedlichen Meinungen."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u23",
+     "titel": "Vorstellungsgespräch",
+     "lektionen": [
+      [
+       [
+        "Tell me about yourself.",
+        "Erzähl mir etwas über dich."
+       ],
+       [
+        "I am currently training as a refrigeration technician.",
+        "Ich mache gerade eine Ausbildung in der Kältetechnik.",
+        "I'm currently training as a refrigeration technician."
+       ],
+       [
+        "My biggest strength is that I do not give up.",
+        "Meine größte Stärke ist, dass ich nicht aufgebe.",
+        "My biggest strength is that I don't give up."
+       ],
+       [
+        "One weakness I am working on is patience.",
+        "Eine Schwäche, an der ich arbeite, ist Geduld."
+       ],
+       [
+        "I want to serve in a team where every single person counts.",
+        "Ich will in einem Team dienen, in dem jeder Einzelne zählt."
+       ]
+      ],
+      [
+       [
+        "Can you give me an example?",
+        "Kannst du mir ein Beispiel geben?"
+       ],
+       [
+        "Under pressure, I focus on the next step.",
+        "Unter Druck konzentriere ich mich auf den nächsten Schritt."
+       ],
+       [
+        "I made a mistake and took responsibility for it.",
+        "Ich habe einen Fehler gemacht und die Verantwortung dafür übernommen."
+       ],
+       [
+        "I have been preparing for this for a long time.",
+        "Ich bereite mich schon lange darauf vor."
+       ],
+       [
+        "Thank you for your time.",
+        "Danke für Ihre Zeit."
+       ]
+      ]
+     ]
+    },
+    {
+     "id": "u24",
+     "titel": "Nachbesprechung (AAR)",
+     "lektionen": [
+      [
+       [
+        "What was supposed to happen?",
+        "Was sollte passieren?"
+       ],
+       [
+        "What actually happened?",
+        "Was ist tatsächlich passiert?"
+       ],
+       [
+        "Why was there a difference?",
+        "Warum gab es einen Unterschied?"
+       ],
+       [
+        "What will we keep and what will we improve?",
+        "Was behalten wir bei und was verbessern wir?"
+       ],
+       [
+        "The entry was too slow because we were not in position.",
+        "Der Zugang war zu langsam, weil wir nicht in Position waren."
+       ]
+      ],
+      [
+       [
+        "That was my fault, I misread the map.",
+        "Das war mein Fehler, ich habe die Karte falsch gelesen."
+       ],
+       [
+        "Next time I will double-check the grid.",
+        "Nächstes Mal prüfe ich die Koordinate doppelt.",
+        "Next time I'll double check the grid."
+       ],
+       [
+        "Communication broke down after the second phase.",
+        "Die Kommunikation brach nach der zweiten Phase zusammen."
+       ],
+       [
+        "We need clearer hand signals.",
+        "Wir brauchen klarere Handzeichen."
+       ],
+       [
+        "Overall the team performed well under pressure.",
+        "Insgesamt hat das Team unter Druck gut funktioniert."
+       ]
+      ]
+     ]
+    }
+   ],
+   "shadowing": [
+    {
+     "id": "en-b2-1",
+     "titel": "Befehlsausgabe (Auszug)",
+     "saetze": [
+      [
+       "Situation: enemy forces are holding the village to the north.",
+       "Lage: Feindkräfte halten das Dorf im Norden."
+      ],
+      [
+       "Mission: we clear the compound by first light.",
+       "Auftrag: Wir räumen das Gehöft bis zum ersten Licht."
+      ],
+      [
+       "Execution: team one provides cover, team two makes entry.",
+       "Durchführung: Trupp eins sichert, Trupp zwei dringt ein."
+      ],
+      [
+       "Support: the medic moves with team two.",
+       "Unterstützung: Der Sanitäter geht mit Trupp zwei."
+      ],
+      [
+       "Command and signal: if we lose comms, we meet at the fallback position.",
+       "Führung und Funk: Bei Funkausfall treffen wir uns in der Ausweichstellung."
+      ]
+     ]
+    },
+    {
+     "id": "en-b2-2",
+     "titel": "Nachbesprechung",
+     "saetze": [
+      [
+       "What was supposed to happen? We wanted to reach the objective in forty minutes.",
+       "Was sollte passieren? Wir wollten das Ziel in vierzig Minuten erreichen."
+      ],
+      [
+       "What actually happened? It took us over an hour.",
+       "Was ist passiert? Wir haben über eine Stunde gebraucht."
+      ],
+      [
+       "Why? I misread the map at the second junction.",
+       "Warum? Ich habe an der zweiten Kreuzung die Karte falsch gelesen."
+      ],
+      [
+       "Next time I will double-check the grid before we move.",
+       "Nächstes Mal prüfe ich die Koordinate doppelt, bevor wir losgehen."
+      ]
+     ]
+    },
+    {
+     "id": "en-b2-3",
+     "titel": "Über mich (Interview)",
+     "saetze": [
+      [
+       "I am currently training as a refrigeration technician.",
+       "Ich mache gerade eine Ausbildung in der Kältetechnik."
+      ],
+      [
+       "At the same time, I have been preparing for the selection for a long time.",
+       "Gleichzeitig bereite ich mich schon lange auf das Auswahlverfahren vor."
+      ],
+      [
+       "My biggest strength is that I do not give up when it gets hard.",
+       "Meine größte Stärke ist, dass ich nicht aufgebe, wenn es hart wird."
+      ],
+      [
+       "One weakness I am working on is patience.",
+       "Eine Schwäche, an der ich arbeite, ist Geduld."
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "BBC Learning English – 6 Minute English",
+     "url": "https://www.bbc.co.uk/learningenglish/english/features/6-minute-english",
+     "art": "Podcast",
+     "text": "Ohne Text hören, Kernaussagen laut zusammenfassen, dann mit Text prüfen."
+    },
+    {
+     "titel": "TED Talks",
+     "url": "https://www.ted.com/talks",
+     "art": "Vorträge",
+     "text": "Kurze Vorträge mit englischen Untertiteln. Eine Minute Shadowing pro Tag."
+    },
+    {
+     "titel": "NATO – Nachrichten und Reden",
+     "url": "https://www.nato.int/",
+     "art": "Militärisches Englisch",
+     "text": "Offizielle Statements und Pressekonferenzen: Fachwörter sammeln."
+    }
+   ],
+   "sprechen": [
+    "Gib eine Befehlsausgabe nach SMEAC für einen Marsch zum Sammelpunkt (Übungslage).",
+    "Argumentiere 2 Minuten: Ist Ausdauer wichtiger als Kraft?",
+    "Mach eine Nachbesprechung deines letzten Trainings mit den vier AAR-Fragen.",
+    "Beantworte: „Tell me about a time you failed.“",
+    "Setze eine 9-Line-Medevac-Anforderung ab (ausgedachte Übungsdaten)."
+   ],
+   "test": [
+    {
+     "typ": "hoeren",
+     "text": "Situation: enemy forces are holding the village. Our mission is to clear the compound by first light.",
+     "frage": "Bis wann soll das Gehöft geräumt sein?",
+     "optionen": [
+      "Bis zum ersten Licht",
+      "Bis Mitternacht",
+      "Bis Mittag",
+      "Bis zur Abenddämmerung"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: If we had left earlier, we ___ the bridge in time.",
+     "optionen": [
+      "would have reached",
+      "would reach",
+      "had reached",
+      "will have reached"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Was bedeutet „I didn’t catch that“?",
+     "optionen": [
+      "Ich habe das nicht mitbekommen",
+      "Ich habe das nicht gefangen",
+      "Ich habe das nicht gemacht",
+      "Ich habe den Bus verpasst"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Two patients, urgent. The landing zone is marked with green smoke.",
+     "frage": "Wie ist der Landeplatz markiert?",
+     "optionen": [
+      "Mit grünem Rauch",
+      "Mit rotem Rauch",
+      "Mit Leuchtstäben",
+      "Gar nicht"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: The plan was ___ because the weather changed.",
+     "optionen": [
+      "abandoned",
+      "abandon",
+      "abandoning",
+      "abandons"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "„Fair enough“ bedeutet …",
+     "optionen": [
+      "Na gut, einverstanden",
+      "Das ist gerecht verteilt",
+      "Genug davon",
+      "Ziemlich fair"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "What will we keep and what will we improve?",
+     "frage": "Wo fällt dieser Satz typischerweise?",
+     "optionen": [
+      "In der Nachbesprechung",
+      "Beim Einkaufen",
+      "Bei der Funkprobe",
+      "Am Checkpoint"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: Not only ___ late, but he also forgot his kit.",
+     "optionen": [
+      "was he",
+      "he was",
+      "he is",
+      "did he was"
+     ],
+     "loesung": 0
+    }
+   ]
+  },
+  "C1": {
+   "ziel": "Komplexe Briefings, Fachgespräche und spontanes Argumentieren – mit echten Quellen",
+   "einheiten": [],
+   "shadowing": [
+    {
+     "id": "en-c1-1",
+     "titel": "Führung unter Druck",
+     "saetze": [
+      [
+       "Leadership under pressure is less about having the answers and more about asking the right questions.",
+       "Führung unter Druck heißt weniger, die Antworten zu haben, als die richtigen Fragen zu stellen."
+      ],
+      [
+       "When the plan falls apart, people look at the leader before they look at the map.",
+       "Wenn der Plan zerfällt, schauen die Leute erst auf den Führer, dann auf die Karte."
+      ],
+      [
+       "A calm voice on the radio can be worth more than an extra team.",
+       "Eine ruhige Stimme am Funk kann mehr wert sein als ein zusätzlicher Trupp."
+      ],
+      [
+       "That is why the best leaders train their composure as hard as their fitness.",
+       "Deshalb trainieren die besten Führer ihre Ruhe genauso hart wie ihre Fitness."
+      ]
+     ]
+    },
+    {
+     "id": "en-c1-2",
+     "titel": "Lagebeurteilung",
+     "saetze": [
+      [
+       "Given the limited visibility and the time constraints, a frontal approach seems unwise.",
+       "Angesichts der schlechten Sicht und des Zeitdrucks scheint ein frontaler Ansatz unklug."
+      ],
+      [
+       "We would be better off approaching from the river side, even if it takes longer.",
+       "Wir wären besser dran, von der Flussseite anzugehen, auch wenn es länger dauert."
+      ],
+      [
+       "The main risk lies in the open ground between the tree line and the compound.",
+       "Das Hauptrisiko liegt im offenen Gelände zwischen Waldrand und Gehöft."
+      ],
+      [
+       "Unless we receive new intelligence, I recommend option two.",
+       "Sofern wir keine neuen Aufklärungsergebnisse bekommen, empfehle ich Option zwei."
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "BBC Sounds – Nachrichten-Podcasts",
+     "url": "https://www.bbc.co.uk/sounds",
+     "art": "Nachrichten",
+     "text": "Dort „Global News Podcast“ suchen. Täglich 20 Minuten, Kernaussagen laut wiedergeben."
+    },
+    {
+     "titel": "TED Talks",
+     "url": "https://www.ted.com/talks",
+     "art": "Vorträge",
+     "text": "Ohne Untertitel ansehen, danach in 2 Minuten zusammenfassen."
+    },
+    {
+     "titel": "NATO – Nachrichten und Reden",
+     "url": "https://www.nato.int/",
+     "art": "Militärisches Englisch",
+     "text": "Pressekonferenzen: Formulierungen für Briefings sammeln."
+    }
+   ],
+   "sprechen": [
+    "Halte einen 3-Minuten-Vortrag über Führung unter Druck – ohne Notizen.",
+    "Fasse einen Podcast, den du heute gehört hast, in 2 Minuten zusammen und bewerte ihn.",
+    "Erkläre einem Partnersoldaten ein Verfahren aus deiner Ausbildung im Detail.",
+    "Diskutiere Vor- und Nachteile der Wehrpflicht.",
+    "Beschreibe ein komplexes technisches Problem aus der Kältetechnik und wie du es gelöst hast."
+   ],
+   "test": [
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: Hardly ___ the patrol left when the rain started.",
+     "optionen": [
+      "had",
+      "has",
+      "did",
+      "was"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "„To cut corners“ bedeutet …",
+     "optionen": [
+      "Etwas nachlässig erledigen, um Zeit oder Geld zu sparen",
+      "Eine Abkürzung durch den Wald nehmen",
+      "Ecken abrunden",
+      "Den Kurs ändern"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: I'd rather you ___ this to anyone.",
+     "optionen": [
+      "didn't mention",
+      "don't mention",
+      "not mention",
+      "won't mention"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Despite the setbacks, the unit managed to accomplish its objective ahead of schedule.",
+     "frage": "Was ist passiert?",
+     "optionen": [
+      "Trotz Rückschlägen wurde das Ziel früher erreicht",
+      "Wegen Rückschlägen wurde abgebrochen",
+      "Das Ziel wurde verspätet erreicht",
+      "Die Einheit hat aufgegeben"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: The evidence was ___; nobody could argue with it.",
+     "optionen": [
+      "compelling",
+      "compelled",
+      "compulsive",
+      "complying"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "„It goes without saying“ bedeutet …",
+     "optionen": [
+      "Das versteht sich von selbst",
+      "Es geht ohne Worte",
+      "Es geht ohne mich",
+      "Das geht nicht"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Had we known about the second checkpoint, we would have taken a different route.",
+     "frage": "Was wird ausgedrückt?",
+     "optionen": [
+      "Sie wussten nichts vom zweiten Checkpoint",
+      "Sie haben die andere Route genommen",
+      "Sie kannten beide Checkpoints",
+      "Es gab keinen Checkpoint"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: The briefing was ___ short, given how complex the mission was.",
+     "optionen": [
+      "surprisingly",
+      "surprising",
+      "surprised",
+      "surprise"
+     ],
+     "loesung": 0
+    }
+   ]
+  },
+  "C2": {
+   "ziel": "Nahezu muttersprachlich verstehen und sprechen: Nuancen, Redewendungen, spontane Reden",
+   "einheiten": [],
+   "shadowing": [
+    {
+     "id": "en-c2-1",
+     "titel": "Strategische Analyse",
+     "saetze": [
+      [
+       "The operation, while tactically sound, was strategically ill-conceived.",
+       "Die Operation war taktisch solide, aber strategisch schlecht durchdacht."
+      ],
+      [
+       "Little did the planners realise how quickly local support would erode.",
+       "Die Planer ahnten kaum, wie schnell die Unterstützung vor Ort schwinden würde."
+      ],
+      [
+       "In hindsight, the decision was a double-edged sword.",
+       "Im Nachhinein war die Entscheidung ein zweischneidiges Schwert."
+      ],
+      [
+       "Notwithstanding these shortcomings, the lessons learned have shaped doctrine ever since.",
+       "Trotz dieser Mängel haben die Erkenntnisse die Doktrin seitdem geprägt."
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "BBC Sounds – Radio 4",
+     "url": "https://www.bbc.co.uk/sounds",
+     "art": "Gespräche & Doku",
+     "text": "Lange Gesprächssendungen und Dokumentationen ohne Hilfen. Notiere Redewendungen."
+    },
+    {
+     "titel": "Filme und Serien ohne Untertitel",
+     "url": "https://www.ted.com/talks",
+     "art": "Alltag & Akzente",
+     "text": "Verschiedene Akzente (britisch, amerikanisch, australisch). TED als Einstieg, dann Filme ohne Untertitel."
+    }
+   ],
+   "sprechen": [
+    "Halte eine 5-Minuten-Rede zu einem aktuellen sicherheitspolitischen Thema.",
+    "Erkläre eine Redewendung und erzähle eine Geschichte, in der sie passt.",
+    "Verteidige spontan eine Meinung, die du eigentlich nicht teilst.",
+    "Fasse einen langen Artikel mündlich zusammen und bewerte die Argumente."
+   ],
+   "test": [
+    {
+     "typ": "wahl",
+     "frage": "„To be on the fence“ bedeutet …",
+     "optionen": [
+      "Unentschlossen sein",
+      "Wache halten",
+      "Am Zaun stehen",
+      "Ausgeschlossen sein"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Welcher Satz ist korrekt?",
+     "optionen": [
+      "Little did we know what was waiting for us.",
+      "Little we knew what was waiting for us.",
+      "Little did we knew what was waiting for us.",
+      "Little knew we what was waiting for us."
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "The operation, while tactically sound, was strategically ill-conceived.",
+     "frage": "Was ist die Kritik?",
+     "optionen": [
+      "Taktisch gut, aber strategisch schlecht durchdacht",
+      "Taktisch und strategisch schlecht",
+      "Taktisch schlecht, strategisch gut",
+      "Es gibt keine Kritik"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "„A double-edged sword“ ist …",
+     "optionen": [
+      "Etwas mit Vor- und Nachteilen",
+      "Eine besonders scharfe Waffe",
+      "Ein doppelter Fehler",
+      "Ein Kompromiss ohne Nachteile"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "wahl",
+     "frage": "Ergänze: The report was ___ with errors, so it had to be rewritten.",
+     "optionen": [
+      "riddled",
+      "ridden",
+      "riddling",
+      "rid"
+     ],
+     "loesung": 0
+    },
+    {
+     "typ": "hoeren",
+     "text": "Notwithstanding the weather, the exercise will proceed as planned.",
+     "frage": "Was passiert mit der Übung?",
+     "optionen": [
+      "Sie findet trotz Wetter wie geplant statt",
+      "Sie wird wegen des Wetters abgesagt",
+      "Sie wird verschoben",
+      "Sie wird verkürzt"
+     ],
+     "loesung": 0
+    }
+   ]
+  }
+ },
+ "decks": [
+  {
+   "id": "funk",
+   "titel": "Funkvokabular (NATO-Alphabet, Funkbegriffe)",
+   "karten": [
+    [
+     "Alfa",
+     "A"
+    ],
+    [
+     "Bravo",
+     "B"
+    ],
+    [
+     "Charlie",
+     "C"
+    ],
+    [
+     "Delta",
+     "D"
+    ],
+    [
+     "Echo",
+     "E"
+    ],
+    [
+     "Foxtrot",
+     "F"
+    ],
+    [
+     "Golf",
+     "G"
+    ],
+    [
+     "Hotel",
+     "H"
+    ],
+    [
+     "India",
+     "I"
+    ],
+    [
+     "Juliett",
+     "J"
+    ],
+    [
+     "Kilo",
+     "K"
+    ],
+    [
+     "Lima",
+     "L"
+    ],
+    [
+     "Mike",
+     "M"
+    ],
+    [
+     "November",
+     "N"
+    ],
+    [
+     "Oscar",
+     "O"
+    ],
+    [
+     "Papa",
+     "P"
+    ],
+    [
+     "Quebec",
+     "Q"
+    ],
+    [
+     "Romeo",
+     "R"
+    ],
+    [
+     "Sierra",
+     "S"
+    ],
+    [
+     "Tango",
+     "T"
+    ],
+    [
+     "Uniform",
+     "U"
+    ],
+    [
+     "Victor",
+     "V"
+    ],
+    [
+     "Whiskey",
+     "W"
+    ],
+    [
+     "X-ray",
+     "X"
+    ],
+    [
+     "Yankee",
+     "Y"
+    ],
+    [
+     "Zulu",
+     "Z"
+    ],
+    [
+     "Roger",
+     "Verstanden"
+    ],
+    [
+     "Wilco",
+     "Verstanden, wird ausgeführt"
+    ],
+    [
+     "Over",
+     "Kommen (ich warte auf Antwort)"
+    ],
+    [
+     "Out",
+     "Ende (Gespräch beendet)"
+    ],
+    [
+     "Say again",
+     "Wiederholen"
+    ],
+    [
+     "Radio check",
+     "Funkprobe"
+    ],
+    [
+     "Loud and clear",
+     "Laut und klar"
+    ],
+    [
+     "Wait out",
+     "Warten, Ende"
+    ],
+    [
+     "Affirmative",
+     "Ja"
+    ],
+    [
+     "Negative",
+     "Nein"
+    ],
+    [
+     "Copy",
+     "Verstanden / mitgeschrieben"
+    ],
+    [
+     "Break",
+     "Trennung (Pause im Spruch)"
+    ],
+    [
+     "niner",
+     "9"
+    ],
+    [
+     "tree",
+     "3"
+    ],
+    [
+     "fife",
+     "5"
+    ],
+    [
+     "Contact",
+     "Feindkontakt"
+    ],
+    [
+     "Casualty",
+     "Verwundeter"
+    ],
+    [
+     "Rally point",
+     "Sammelpunkt"
+    ],
+    [
+     "Checkpoint",
+     "Kontrollpunkt"
+    ],
+    [
+     "Grid",
+     "Planquadrat / Koordinate"
+    ],
+    [
+     "Bearing",
+     "Marschrichtung (Grad)"
+    ],
+    [
+     "Heading",
+     "Kurs"
+    ],
+    [
+     "Klick",
+     "Kilometer"
+    ],
+    [
+     "ETA",
+     "Voraussichtliche Ankunftszeit"
+    ],
+    [
+     "Medevac",
+     "Verwundetentransport"
+    ],
+    [
+     "Hold position",
+     "Position halten"
+    ]
+   ]
+  }
+ ],
+ "dialoge": [
+  {
+   "id": "d1",
+   "title": "Vorstellen beim Ausbilder",
+   "turns": [
+    {
+     "say": "Hello. What is your name?",
+     "de": "Hallo. Wie heißt du?",
+     "expect": [
+      "my name is *",
+      "i am *",
+      "i'm *",
+      "*"
+     ],
+     "hint": "My name is …"
+    },
+    {
+     "say": "Where are you from?",
+     "de": "Woher kommst du?",
+     "expect": [
+      "i am from germany",
+      "i'm from germany",
+      "from germany",
+      "germany"
+     ],
+     "hint": "I am from Germany."
+    },
+    {
+     "say": "What do you do?",
+     "de": "Was machst du beruflich?",
+     "expect": [
+      "i am an apprentice",
+      "i'm an apprentice",
+      "i am a trainee",
+      "i work in refrigeration",
+      "apprentice"
+     ],
+     "hint": "I am an apprentice."
+    },
+    {
+     "say": "Why are you here?",
+     "de": "Warum bist du hier?",
+     "expect": [
+      "i want to join the special forces",
+      "i want to join special forces",
+      "special forces"
+     ],
+     "hint": "I want to join the special forces."
+    }
+   ],
+   "stufe": "A1"
+  },
+  {
+   "id": "d2",
+   "title": "Nachfragen",
+   "turns": [
+    {
+     "say": "The briefing starts at fourteen thirty in building niner.",
+     "de": "Das Briefing beginnt um 14:30 in Gebäude 9.",
+     "expect": [
+      "sorry again please",
+      "can you say that again",
+      "say again",
+      "could you say that again",
+      "please speak slowly"
+     ],
+     "hint": "Sorry, again please? / Can you say that again?"
+    },
+    {
+     "say": "The briefing starts at two thirty in building nine.",
+     "de": "Das Briefing beginnt um halb drei in Gebäude 9.",
+     "expect": [
+      "understood",
+      "thank you",
+      "thanks",
+      "okay thank you",
+      "roger"
+     ],
+     "hint": "Understood. Thank you."
+    }
+   ],
+   "stufe": "A1"
+  },
+  {
+   "id": "d3",
+   "title": "Funkprobe",
+   "turns": [
+    {
+     "say": "Bravo two, this is Alfa one, radio check, over.",
+     "de": "Bravo zwo, hier Alfa eins, Funkprobe, kommen.",
+     "expect": [
+      "alfa one this is bravo two loud and clear over",
+      "alpha one this is bravo two loud and clear over",
+      "loud and clear over",
+      "loud and clear"
+     ],
+     "hint": "Alfa one, this is Bravo two, loud and clear, over."
+    },
+    {
+     "say": "Bravo two, roger, out.",
+     "de": "Bravo zwo, verstanden, Ende.",
+     "expect": [
+      "*"
+     ],
+     "hint": "(Gespräch beendet – keine Antwort nötig. Sag z. B. „out“.)"
+    }
+   ],
+   "stufe": "A2"
+  },
+  {
+   "id": "d4",
+   "title": "Positionsmeldung",
+   "turns": [
+    {
+     "say": "Charlie three, this is Alfa one, send your position, over.",
+     "de": "Charlie drei, hier Alfa eins, melde deine Position, kommen.",
+     "expect": [
+      "alfa one this is charlie three my position is grid * over",
+      "my position is grid *",
+      "position grid *",
+      "grid *"
+     ],
+     "hint": "Alfa one, this is Charlie three, my position is grid one-two-tree, four-fife-six, over."
+    },
+    {
+     "say": "Roger. Move to the rally point at the bridge, over.",
+     "de": "Verstanden. Zum Sammelpunkt an der Brücke, kommen.",
+     "expect": [
+      "wilco over",
+      "wilco",
+      "roger moving to the rally point over",
+      "roger over",
+      "roger"
+     ],
+     "hint": "Wilco, over."
+    }
+   ],
+   "stufe": "A2"
+  },
+  {
+   "id": "d5",
+   "title": "Schlechte Verbindung",
+   "turns": [
+    {
+     "say": "Delta four, this is … krrr … rally point … krrr … over.",
+     "de": "Delta vier, hier … (Rauschen) … Sammelpunkt … kommen.",
+     "expect": [
+      "say again over",
+      "say again",
+      "say again all after rally point over",
+      "say again your last over"
+     ],
+     "hint": "Say again, over."
+    },
+    {
+     "say": "I say again: move to rally point bravo, over.",
+     "de": "Ich wiederhole: zum Sammelpunkt Bravo, kommen.",
+     "expect": [
+      "wilco over",
+      "wilco",
+      "roger over",
+      "roger moving to rally point bravo over",
+      "copy over"
+     ],
+     "hint": "Wilco, over."
+    }
+   ],
+   "stufe": "A2"
+  },
+  {
+   "id": "d6",
+   "title": "Verwundeter",
+   "turns": [
+    {
+     "say": "Man down! Where are you hit?",
+     "de": "Mann am Boden! Wo bist du getroffen?",
+     "expect": [
+      "my leg",
+      "in my leg",
+      "my left leg",
+      "my right leg",
+      "my arm",
+      "leg",
+      "arm"
+     ],
+     "hint": "My leg."
+    },
+    {
+     "say": "Stay with me. Are you bleeding?",
+     "de": "Bleib bei mir. Blutest du?",
+     "expect": [
+      "yes",
+      "yes i am bleeding",
+      "yes my leg is bleeding",
+      "yes a lot",
+      "affirmative"
+     ],
+     "hint": "Yes, I am bleeding."
+    },
+    {
+     "say": "Medic is coming. What do you need?",
+     "de": "Der Sanitäter kommt. Was brauchst du?",
+     "expect": [
+      "i need a tourniquet",
+      "tourniquet",
+      "apply pressure",
+      "i need water",
+      "i need a medic",
+      "pressure"
+     ],
+     "hint": "I need a tourniquet. / Apply pressure."
+    }
+   ],
+   "stufe": "B1"
+  },
+  {
+   "id": "d7",
+   "title": "Checkpoint",
+   "turns": [
+    {
+     "say": "(Ein Fahrzeug nähert sich deinem Kontrollpunkt.) Was sagst du?",
+     "de": "Halte das Fahrzeug an.",
+     "speakDe": true,
+     "expect": [
+      "stop",
+      "stop the car",
+      "stop please",
+      "stop stay in the car"
+     ],
+     "hint": "Stop!"
+    },
+    {
+     "say": "Hello? I do not understand.",
+     "de": "Hallo? Ich verstehe nicht.",
+     "expect": [
+      "do you speak english",
+      "show me your id",
+      "show me your id please",
+      "stay calm",
+      "stay calm we are here to help"
+     ],
+     "hint": "Do you speak English? / Show me your ID, please."
+    },
+    {
+     "say": "Yes, a little. Here is my ID.",
+     "de": "Ja, ein bisschen. Hier ist mein Ausweis.",
+     "expect": [
+      "where are you going",
+      "thank you where are you going",
+      "thank you",
+      "wait here please"
+     ],
+     "hint": "Thank you. Where are you going?"
+    },
+    {
+     "say": "To the market in the village.",
+     "de": "Zum Markt im Dorf.",
+     "expect": [
+      "you can go",
+      "okay you can go",
+      "thank you you can go",
+      "wait here please"
+     ],
+     "hint": "Okay, you can go."
+    }
+   ],
+   "stufe": "B1"
+  },
+  {
+   "id": "d8",
+   "title": "Briefing zusammenfassen",
+   "turns": [
+    {
+     "say": "Listen. Mission: we secure the bridge. We move at zero-four-hundred. Threat: enemy patrol in the north. Weather: rain. Any questions?",
+     "de": "Auftrag: Brücke sichern. Abmarsch 04:00. Bedrohung: Patrouille im Norden. Wetter: Regen.",
+     "expect": [
+      "we secure the bridge",
+      "secure the bridge",
+      "we move at zero four hundred",
+      "the bridge",
+      "no questions",
+      "no questions sir"
+     ],
+     "hint": "Fass zusammen: We secure the bridge, we move at zero-four-hundred."
+    },
+    {
+     "say": "Good. What is the threat?",
+     "de": "Gut. Was ist die Bedrohung?",
+     "expect": [
+      "enemy patrol in the north",
+      "an enemy patrol in the north",
+      "enemy patrol",
+      "patrol in the north"
+     ],
+     "hint": "Enemy patrol in the north."
+    }
+   ],
+   "stufe": "B1"
+  }
+ ],
+ "hinweis": "Ziel C1, möglichst C2. Bis B2 Inhalte in der App, ab C1 echte Quellen (Nachrichten, Podcasts, Vorträge) plus Shadowing und freies Sprechen. Bei der Bundeswehr wird Englisch nach dem Standardisierten Leistungsprofil (SLP, nach NATO STANAG 6001) geprüft."
+}

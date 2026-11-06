@@ -16,7 +16,10 @@ import { checkAnswer, similarity, buildExercises, review } from '../app/js/core/
 import { mathTask, patternTask, nextLevel, memoryTask, switchItem } from '../app/js/core/games.js';
 import { award, rankFor, streak } from '../app/js/core/rewards.js';
 import { parseTime, fmtTime, isoWeekKey, weekday, addDays } from '../app/js/core/util.js';
-import { UNITS_EN, DIALOGS } from '../app/js/data/english.js';
+import { readFileSync } from 'node:fs';
+const EN = JSON.parse(readFileSync(new URL('../app/sprachen/en.json', import.meta.url), 'utf8'));
+const UNITS_EN = ['A1', 'A2', 'B1'].flatMap((lv) => EN.stufen[lv].einheiten);
+const DIALOGS = EN.dialoge;
 import { EXERCISES } from '../app/js/data/exercises.js';
 import { COURSES } from '../app/js/data/courses.js';
 
@@ -236,11 +239,12 @@ test('Antworten prüfen ohne KI', () => {
   assert.equal(checkAnswer(['my name is Tom'], ['my name is *']).verdict, 'richtig');
   assert.equal(checkAnswer(['banana'], ['say again over']).verdict, 'falsch');
   assert.ok(similarity("I'm from Germany", 'I am from Germany') > 0.99);
-  const ex = buildExercises(UNITS_EN[0].lessons[0], UNITS_EN.flatMap((u) => u.lessons.flat()));
+  const ex = buildExercises(UNITS_EN[0].lektionen[0], UNITS_EN.flatMap((u) => u.lektionen.flat()));
   assert.ok(ex.filter((e) => e.type === 'learn').length === 5);
   for (const e of ex.filter((x) => x.options)) assert.equal(new Set(e.options).size, e.options.length);
-  assert.deepEqual(review({ box: 2 }, true, '2026-11-01'), { box: 3, due: '2026-11-08' });
-  assert.deepEqual(review({ box: 4 }, false, '2026-11-01'), { box: 1, due: '2026-11-02' });
+  // Alte Leitner-Karten werden in SM-2 übernommen (box 2 = 3 Tage Abstand)
+  assert.equal(review({ box: 2 }, true, '2026-11-01').n, 3);
+  assert.equal(review({ box: 4 }, false, '2026-11-01').due, '2026-11-02');
   // Jeder Dialog hat erwartete Antworten
   for (const d of DIALOGS) for (const t of d.turns) assert.ok(t.expect.length);
 });
@@ -279,7 +283,7 @@ test('Sicherung: Export/Import', () => {
 
 test('Inhalte vollständig', () => {
   assert.equal(UNITS_EN.length, 18);
-  assert.equal(new Set(UNITS_EN.map((u) => u.phase)).size, 3);
+  assert.equal(EN.stufen.B2.einheiten.length, 6);
   for (const c of COURSES) { assert.ok(c.quiz.length >= 3); for (const q of c.quiz) assert.ok(q.ok < q.a.length); }
   assert.deepEqual(COURSES.map((c) => c.id).sort(), ['dienstgrade', 'erstehilfe', 'funk', 'kompass', 'nato', 'rucksack', 'tarnen', 'verhalten', 'waffen'].sort());
 });

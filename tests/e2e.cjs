@@ -147,11 +147,9 @@ const shots = process.argv[3] || null;
   }
   await step('Warum speichern', async () => { await page.goto(url + '#/mental/warum'); await page.locator('textarea').fill('Weil ich es will.'); await page.getByText('Speichern', { exact: true }).click(); await page.waitForTimeout(400); while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); } });
 
-  for (const tab of ['pfad', 'karten', 'gespraeche', 'sprachen']) await step('Sprache/' + tab, async () => { await page.goto(url + '#/sprache/' + tab); await page.waitForTimeout(400); await shot('sprache-' + tab); });
-  await step('Lektion komplett', async () => {
-    await page.goto(url + '#/sprache/pfad'); await page.waitForTimeout(300);
-    await page.getByText(/^> Weiter:/).click();
-    for (let i = 0; i < 60; i++) {
+  const noOverflow = async (n) => { const w = await page.evaluate(() => document.documentElement.scrollWidth); if (w > 413) throw new Error(`${n}: seitliches Scrollen (${w}px)`); };
+  const lessonLoop = async () => {
+    for (let i = 0; i < 80; i++) {
       const full = page.locator('.full').last();
       if (await full.getByText('[ LEKTION ABGESCHLOSSEN ]').count()) break;
       const learn = full.getByText('Nachgesprochen – weiter');
@@ -164,12 +162,82 @@ const shots = process.argv[3] || null;
       if (await said.count()) { await said.click(); await full.getByText('Weiter', { exact: true }).click(); continue; }
       throw new Error('Unbekannter Schritt in Lektion');
     }
-    await shot('lektion-ende');
     await page.locator('.full').last().getByText('Fertig').click();
     while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+  };
+  const testLoop = async (endMark) => {
+    for (let i = 0; i < 40; i++) {
+      const full = page.locator('.full').last();
+      await page.waitForTimeout(150);
+      if (await full.getByText(endMark).count()) return;
+      const choice = full.locator('.choice button');
+      if (await choice.count()) { await choice.first().click(); await page.waitForTimeout(750); continue; }
+      const self = full.getByText(/SELBST BEWERTEN/);
+      if (await self.count()) { await self.click(); await full.getByText('Flüssig gesagt').click(); continue; }
+    }
+    throw new Error('Test endet nicht');
+  };
+  for (const tab of ['heute', 'pfad', 'karten', 'hoeren', 'sprachen']) await step('Sprache/' + tab, async () => { await page.goto(url + '#/sprache/' + tab); await page.waitForTimeout(400); await shot('sprache-' + tab); await noOverflow('sprache/' + tab); });
+  await step('Einstufungstest', async () => {
+    await page.goto(url + '#/sprache/heute'); await page.waitForTimeout(300);
+    await page.getByText('> Einstufungstest starten').click();
+    await testLoop('[ EINSTUFUNG ]');
+    await shot('einstufung'); await page.locator('.full').last().getByText('Los geht’s').click();
+    const res = await page.evaluate(() => document.querySelector('.lvstrip') ? 1 : 0); if (!res) throw new Error('Stufenleiste fehlt');
   });
-  await step('Karteikarten', async () => { await page.goto(url + '#/sprache/karten'); await page.waitForTimeout(300); await page.locator('.card', { hasText: 'Funkvokabular' }).getByText('EN → DE').click(); await page.locator('.flash').click(); await page.getByText('Gewusst', { exact: true }).click(); await shot('karten'); await close(); });
-  await step('Gespräch tippen', async () => { await page.goto(url + '#/sprache/gespraeche'); await page.getByText('Funkprobe').click(); await page.getByPlaceholder('oder Antwort eintippen').fill('loud and clear over'); await page.getByText('OK', { exact: true }).click(); await page.waitForTimeout(300); await shot('gespraech'); await close(); });
+  await step('Lektion komplett', async () => {
+    await page.goto(url + '#/sprache/pfad'); await page.waitForTimeout(300);
+    await page.getByText(/^> Weiter:/).click();
+    await lessonLoop();
+  });
+  await step('Tageseinheit 10 min: Laut sprechen', async () => {
+    await page.goto(url + '#/sprache/heute'); await page.waitForTimeout(300);
+    await page.locator('.seg button', { hasText: '10 min' }).click(); await page.waitForTimeout(200);
+    if ((await page.locator('.step').count()) !== 3) throw new Error('10 min sollte 3 Schritte haben');
+    await page.locator('.step', { hasText: 'Laut sprechen' }).click();
+    await page.locator('.full').last().getByText('▶ Start').click(); await page.waitForTimeout(1200);
+    await shot('sprechen'); await page.locator('.full').last().getByText('Erledigt').click();
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    if (!(await page.locator('.step.done', { hasText: 'Laut sprechen' }).count())) throw new Error('Schritt nicht abgehakt');
+  });
+  await step('Shadowing', async () => {
+    await page.goto(url + '#/sprache/hoeren'); await page.waitForTimeout(300);
+    await page.locator('.card', { hasText: 'SÄTZE' }).first().click();
+    for (let i = 0; i < 8 && await page.getByText('Nachgesprochen – weiter').count(); i++) await page.getByText('Nachgesprochen – weiter').click();
+    await shot('shadowing'); await page.locator('.full').last().getByText('Fertig', { exact: true }).click();
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+  });
+  await step('Stufentest', async () => {
+    await page.goto(url + '#/sprache/pfad'); await page.waitForTimeout(300);
+    await page.getByText(/^Stufentest [ABC][12]$/).first().click();
+    await testLoop('[ DAS ÜBST DU NOCH ]').catch(async () => { if (!(await page.getByText(/erreicht\.|Bestanden\./).count())) throw new Error('Kein Testergebnis'); });
+    await shot('stufentest'); await page.locator('.full').last().getByText('Fertig', { exact: true }).click();
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+  });
+  await step('Karteikarten SM-2', async () => {
+    await page.goto(url + '#/sprache/karten'); await page.waitForTimeout(300);
+    await page.locator('.card', { hasText: 'Funkvokabular' }).getByText('EN → DE').click(); await page.locator('.flash').click(); await shot('karten');
+    await page.locator('.grid4').getByText('Gut', { exact: true }).click(); await close(); await page.waitForTimeout(600);
+    const c = await page.evaluate(() => new Promise((res) => { const r = indexedDB.open('trainings-app'); r.onsuccess = () => { const g = r.result.transaction('kv').objectStore('kv').get('state'); g.onsuccess = () => res(Object.values(g.result.cards).filter((x) => x.ef).length); }; }));
+    if (!c) throw new Error('SM-2-Karte nicht gespeichert');
+  });
+  await step('Eigene Karte', async () => { await page.goto(url + '#/sprache/karten'); await page.getByPlaceholder(/Englisch/).fill('to cut corners'); await page.getByPlaceholder('Deutsch').fill('pfuschen'); await page.getByText('+ Karte').click(); await page.waitForTimeout(200); await page.getByText('EIGENE KARTEN (1)').count(); });
+  await step('Gespräch tippen', async () => { await page.goto(url + '#/sprache/hoeren'); await page.getByText('Funkprobe').click(); await page.getByPlaceholder('oder Antwort eintippen').fill('loud and clear over'); await page.getByText('OK', { exact: true }).click(); await page.waitForTimeout(300); await shot('gespraech'); await close(); });
+  await step('Sprache wechseln: Arabisch-Lektion', async () => {
+    await page.goto(url + '#/sprache/sprachen'); await page.waitForTimeout(300);
+    await page.locator('.card', { hasText: 'Arabisch' }).first().click(); await page.waitForTimeout(400);
+    await page.goto(url + '#/sprache/pfad'); await page.waitForTimeout(300); await shot('arabisch-pfad');
+    await page.getByText(/^> Weiter:/).click(); await lessonLoop();
+    await page.goto(url + '#/sprache/sprachen'); await page.locator('.card', { hasText: 'Englisch' }).first().click(); await page.waitForTimeout(300);
+  });
+  await step('Sprachpaket-Vorlage importieren', async () => {
+    await page.goto(url + '#/sprache/sprachen'); await page.waitForTimeout(300);
+    const [dl] = await Promise.all([page.waitForEvent('download'), page.getByText('Vorlage speichern', { exact: true }).click()]);
+    const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.getByText('Sprachpaket importieren', { exact: true }).click()]);
+    await fc.setFiles(await dl.path()); await page.waitForTimeout(400);
+    if (!(await page.locator('.card', { hasText: 'Italienisch' }).count())) throw new Error('Importiertes Paket fehlt');
+    await shot('sprachen-import');
+  });
 
   await step('Kurse', async () => { await page.goto(url + '#/kurse'); await page.waitForTimeout(300); await shot('kurse'); });
   await step('Kurs Waffen + Quiz', async () => {

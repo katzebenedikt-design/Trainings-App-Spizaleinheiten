@@ -1,0 +1,89 @@
+{
+ "code": "pl",
+ "name": "Polnisch",
+ "tts": "pl-PL",
+ "fsi": 3,
+ "ziel": "B1",
+ "hinweis": "FSI-Kategorie III. Starter-Set; weitere Inhalte als eigene Karten oder per Paket-Datei ergänzen.",
+ "stufen": {
+  "A1": {
+   "ziel": "Überleben",
+   "einheiten": [
+    {
+     "id": "s",
+     "titel": "Überlebens-Set",
+     "lektionen": [
+      [
+       [
+        "Dzień dobry",
+        "Guten Tag"
+       ],
+       [
+        "Dziękuję",
+        "Danke"
+       ],
+       [
+        "Proszę",
+        "Bitte"
+       ],
+       [
+        "Tak / Nie",
+        "Ja / Nein"
+       ],
+       [
+        "Przepraszam",
+        "Entschuldigung"
+       ],
+       [
+        "Nie rozumiem",
+        "Ich verstehe nicht"
+       ],
+       [
+        "Wolniej, proszę",
+        "Langsamer bitte"
+       ]
+      ],
+      [
+       [
+        "Czy mówi pan po angielsku?",
+        "Sprechen Sie Englisch?"
+       ],
+       [
+        "Gdzie jest …?",
+        "Wo ist …?"
+       ],
+       [
+        "Ile?",
+        "Wie viel?"
+       ],
+       [
+        "Pomocy!",
+        "Hilfe!"
+       ],
+       [
+        "Potrzebuję lekarza",
+        "Ich brauche einen Arzt"
+       ],
+       [
+        "jeden, dwa, trzy, cztery, pięć",
+        "1, 2, 3, 4, 5"
+       ],
+       [
+        "sześć, siedem, osiem, dziewięć, dziesięć",
+        "6, 7, 8, 9, 10"
+       ]
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "Polskie Radio",
+     "url": "https://www.polskieradio.pl/",
+     "art": "Radio",
+     "text": "Polnisches Radio für später (ab A2)."
+    }
+   ]
+  }
+ }
+}

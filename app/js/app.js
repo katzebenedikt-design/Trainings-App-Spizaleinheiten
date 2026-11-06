@@ -9,6 +9,7 @@ import { kurseTabs } from './views/kurse.js';
 import { nachavTabs } from './views/nachav.js';
 import { openSettings, onboarding } from './views/settings.js';
 import { checkReminders } from './views/reminders.js';
+import { loadPacks } from './core/langpacks.js';
 
 const AREAS = [
   { key: 'sport', label: 'Sport', icon: 'sport', tabs: sportTabs },
@@ -67,6 +68,7 @@ window.addEventListener('hashchange', () => render());
 
 async function start() {
   await store.load();
+  try { await loadPacks(); } catch (e) { console.warn('Sprachpakete nicht geladen', e); }
   if (!store.state.profile.onboarded) await onboarding(app);
   render();
   app.badges();

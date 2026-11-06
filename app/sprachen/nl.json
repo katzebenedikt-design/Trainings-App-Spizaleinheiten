@@ -1,0 +1,89 @@
+{
+ "code": "nl",
+ "name": "Niederländisch",
+ "tts": "nl-NL",
+ "fsi": 1,
+ "ziel": "B1",
+ "hinweis": "Für Deutschsprachige sehr schnell lernbar. Starter-Set; weitere Inhalte als eigene Karten oder per Paket-Datei ergänzen.",
+ "stufen": {
+  "A1": {
+   "ziel": "Überleben",
+   "einheiten": [
+    {
+     "id": "s",
+     "titel": "Überlebens-Set",
+     "lektionen": [
+      [
+       [
+        "Hallo",
+        "Hallo"
+       ],
+       [
+        "Dank je wel",
+        "Danke"
+       ],
+       [
+        "Alsjeblieft",
+        "Bitte"
+       ],
+       [
+        "Ja / Nee",
+        "Ja / Nein"
+       ],
+       [
+        "Sorry",
+        "Entschuldigung"
+       ],
+       [
+        "Ik begrijp het niet",
+        "Ich verstehe nicht"
+       ],
+       [
+        "Langzamer, alstublieft",
+        "Langsamer bitte"
+       ]
+      ],
+      [
+       [
+        "Spreekt u Engels?",
+        "Sprechen Sie Englisch?"
+       ],
+       [
+        "Waar is …?",
+        "Wo ist …?"
+       ],
+       [
+        "Hoeveel?",
+        "Wie viel?"
+       ],
+       [
+        "Help!",
+        "Hilfe!"
+       ],
+       [
+        "Ik heb een dokter nodig",
+        "Ich brauche einen Arzt"
+       ],
+       [
+        "een, twee, drie, vier, vijf",
+        "1, 2, 3, 4, 5"
+       ],
+       [
+        "zes, zeven, acht, negen, tien",
+        "6, 7, 8, 9, 10"
+       ]
+      ]
+     ]
+    }
+   ],
+   "quellen": [
+    {
+     "titel": "NOS",
+     "url": "https://nos.nl/",
+     "art": "Nachrichten",
+     "text": "Niederländische Nachrichten, ab A2 kurze Videos."
+    }
+   ]
+  }
+ }
+}

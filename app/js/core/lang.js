@@ -4,14 +4,15 @@ import { shuffle, pick, addDays, iso } from './util.js';
 const NUMW = { 0: 'zero', 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten', 20: 'twenty', 100: 'hundred' };
 
 export function norm(s) {
-  return String(s).toLowerCase()
+  return String(s).replace(/\(.*?\)/g, ' ').toLowerCase()
+    .replace(/[\u064B-\u0652\u0670\u0640]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي')
     .replace(/[’`´]/g, "'")
     .replace(/\b(\d+)\b/g, (m) => (NUMW[m] ? NUMW[m] : m.split('').map((d) => NUMW[d]).join(' ')))
     .replace(/\bniner\b/g, 'nine').replace(/\btree\b/g, 'three').replace(/\bfife\b/g, 'five')
     .replace(/\balpha\b/g, 'alfa').replace(/\bjuliet\b/g, 'juliett').replace(/\bwhisky\b/g, 'whiskey').replace(/\bx-?ray\b/g, 'xray').replace(/\bclicks?\b/g, 'klicks').replace(/\bmetres?\b/g, 'meters')
     .replace(/\bi'm\b/g, 'i am').replace(/\bdon't\b/g, 'do not').replace(/\bit's\b/g, 'it is').replace(/\bhe's\b/g, 'he is').replace(/\bwe're\b/g, 'we are').replace(/\bthat's\b/g, 'that is').replace(/\bi'll\b/g, 'i will').replace(/\bi'd\b/g, 'i would').replace(/\bwhat's\b/g, 'what is').replace(/\bo'clock\b/g, 'oclock').replace(/\bo clock\b/g, 'oclock')
     .replace(/[-]/g, ' ')
-    .replace(/[^a-z0-9äöüßàâçéèêëîïôûùüÿñæœąćęłńóśźżа-яё' ]/g, ' ')
+    .replace(/[^a-z0-9äöüßàáâãçéèêëíîïóôõúûùüÿñæœąćęłńśźżа-яё\u0621-\u064A' ]/g, ' ')
     .replace(/\s+/g, ' ').trim();
 }
 
@@ -79,16 +80,23 @@ export function buildExercises(chunks, pool) {
 // Gesamtpool aller Chunks
 export const flatChunks = (units) => units.flatMap((u) => u.lessons.flat());
 
-export function levelLabel(done, total) {
-  const f = total ? done / total : 0;
-  return f < 0.05 ? 'Level 0' : f < 0.4 ? 'A1' : f < 0.75 ? 'A2' : f < 1 ? 'B1 (im Aufbau)' : 'B1';
-}
 
-// ---------- Karteikarten (Leitner: 1, 3, 7, 14, 30 Tage) ----------
-export const INTERVALS = [0, 1, 3, 7, 14, 30];
-export function review(card, known, today = iso()) {
-  const box = known ? Math.min(INTERVALS.length - 1, (card?.box || 0) + 1) : 1;
-  return { box, due: addDays(today, INTERVALS[box]) };
+// ---------- Karteikarten: SM-2 (Wozniak 1987) ----------
+// Bewertung q: 1 = nicht gewusst, 3 = schwer, 4 = gut, 5 = leicht.
+export const INTERVALS = [0, 1, 3, 7, 14, 30]; // nur für alte Leitner-Karten (box)
+const fromLegacy = (c) => (!c ? {} : c.ef ? c : c.box ? { ef: 2.5, n: c.box, interval: INTERVALS[Math.min(c.box, INTERVALS.length - 1)] } : {});
+export function sm2(card, q, today = iso()) {
+  let { ef = 2.5, n = 0, interval = 0 } = fromLegacy(card);
+  if (q < 3) { n = 0; interval = 1; } else {
+    n += 1;
+    interval = n === 1 ? 1 : n === 2 ? 6 : Math.max(interval + 1, Math.round(interval * ef));
+    ef = Math.max(1.3, ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)));
+  }
+  return { ef: Math.round(ef * 100) / 100, n, interval, due: addDays(today, interval), last: today };
 }
+// Vorschau: in wie vielen Tagen kommt die Karte bei Bewertung q wieder?
+export const sm2Preview = (card, q) => sm2(card, q, '2000-01-01').interval;
+// Kompatibel zu älterem Code: gewusst = 4, nicht gewusst = 1
+export const review = (card, known, today = iso()) => sm2(card, known ? 4 : 1, today);
 export const isDue = (card, today = iso()) => !card || !card.due || card.due <= today;
 export { pick };
