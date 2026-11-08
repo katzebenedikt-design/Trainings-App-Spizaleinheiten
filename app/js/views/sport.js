@@ -18,7 +18,7 @@ import { renderGarmin } from './garmin.js';
 import { renderTimer, openTimer } from './timer.js';
 import { voiceCommand } from './voice.js';
 import { spracheHome } from './sprache.js';
-import { catHome } from './cat.js';
+import { kognitivItem, startKognitiv, kognitivWeekCard } from './kognitiv.js';
 
 export const sportTabs = [
   { key: 'heute', label: 'Heute', render: renderHeute },
@@ -80,8 +80,8 @@ function renderHeute(el, app) {
   const nl = spracheHome(st);
   const fri = weekday(today) === 4;
   if (nl) items.push({ id: 'sprache', t: nl.t, sub: fri ? 'OPTIONAL · Z. B. IM ZUG' : nl.sub, act: () => app.go('#/sprache'), optional: fri });
-  const ct = catHome(st);
-  if (ct) items.push({ id: 'cat', t: ct.t, sub: ct.sub, act: () => app.go('#/auswahl/cat'), optional: true });
+  const kg = kognitivItem(st, today);
+  items.push({ ...kg, act: () => startKognitiv(app, today) });
   items.push({ id: 'mental', t: weekday(today) === 6 ? 'Mein Warum lesen + überarbeiten' : 'Box-Atmung oder Abendtext', sub: fri ? 'OPTIONAL · NACH DER HEIMFAHRT' : 'ABENDS · 5 MIN', act: () => app.go(weekday(today) === 6 ? '#/mental/warum' : '#/mental'), optional: fri });
   const lb = st.settings.lastBackup;
   if (!lb || daysBetween(lb.slice(0, 10), today) > 14) items.push({ id: 'backup', t: 'Daten sichern', sub: lb ? 'LETZTE SICHERUNG ' + fmtDate(lb.slice(0, 10)) : 'NOCH NIE GESICHERT', act: () => app.settings() });
@@ -133,7 +133,7 @@ export function openCheckin(app, date = iso()) {
   const prev = st.checkins.find((c) => c.date === date);
   const v = prev ? { ...prev } : { date, schlaf: 0, energie: 0, kater: 0, schmerz: 0, stimmung: 0, ruhepuls: null, ort: '' };
   modal(({ close }) => {
-    const hr = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'z. B. 54', value: v.ruhepuls || '' });
+    const hr = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'z. B. 66', value: v.ruhepuls || '' });
     const ort = h('input', { type: 'text', placeholder: 'z. B. linkes Knie', value: v.ort || '' });
     const ortWrap = field('Wo tut es weh?', ort); if (!(v.schmerz >= 3)) ortWrap.classList.add('hidden');
     return h('div', {}, h('div', { class: 'k' }, '[ MORGEN-CHECK-IN ]'), h('h2', {}, fmtDateLong(date)),
@@ -227,12 +227,13 @@ function renderPlan(el, app) {
       ...sess.map((s, i) => h('div', { style: { cursor: 'pointer' }, onclick: () => openSession(app, s, d.date, i) }, h('b', {}, s.title), h('span', { class: 'm' }, ' ' + s.sub)))));
   });
   el.append(wc);
+  el.append(kognitivWeekCard(app, ref));
   el.append(renderAvailability(app, ref, () => { el.replaceChildren(); renderPlan(el, app); }));
   const agg = { ...week[0], why: week[0].why, availNotes: week.flatMap((d) => d.availNotes.map((n) => `${TAGE_LANG[weekday(d.date)].slice(0, 2)}: ${n}`)), violations: week.flatMap((d) => d.violations), readiness: null };
   el.append(whyCard(agg));
   el.append(card(h('div', { class: 'k' }, '[ FESTE WOCHENREGELN ]'), h('ul', { class: 'plain small dim' },
     h('li', {}, 'Mo: Kraft + Lauf · Mi: Schwimmen – Kraft und Schwimmen nie am selben Tag'), h('li', {}, 'Di + Do: Kickboxen (fester Termin) – kein Laufen, kein Schwimmen, keine schweren Beine'),
-    h('li', {}, 'Fr: Ruhetag – Heimfahrt, kein Training'), h('li', {}, 'Sa + So: kein Kraft, kein Schwimmen – Laufen, Marsch, Kopftraining'))));
+    h('li', {}, 'Fr: Ruhetag – Heimfahrt, kein Training'), h('li', {}, 'Sa + So: kein Kraft, kein Schwimmen – Laufen, Marsch'), h('li', {}, 'Jeden Tag: kurzes Kopftraining (Wochenplan unten), alle 4 Wochen Kopf-Test'))));
   el.append(h('div', { class: 'row mt' }, h('span', { class: 'm' }, 'Standard für neue Wochen:'), seg([['arbeit', 'Arbeit'], ['schule', 'Schule']], st.week.mode, (m) => { st.week.mode = m; app.save(); el.replaceChildren(); renderPlan(el, app); })));
 
   // Anpassung

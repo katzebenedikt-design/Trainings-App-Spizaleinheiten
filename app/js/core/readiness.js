@@ -10,6 +10,9 @@ export const CHECK_ITEMS = [
   { key: 'stimmung', label: 'Stimmung', lo: 'mies', hi: 'top' },
 ];
 
+export const PULS_GRENZE = 70;
+export const pulsGrenze = (state) => Math.max(40, Number(state.settings?.pulsGrenze) || PULS_GRENZE);
+
 export function restHRBaseline(state, date) {
   const vals = [];
   for (let i = 1; i <= 21; i++) {
@@ -46,9 +49,11 @@ export function readiness(state, date) {
   }
   const hr = c.ruhepuls || g?.restHR;
   const hrBase = restHRBaseline(state, date);
+  // Ruhepuls nach dem Aufstehen: zählt erst ab der eigenen Grenze (Standard 70), auch wenn er über dem Schnitt liegt
+  const floor = pulsGrenze(state);
   if (hr && hrBase) {
-    if (hr >= hrBase + 10) { up('pause'); reasons.push(`Ruhepuls ${hr} deutlich über deinem Schnitt (${Math.round(hrBase)}): Pause.`); }
-    else if (hr >= hrBase + 7) { up('leicht'); reasons.push(`Ruhepuls ${hr} erhöht (Schnitt ${Math.round(hrBase)}): leichter trainieren.`); }
+    if (hr >= Math.max(hrBase + 10, floor + 3)) { up('pause'); reasons.push(`Ruhepuls ${hr} deutlich über deinem Schnitt (${Math.round(hrBase)}) und über ${floor}: Pause.`); }
+    else if (hr >= Math.max(hrBase + 7, floor)) { up('leicht'); reasons.push(`Ruhepuls ${hr} erhöht (Schnitt ${Math.round(hrBase)}, Grenze ${floor}): leichter trainieren.`); }
   }
   if (score <= 11) { up('pause'); reasons.push('Check-in sehr schlecht: aktive Erholung statt Training.'); }
   else if (score <= 15) { up('leicht'); reasons.push('Check-in mäßig: Umfang und Intensität runter.'); }

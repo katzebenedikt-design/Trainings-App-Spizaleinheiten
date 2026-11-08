@@ -275,10 +275,21 @@ const shots = process.argv[3] || null;
     await page.waitForTimeout(400);
     if (!(await page.getByText('[ EMPFOHLEN: SCHWÄCHSTE BEREICHE ]').count())) throw new Error('Keine Empfehlung nach Simulation');
     await shot('cat-verlauf');
-    await page.goto(url + '#/sport/heute'); await page.waitForTimeout(400);
-    if (!(await page.getByText(/^CAT-Training:/).count())) throw new Error('Kein CAT-Vorschlag im Tagesbefehl');
+    await page.goto(url + '#/sport/plan'); await page.waitForTimeout(400);
+    if (!(await page.getByText(/schwächster Bereich der letzten Simulation|Kopf-Test \(monatlich/).count())) throw new Error('Sonntag im Kopf-Wochenplan nutzt nicht den schwächsten CAT-Bereich');
   });
 
+  await step('Kopf-Test (monatlich) komplett', async () => {
+    await page.goto(url + '#/auswahl/cat'); await page.waitForTimeout(300);
+    await page.getByText(/^> Kopf-Test starten/).click();
+    await catLoop('[ AUSWERTUNG ]');
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    await shot('kopftest-auswertung');
+    await page.locator('.full').last().getByText('Fertig', { exact: true }).click(); await page.waitForTimeout(400);
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    if (!(await page.getByText(/^LETZTER TEST/).count())) throw new Error('Kopf-Test nicht gespeichert');
+    await page.getByText('[ KOPF-TEST · MONATLICH ]').scrollIntoViewIfNeeded(); await shot('kopftest-karte');
+  });
   for (const tab of ['gespraech', 'schriftlich', 'tagebuch']) await step('Auswahl/' + tab, async () => { await page.goto(url + '#/auswahl/' + tab); await page.waitForTimeout(400); await shot('auswahl-' + tab); await noOverflow('auswahl/' + tab); });
   await step('Psychologengespräch: 3 Fragen mit Aufnahme + Nachfrage', async () => {
     await page.goto(url + '#/auswahl/gespraech'); await page.waitForTimeout(300);
@@ -391,6 +402,23 @@ const shots = process.argv[3] || null;
     await shot('nachav-aktiv');
     await page.getByText('Schalter zurücksetzen').click(); await page.getByText('Zurücksetzen', { exact: true }).click(); await page.waitForTimeout(300);
   });
+  await step('Kognitivtraining: Tagesbefehl, Plan, Mental', async () => {
+    await page.goto(url + '#/sport/heute'); await page.waitForTimeout(400);
+    const it = page.locator('.tl .it', { hasText: /^Kopf:/ }); if (!(await it.count())) throw new Error('Kein Kopf-Punkt im Tagesbefehl');
+    await it.click(); await page.waitForTimeout(400);
+    if (!(await page.locator('.full').count())) throw new Error('Training startet nicht'); await shot('kognitiv-start'); await close();
+    await page.goto(url + '#/sport/plan'); await page.waitForTimeout(400);
+    if (!(await page.getByText('[ KOGNITIVTRAINING · WOCHENPLAN ]').count())) throw new Error('Wochenplan fehlt');
+    await page.getByText('[ KOGNITIVTRAINING · WOCHENPLAN ]').scrollIntoViewIfNeeded(); await shot('kognitiv-plan');
+    await page.goto(url + '#/mental/spiele'); await page.waitForTimeout(300);
+    if (!(await page.getByText('[ HEUTE IM PLAN ]').count())) throw new Error('Hinweis in Mental fehlt');
+  });
+  await step('Ruhepuls-Grenze in Einstellungen', async () => {
+    await page.goto(url + '#/sport/heute'); await page.waitForTimeout(300); await page.locator('[title=Einstellungen]').click();
+    const f = page.locator('label', { hasText: 'Ruhepuls-Grenze' }).locator('input'); if ((await f.inputValue()) !== '70') throw new Error('Standard nicht 70');
+    await close();
+  });
+
   await step('Sicherung herunterladen + wiederherstellen', async () => {
     await page.goto(url + '#/sport/heute'); await page.waitForTimeout(400);
     await page.locator('[title=Einstellungen]').click();

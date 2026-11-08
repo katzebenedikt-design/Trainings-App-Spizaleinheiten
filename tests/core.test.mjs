@@ -156,8 +156,13 @@ test('Schonmodus-Regeln', () => {
   assert.equal(readiness(s, d).mode, 'leicht');
   // Ruhepuls erhöht
   for (let i = 1; i <= 7; i++) s.checkins.push({ date: addDays(d, -i), schlaf: 4, energie: 4, kater: 1, schmerz: 1, stimmung: 4, ruhepuls: 52 });
-  s.checkins[0] = { date: d, schlaf: 4, energie: 4, kater: 1, schmerz: 1, stimmung: 4, ruhepuls: 63 };
+  // Unter der Grenze von 70 kein Schonmodus, auch wenn deutlich über dem Schnitt
+  s.checkins[0] = { date: d, schlaf: 4, energie: 4, kater: 1, schmerz: 1, stimmung: 4, ruhepuls: 69 };
+  assert.equal(readiness(s, d).mode, 'normal');
+  s.checkins[0].ruhepuls = 70; assert.equal(readiness(s, d).mode, 'leicht');
+  s.checkins[0].ruhepuls = 73;
   assert.equal(readiness(s, d).mode, 'pause');
+  s.settings.pulsGrenze = 60; s.checkins[0].ruhepuls = 63; assert.equal(readiness(s, d).mode, 'pause'); s.settings.pulsGrenze = 70; s.checkins[0].ruhepuls = 73;
   const sess = applyReadiness(plannedDay(s, d, { withReadiness: false }).sessions, readiness(s, d));
   assert.equal(sess[0].code, 'REST');
 });

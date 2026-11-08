@@ -12,7 +12,7 @@ export const GAMES = {
   stress: { name: 'Entscheiden unter Stress', desc: 'Regelwechsel FARBE/FORM unter Zeitdruck' },
 };
 
-export function runGame(app, key, load = false) {
+export function runGame(app, key, load = false, onDone) {
   const st = app.state;
   const g = st.mental.games[key] || (st.mental.games[key] = { level: 1, best: 0, history: [] });
   let alive = true; const timers = [];
@@ -34,8 +34,9 @@ export function runGame(app, key, load = false) {
         h('div', { class: 'big' }, Math.round(acc * 100) + '%'), h('div', { class: 'm' }, `${correct} VON ${total} RICHTIG${extra.label ? ' · ' + extra.label : ''}`),
         h('p', {}, g.level > before ? `Level hoch auf ${g.level}.` : g.level < before ? `Level runter auf ${g.level}. Ziel sind 70–85 %.` : `Level ${g.level} bleibt. Ziel: über 85 % für das nächste Level.`),
         extra.note ? h('p', { class: 'dim small' }, extra.note) : null,
-        h('button', { class: 'btn f', onclick: () => { close(); runGame(app, key, load); } }, 'Nochmal'),
+        h('button', { class: 'btn f', onclick: () => { close(); runGame(app, key, load, onDone); } }, 'Nochmal'),
         h('button', { class: 'btn', onclick: close }, 'Fertig')));
+      onDone?.();
       app.award(pts, 'mental', false);
       if (key === 'rechnen' || key === 'merken') app.badges();
     };

@@ -315,16 +315,16 @@ export function buildSession(code, ctx) {
 
 // Wochenvorlagen nach den festen Wochenregeln (data/requirements.js → WEEK_RULES):
 // Mo Kraft + Lauf · Di Prophylaxe + Kickboxen · Mi Schwimmen (eigener Tag) · Do Oberkörper moderat + Kickboxen
-// Fr Ruhetag (Heimfahrt) · Sa Marsch oder Intervalle · So langer Lauf + Kopftraining. [Code, Variante] je Tag, mehrere Einheiten möglich.
+// Fr Ruhetag (Heimfahrt) · Sa Marsch oder Intervalle · So langer Lauf (Kopftraining täglich, siehe data/kognitiv.js). [Code, Variante] je Tag, mehrere Einheiten möglich.
 const TEMPLATES = {
-  grundlage: [[['K1', 'beine'], ['TB1', 'kurz']], [['PROPHYLAXE'], ['KICKBOX']], [['ST']], [['KRAFTO'], ['KICKBOX']], [['REST']], [['SAT']], [['TB1'], ['KOPF']]],
-  aufbau: [[['K2', 'unten'], ['TB2', 'kurz']], [['PROPHYLAXE'], ['KICKBOX']], [['ST']], [['KRAFTO'], ['KICKBOX']], [['REST']], [['SAT']], [['TB1'], ['KOPF']]],
-  leistung: [[['KX', 'unten'], ['TB2', 'kurz']], [['PROPHYLAXE'], ['KICKBOX']], [['ST']], [['KRAFTO'], ['KICKBOX']], [['REST']], [['SAT']], [['TB1'], ['KOPF']]],
-  spezifik: [[['ZIRKEL'], ['TB1', 'kurz']], [['PROPHYLAXE'], ['KICKBOX']], [['ST']], [['KRAFTO'], ['KICKBOX']], [['REST']], [['SAT']], [['TB1'], ['KOPF']]],
+  grundlage: [[['K1', 'beine'], ['TB1', 'kurz']], [['PROPHYLAXE'], ['KICKBOX']], [['ST']], [['KRAFTO'], ['KICKBOX']], [['REST']], [['SAT']], [['TB1']]],
+  aufbau: [[['K2', 'unten'], ['TB2', 'kurz']], [['PROPHYLAXE'], ['KICKBOX']], [['ST']], [['KRAFTO'], ['KICKBOX']], [['REST']], [['SAT']], [['TB1']]],
+  leistung: [[['KX', 'unten'], ['TB2', 'kurz']], [['PROPHYLAXE'], ['KICKBOX']], [['ST']], [['KRAFTO'], ['KICKBOX']], [['REST']], [['SAT']], [['TB1']]],
+  spezifik: [[['ZIRKEL'], ['TB1', 'kurz']], [['PROPHYLAXE'], ['KICKBOX']], [['ST']], [['KRAFTO'], ['KICKBOX']], [['REST']], [['SAT']], [['TB1']]],
   taper: [[['CAL'], ['TB1', 'kurz']], [['PROPHYLAXE'], ['KICKBOX']], [['ST']], [['KICKBOX']], [['REST']], [['TB2']], [['TBR']]],
   // Nach dem Auswahlverfahren
   erholung: [[['TBR'], ['MOB']], [['PROPHYLAXE'], ['KICKBOX']], [['ST']], [['KICKBOX']], [['REST']], [['TBR']], [['MOB']]],
-  nachav: [[['KMAXU'], ['TB1', 'kurz']], [['PROPHYLAXE'], ['SPEZ'], ['KICKBOX']], [['ST']], [['KMAXO'], ['KICKBOX']], [['REST']], [['MTSCHWER']], [['TB1'], ['KOPF']]],
+  nachav: [[['KMAXU'], ['TB1', 'kurz']], [['PROPHYLAXE'], ['SPEZ'], ['KICKBOX']], [['ST']], [['KMAXO'], ['KICKBOX']], [['REST']], [['MTSCHWER']], [['TB1']]],
 };
 
 // Grundplan eines Tages (ohne Schwächen, Verfügbarkeit und Schonmodus – das macht core/planner.js)

@@ -29,9 +29,9 @@ export function defaultState() {
     cards: {}, // Karteikarten-Status { cardId: { box, due } }
     courses: {},
     av: { lessons: {}, exams: {} }, // Wissenskurse „Nach dem AV“
-    cat: { profile: 'bw', levels: {}, sims: [], train: [] }, // CAT-Test: Stufen je Bereich, Simulationen, Training
+    cat: { profile: 'bw', levels: {}, sims: [], train: [], tests: [] }, // CAT-Test: Stufen je Bereich, Simulationen, Training
     psych: { answers: [], topics: [], cv: {}, letter: {}, bogen: [], diary: [] }, // Psychologengespräch (Aufnahmen separat, nicht in der Sicherung)
-    settings: { remindMorning: '06:00', remindEvening: '21:00', remindOn: false, voice: true, lastBackup: null, lastRemind: {} },
+    settings: { pulsGrenze: 70, remindMorning: '06:00', remindEvening: '21:00', remindOn: false, voice: true, lastBackup: null, lastRemind: {} },
   };
 }
 

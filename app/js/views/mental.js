@@ -4,6 +4,8 @@ import { speak, speakScript, stopSpeaking, vibrate, ttsAvailable } from '../core
 import { TEXTE, CHECKLISTE } from '../data/mental.js';
 import { iso, fmtDate, weekday } from '../core/util.js';
 import { GAMES, runGame } from './games.js';
+import { kognitivFuer } from '../core/kognitiv.js';
+import { startKognitiv } from './kognitiv.js';
 import { uid } from '../core/store.js';
 
 export const mentalTabs = [
@@ -95,6 +97,7 @@ function renderSpiele(el, app) {
   const g = st.mental.games;
   let load = el.dataset.load === '1';
   el.append(h('div', { class: 'k mt' }, '[ KOPFTRAINING ]'), h('p', { class: 'small dim' }, 'Realistische Übungsaufgaben, keine echten Testaufgaben. Die Schwierigkeit passt sich an: Ziel sind 70–85 % Treffer.'),
+    (() => { const p = kognitivFuer(st, iso()); const ok = (st.done[iso()] || []).includes('kognitiv'); return h('div', { class: 'card' }, h('div', { class: 'k' }, '[ HEUTE IM PLAN ]'), h('b', {}, p.titel), h('div', { class: 'm' }, `CA. ${p.min} MIN${ok ? ' · ERLEDIGT ✓' : ''}`), h('button', { class: 'btn ' + (ok ? '' : 'f'), onclick: () => startKognitiv(app) }, ok ? 'Nochmal' : '> Starten'), h('div', { class: 'm' }, 'WOCHENPLAN: SPORT → PLAN')); })(),
     h('div', { class: 'm mt' }, 'BELASTUNGSMODUS (DIREKT NACH DEM SPORT)'), seg([['0', 'Aus'], ['1', 'An – nach Belastung']], load ? '1' : '0', (v) => { el.dataset.load = v; }));
   for (const [key, def] of Object.entries(GAMES)) {
     const s = g[key] || { level: 1, history: [] };

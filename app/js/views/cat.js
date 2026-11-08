@@ -1,22 +1,14 @@
 // CAT-Test: Simulation (Zeitlimit, Ablauf wie im Test, Auswertung am Ende) und Training
 // (einzelne Bereiche, Lösungsweg nach jeder Aufgabe). Alles Übungsaufgaben.
 import { h, card, modal, seg, toast, progressBar, lineChart } from '../ui.js';
-import { CAT_MODULES, CAT_PROFILES } from '../data/cat.js';
+import { CAT_MODULES, CAT_PROFILES, CAT_KOPFTEST } from '../data/cat.js';
 import { makeItem, adaptStep, adaptTraining, moduleScore, evaluate, profileOf } from '../core/cat.js';
 import { iso, fmtDate } from '../core/util.js';
 import { beep, vibrate } from '../core/speech.js';
 
-const catState = (st) => { st.cat = st.cat || {}; const c = st.cat; c.profile = c.profile || 'bw'; c.levels = c.levels || {}; c.sims = c.sims || []; c.train = c.train || []; return c; };
+const catState = (st) => { st.cat = st.cat || {}; const c = st.cat; c.profile = c.profile || 'bw'; c.levels = c.levels || {}; c.sims = c.sims || []; c.train = c.train || []; c.tests = c.tests || []; return c; };
 const modName = (id) => CAT_MODULES[id]?.name || id;
 const fmtClock = (s) => `${Math.floor(Math.max(0, s) / 60)}:${String(Math.max(0, s) % 60).padStart(2, '0')}`;
-
-// Für die Startseite: Training im schwächsten Bereich der letzten Simulation
-export function catHome(st) {
-  const c = catState(st); const last = c.sims[c.sims.length - 1];
-  if (!last) return null;
-  const weak = evaluate(last.mods).schwaechen[0];
-  return { t: `CAT-Training: ${CAT_MODULES[weak].kurz}`, sub: 'OPTIONAL · CA. 10 MIN · SCHWÄCHSTER BEREICH', mod: weak };
-}
 
 // ---------- SVG-Darstellung ----------
 const NS = 'http://www.w3.org/2000/svg';
@@ -117,6 +109,16 @@ export function renderCat(el, app) {
     h('button', { class: 'btn f', onclick: () => runSimulation(app, false) }, `> Simulation starten (ca. ${totalMin} min)`),
     h('button', { class: 'btn', onclick: () => runSimulation(app, true) }, `Kurz-Simulation (ca. ${Math.round(totalMin / 2)} min)`)));
 
+  // Monatlicher Kopf-Test (feste Schwierigkeit, vergleichbar)
+  const kt = c.tests; const ktMin = Math.round(CAT_KOPFTEST.module.reduce((a, x) => a + x.min, 0));
+  const lastT = kt[kt.length - 1], firstT = kt[0];
+  el.append(card(h('div', { class: 'k' }, '[ KOPF-TEST · MONATLICH ]'),
+    h('p', { class: 'small dim' }, `Alle 8 Bereiche, feste Stufe ${CAT_KOPFTEST.stufe}, ca. ${ktMin} min mit Zeitlimit. Weil die Schwierigkeit immer gleich ist, zeigt der Verlauf ehrlich, ob du besser wirst. Termin: Sonntag der Entlastungswoche (steht im Kopf-Wochenplan).`),
+    lastT ? h('div', { class: 'm' }, `LETZTER TEST ${fmtDate(lastT.date)}: ${lastT.total} %${kt.length > 1 ? ` · ERSTER ${firstT.total} % (${lastT.total - firstT.total >= 0 ? '+' : ''}${lastT.total - firstT.total})` : ''}`) : null,
+    kt.length > 1 ? lineChart(kt.map((t) => ({ date: t.date, v: t.total })), { fmt: (v) => v + ' %', height: 120 }) : null,
+    lastT ? h('div', {}, ...Object.entries(lastT.mods).map(([id, m]) => { const d = kt.length > 1 && firstT.mods[id] ? m.score - firstT.mods[id].score : null; return h('div', { class: 'mt' }, h('div', { class: 'row between' }, h('span', { class: 'small' }, CAT_MODULES[id].kurz), h('span', { class: 'm' }, `${m.score} %${d != null ? (d >= 0 ? ' ▲' : ' ▼') + Math.abs(d) : ''}`)), progressBar(m.score / 100)); })) : null,
+    h('button', { class: 'btn f', onclick: () => runSimulation(app, false, { kopftest: true }) }, `> Kopf-Test starten (ca. ${ktMin} min)`)));
+
   const last = c.sims[c.sims.length - 1];
   if (last) {
     const ev = evaluate(last.mods);
@@ -147,8 +149,9 @@ export function renderCat(el, app) {
 }
 
 // ---------- Simulation ----------
-export function runSimulation(app, kurz) {
-  const st = app.state; const c = catState(st); const P = profileOf(c.profile);
+export function runSimulation(app, kurz, { kopftest = false, onDone } = {}) {
+  const st = app.state; const c = catState(st); const P = kopftest ? CAT_KOPFTEST : profileOf(c.profile);
+  const label = kopftest ? 'KOPF-TEST' : 'SIMULATION';
   const plan = P.module.map((m) => ({ ...m, n: kurz ? Math.max(1, Math.ceil(m.n / 2)) : m.n, sec: Math.round((kurz ? m.min / 2 : m.min) * 60) }));
   const results = {}; let mi = 0, iv = null, aborted = false;
   const m = modal(({ close }) => {
@@ -156,13 +159,13 @@ export function runSimulation(app, kurz) {
     const intro = () => {
       if (mi >= plan.length) return finish();
       const mod = plan[mi];
-      head.replaceChildren(h('div', { class: 'k' }, `[ SIMULATION · TEIL ${mi + 1}/${plan.length} ]`), progressBar(mi / plan.length));
+      head.replaceChildren(h('div', { class: 'k' }, `[ ${label} · TEIL ${mi + 1}/${plan.length} ]`), progressBar(mi / plan.length));
       body.replaceChildren(h('h2', {}, modName(mod.id)), h('p', { class: 'm' }, `${mod.n} ${mod.id === 'merken' ? 'DURCHGÄNGE' : mod.id === 'konzentration' ? 'BLÖCKE' : 'AUFGABEN'} · ZEIT ${fmtClock(mod.sec)}`),
         h('p', { class: 'small dim' }, 'Keine Lösungen während der Simulation. Unbeantwortete Aufgaben zählen als falsch. Lieber zügig entscheiden als hängen bleiben.'),
         h('button', { class: 'btn f', onclick: () => runModule(mod) }, '> Start'));
     };
     const runModule = (mod) => {
-      let level = Math.max(1, Math.min(8, c.levels[mod.id] || 3)), done = 0, left = mod.sec;
+      let level = kopftest ? CAT_KOPFTEST.stufe : Math.max(1, Math.min(8, c.levels[mod.id] || 3)), done = 0, left = mod.sec;
       const res = results[mod.id] = [];
       const clock = h('span', { class: 'mono sand' });
       const tick = () => { clock.textContent = fmtClock(left); };
@@ -182,7 +185,7 @@ export function runSimulation(app, kurz) {
           if (left <= 0) return;
           res.push(...r); done++;
           const avg = r.reduce((a, x) => a + x.score, 0) / r.length;
-          level = adaptStep(level, avg >= 0.6);
+          if (!kopftest) level = adaptStep(level, avg >= 0.6);
           next();
         }));
       };
@@ -190,27 +193,30 @@ export function runSimulation(app, kurz) {
     };
     const finish = () => {
       clearInterval(iv);
-      const mods = {}; for (const [id, r] of Object.entries(results)) mods[id] = moduleScore(r);
+      const mods = {}; for (const [id, r] of Object.entries(results)) { mods[id] = moduleScore(r); if (kopftest) mods[id].score = Math.round((mods[id].correct / Math.max(1, mods[id].total)) * 100); }
       const ev = evaluate(mods);
-      c.sims.push({ date: iso(), profile: c.profile, kurz, total: ev.total, mods });
-      for (const [id, s] of Object.entries(mods)) c.levels[id] = Math.max(1, Math.round(s.level));
+      if (kopftest) { c.tests.push({ date: iso(), total: ev.total, mods }); onDone?.(); } else {
+        c.sims.push({ date: iso(), profile: c.profile, kurz, total: ev.total, mods });
+        for (const [id, s] of Object.entries(mods)) c.levels[id] = Math.max(1, Math.round(s.level));
+      }
+      const prevT = kopftest ? c.tests[c.tests.length - 2] : null;
       head.replaceChildren(h('div', { class: 'k' }, '[ AUSWERTUNG ]'));
-      body.replaceChildren(h('div', { class: 'center' }, h('div', { class: 'big' }, ev.total), h('div', { class: 'm' }, 'GESAMTWERT (0–100) · ÜBUNGSWERT, KEIN OFFIZIELLES ERGEBNIS')),
+      body.replaceChildren(h('div', { class: 'center' }, h('div', { class: 'big' }, ev.total), h('div', { class: 'm' }, kopftest ? `TREFFERQUOTE IN % · FESTE STUFE ${CAT_KOPFTEST.stufe}${prevT ? ` · LETZTER TEST ${prevT.total}` : ''}` : 'GESAMTWERT (0–100) · ÜBUNGSWERT, KEIN OFFIZIELLES ERGEBNIS')),
         card(...ev.sorted.map((id) => h('div', { class: 'mt' }, h('div', { class: 'row between' }, h('span', { class: 'small' }, modName(id)), h('span', { class: 'm' }, `${String(mods[id].correct).replace('.', ',')}/${mods[id].total} · ST. ${String(mods[id].level).replace('.', ',')} · ${mods[id].score}`)), progressBar(mods[id].score / 100)))),
         card(h('div', { class: 'k' }, '[ STÄRKEN ]'), h('p', {}, ev.staerken.map(modName).join(', ')), h('div', { class: 'k' }, '[ SCHWÄCHEN ]'), h('p', {}, ev.schwaechen.map(modName).join(', ')),
-          h('p', { class: 'small dim' }, 'Wert = 70 % Trefferquote + 30 % erreichte Schwierigkeit. Die App schlägt dir ab jetzt Training für die schwächsten Bereiche vor (hier und im Tagesbefehl).')),
+          h('p', { class: 'small dim' }, kopftest ? 'Immer gleiche Schwierigkeit – so siehst du von Monat zu Monat ehrlich, ob du besser wirst. Der schwächste Bereich kommt sonntags ins Kopftraining.' : 'Wert = 70 % Trefferquote + 30 % erreichte Schwierigkeit. Der schwächste Bereich kommt sonntags ins Kopftraining (Tagesbefehl).')),
         ...ev.schwaechen.map((id) => h('button', { class: 'btn f', onclick: () => { close(); setTimeout(() => runTraining(app, id), 350); } }, `> Training: ${modName(id)}`)),
         h('button', { class: 'btn', onclick: close }, 'Fertig'));
-      app.award(kurz ? 20 : 40, 'cat', 'Simulation abgeschlossen.');
+      app.award(kopftest ? 30 : kurz ? 20 : 40, 'cat', kopftest ? 'Kopf-Test abgeschlossen.' : 'Simulation abgeschlossen.');
     };
     intro();
     return h('div', {}, head, body);
   }, { full: true });
-  m.onClose(() => { clearInterval(iv); if (mi < plan.length && !aborted) { aborted = true; toast('Simulation abgebrochen – nichts gespeichert.'); } app.refresh(); });
+  m.onClose(() => { clearInterval(iv); if (mi < plan.length && !aborted) { aborted = true; toast(`${kopftest ? 'Kopf-Test' : 'Simulation'} abgebrochen – nichts gespeichert.`); } app.refresh(); });
 }
 
 // ---------- Training ----------
-export function runTraining(app, mod, n = mod === 'merken' || mod === 'konzentration' ? 3 : 10) {
+export function runTraining(app, mod, n = mod === 'merken' || mod === 'konzentration' ? 3 : 10, onDone) {
   const st = app.state; const c = catState(st);
   let level = c.levels[mod] || 1, i = 0; const recent = [], all = [];
   const m = modal(({ close }) => {
@@ -230,6 +236,7 @@ export function runTraining(app, mod, n = mod === 'merken' || mod === 'konzentra
       c.train.push({ date: iso(), mod, correct, total: all.length, level });
       if (c.train.length > 300) c.train.splice(0, c.train.length - 300);
       c.levels[mod] = level;
+      onDone?.();
       head.replaceChildren(h('div', { class: 'k' }, `[ TRAINING ${CAT_MODULES[mod].kurz.toUpperCase()} ABGESCHLOSSEN ]`));
       body.replaceChildren(h('div', { class: 'center' }, h('div', { class: 'big' }, `${Math.round((correct / Math.max(1, all.length)) * 100)} %`), h('div', { class: 'm' }, `${String(correct).replace('.', ',')} VON ${all.length} RICHTIG · NEUE STUFE ${level}`)), h('button', { class: 'btn f', onclick: close }, 'Fertig'));
       app.award(15, 'cat', 'CAT-Training erledigt.');

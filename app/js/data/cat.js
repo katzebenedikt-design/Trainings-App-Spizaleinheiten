@@ -50,6 +50,17 @@ export const CAT_PROFILES = {
   },
 };
 
+// Monatlicher Kopf-Test: feste Schwierigkeit, damit Ergebnisse über die Monate vergleichbar sind.
+// Termin: Sonntag der Entlastungswoche (zusammen mit dem Sport-Monatstest).
+export const CAT_KOPFTEST = {
+  name: 'Kopf-Test (monatlich)',
+  stufe: 5,
+  module: [
+    { id: 'sprache', n: 5, min: 2.5 }, { id: 'mathe', n: 5, min: 3 }, { id: 'logik', n: 5, min: 3 }, { id: 'raum', n: 4, min: 2 },
+    { id: 'technik', n: 4, min: 2 }, { id: 'merken', n: 1, min: 2 }, { id: 'konzentration', n: 1, min: 1 }, { id: 'allgemein', n: 4, min: 1.5 },
+  ],
+};
+
 // ---------- Aufgabenbanken ----------
 // Rechtschreibung: [richtig, falsch, falsch, falsch], Stufe 1–3
 export const RECHTSCHREIBUNG = [

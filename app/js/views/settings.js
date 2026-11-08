@@ -48,10 +48,12 @@ export function openSettings(app) {
     const date = h('input', { type: 'date', value: p.targetDate });
     const height = h('input', { inputmode: 'numeric', value: p.heightCm });
     const maxhr = h('input', { inputmode: 'numeric', value: p.maxHR || '', placeholder: 'leer = 220 − Alter' });
+    const puls = h('input', { inputmode: 'numeric', value: s.pulsGrenze || 70 });
     const mo = h('input', { type: 'time', value: s.remindMorning }), ev = h('input', { type: 'time', value: s.remindEvening });
     let unit = p.unit, anrede = p.anrede;
     const saveProfile = () => {
       Object.assign(p, { name: name.value.trim(), targetDate: date.value || p.targetDate, heightCm: num(height.value) || p.heightCm, maxHR: num(maxhr.value), unit, anrede });
+      s.pulsGrenze = Math.max(40, num(puls.value) || 70);
       s.remindMorning = mo.value || '06:00'; s.remindEvening = ev.value || '21:00';
       store.save();
     };
@@ -61,6 +63,7 @@ export function openSettings(app) {
         field('Termin Auswahlverfahren', date), h('p', { class: 'm' }, 'Der Phasenplan wird rückwärts von diesem Datum gerechnet.'),
         h('div', { class: 'm mt' }, 'ANSPRACHE'), seg([['du', 'Du'], ['name', 'Mit Name'], ['rang', 'Mit Dienstgrad']], anrede, (a) => { anrede = a; }),
         field('Name', name), h('div', { class: 'grid2' }, field('Größe (cm)', height), field('Max. Puls', maxhr)),
+        field('Ruhepuls-Grenze morgens (Schonmodus erst ab diesem Wert)', puls),
         h('button', { class: 'btn', onclick: () => { saveProfile(); toast('Gespeichert.'); app.refresh(); } }, 'Speichern')),
       targetsCard(app),
       card(h('div', { class: 'k' }, '[ ERINNERUNGEN ]'),

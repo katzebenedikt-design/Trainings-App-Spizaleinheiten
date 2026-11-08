@@ -23,6 +23,8 @@ Alle Daten bleiben auf dem Handy (IndexedDB), Sichern/Wiederherstellen als Datei
 - **Anforderungen zentral:** `app/js/data/requirements.js` (Zielwerte je Einheit, Wochenregeln). Eigene Werte in der App unter Einstellungen → Zielwerte.
 - **Schwächen:** aktuelle Werte (Tests, Läufe, Schwimmen, Marsch, Kraft, Garmin-VO2max) gegen Zielwerte; die größten Lücken bekommen Zusatzvolumen. Begründung im Plan unter „Warum so?“.
 - **Verfügbarkeit pro Woche:** Plan → „Verfügbar in KW …“. Übungen werden ersetzt, Einheiten auf die verfügbare Zeit gekürzt.
+- **Kognitivtraining:** jeden Tag ein kurzer Punkt „Kopf“ im Tagesbefehl nach festem Wochenplan (`app/js/data/kognitiv.js`): Mo Kopfrechnen, Di Merken, Mi Logik, Do Konzentration, Fr optional, Sa Entscheiden unter Stress nach dem Marsch, So schwächster CAT-Bereich. Sonntag der Entlastungswoche: monatlicher Kopf-Test mit fester Schwierigkeit (vergleichbarer Verlauf unter Auswahl → CAT-Test).
+- **Ruhepuls morgens:** löst erst ab 70 den Schonmodus aus (änderbar unter Einstellungen → Ruhepuls-Grenze).
 - **Garmin:** Reiter Sport → Garmin. Manuelle Eingabe, Datei-Import, Verläufe. HRV, Schlaf und Belastung senken bei Bedarf die Intensität. Automatische Anbindung: siehe `docs/garmin-anbindung.md`.
 
 ## Übungen: Erklärung, Quelle, Animation
