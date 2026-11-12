@@ -6,6 +6,7 @@ import { assessWeaknesses, focusAreas, BOOSTS, fmtVal } from './weakness.js';
 import { availFor, applyAvailability } from './availability.js';
 import { readiness, applyReadiness } from './readiness.js';
 import { enforce, violations } from './rules.js';
+import { applyPain } from './schmerz.js';
 import { addDays, mondayOf, weekday, iso } from './util.js';
 
 const cache = new Map(); // Schwächen nur einmal pro Tag/Datenstand berechnen
@@ -58,14 +59,18 @@ export function plannedDay(state, date, { withReadiness = date === iso() } = {})
   const av = applyAvailability(date, sessions, a, build);
   sessions = av.sessions;
 
+  // 3b. Schmerzen (Körperbild): belastende Übungen raus, Reha-Block rein, Warnzeichen → Pause
+  const pn = applyPain(sessions, state, date, build);
+  sessions = pn.sessions; why.push(...pn.notes);
+
   // 4. Schonmodus
   let r = null;
-  if (withReadiness) { r = readiness(state, date); sessions = applyReadiness(sessions, r); }
-  const schonPause = r?.mode === 'pause';
+  if (withReadiness) { r = readiness(state, date); if (!pn.pause) sessions = applyReadiness(sessions, r); }
+  const schonPause = r?.mode === 'pause' || pn.pause;
 
   // 5. Wochenregeln
   sessions = enforce(date, sessions, build, { schonPause });
-  return { ...day, sessions, why, availNotes: av.notes, weak, focus, readiness: r, violations: violations(date, sessions, { schonPause }) };
+  return { ...day, sessions, why, availNotes: av.notes, weak, focus, readiness: r, pain: pn, violations: violations(date, sessions, { schonPause }) };
 }
 
 export function weekPlan(state, anyDate) {

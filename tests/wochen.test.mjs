@@ -30,7 +30,7 @@ test('Gute Woche mit allem erledigt → leicht steigern', () => {
 test('Unklare Daten → halten; starke Schmerzen → runter', () => {
   const s = st();
   assert.equal(wochenAuswertung(s, MON, addDays(MON, 7)).stufe, 'halten');
-  s.pain.push({ date: addDays(MON, 2), label: 'Knie rechts', staerke: 7, art: 'stechend' });
+  s.pain.push({ id: 'p1', date: addDays(MON, 2), typ: 'knie', seite: 'r', label: 'Knie rechts', staerke: 7, art: 'stechend' });
   const w = wochenAuswertung(s, MON, addDays(MON, 7));
   assert.equal(w.stufe, 'runter'); assert.equal(w.schmerzen.length, 1);
 });

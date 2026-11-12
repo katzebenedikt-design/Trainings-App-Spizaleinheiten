@@ -22,6 +22,7 @@ import { morningCard } from './garmin.js';
 import { PLAN_AENDERUNGEN, PDF_DATEIEN } from '../data/plan-quellen.js';
 import { EINHEITEN, wochenErklaerung } from '../data/einheiten.js';
 import { wochenCard, wochenHistorie } from './wochen.js';
+import { schmerzCard, schmerzModal } from './koerper.js';
 import { kognitivItem, startKognitiv, kognitivWeekCard, psychItem, startPsych } from './kognitiv.js';
 
 export const sportTabs = [
@@ -59,6 +60,7 @@ function renderHeute(el, app) {
   // Garmin-Morgenbericht als Tageskarte, montags das Wochen-Update
   el.append(morningCard(app, today, { compact: true }));
   if (weekday(today) <= 1) el.append(wochenCard(app, { kompakt: true }));
+  el.append(schmerzCard(app));
 
   // Countdown + Bereitschaft
   const dnum = h('div', { class: 'big', style: { fontSize: '46px' } }, '0');
@@ -144,7 +146,7 @@ export function openCheckin(app, date = iso()) {
   modal(({ close }) => {
     const hr = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'z. B. 66', value: v.ruhepuls || '' });
     const ort = h('input', { type: 'text', placeholder: 'z. B. linkes Knie', value: v.ort || '' });
-    const ortWrap = field('Wo tut es weh?', ort); if (!(v.schmerz >= 3)) ortWrap.classList.add('hidden');
+    const ortWrap = h('div', {}, field('Wo tut es weh?', ort), h('button', { class: 'btn s', type: 'button', onclick: () => schmerzModal(app, { staerke: Math.min(10, v.schmerz * 2) }) }, 'Stelle im Körperbild zeigen → Plan passt sich an')); if (!(v.schmerz >= 3)) ortWrap.classList.add('hidden');
     return h('div', {}, h('div', { class: 'k' }, '[ MORGEN-CHECK-IN ]'), h('h2', {}, fmtDateLong(date)),
       ...CHECK_ITEMS.map((it) => h('div', { class: 'mt' }, h('div', { class: 'row between' }, h('b', {}, it.label), h('span', { class: 'm' }, `1 = ${it.lo} · 5 = ${it.hi}`)),
         scale(v[it.key] || 0, (x) => { v[it.key] = x; if (it.key === 'schmerz') ortWrap.classList.toggle('hidden', x < 3); }))),

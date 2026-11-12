@@ -47,6 +47,35 @@ const shots = process.argv[3] || null;
   for (const tab of ['plan', 'kraft', 'ausdauer', 'test', 'garmin', 'daten', 'timer']) {
     await step('Sport/' + tab, async () => { await page.goto(url + '#/sport/' + tab); await page.waitForTimeout(400); await shot('sport-' + tab); });
   }
+  await step('Körperbild: Knie melden, Plan angepasst, abgeklungen', async () => {
+    await page.goto(url + '#/sport/heute'); await page.waitForTimeout(400);
+    await page.getByText('+ Schmerzen melden (Körperbild)').click(); await page.waitForTimeout(300);
+    const full = page.locator('.full').last();
+    await full.locator('[data-id=knie_r_v]').click({ force: true });
+    if (!(await full.getByText('KNIE RECHTS', { exact: true }).count())) throw new Error('Stelle nicht ausgewählt');
+    await full.locator('.scale button').nth(3).click(); await full.locator('.seg button', { hasText: 'Dumpf' }).click();
+    await shot('koerper'); await full.getByText('Speichern', { exact: true }).click(); await page.waitForTimeout(400);
+    if (!(await page.getByText('[ PLAN ANGEPASST ]').count())) throw new Error('Kein Hinweis „Plan angepasst“');
+    await shot('koerper-ergebnis'); await page.locator('.modal').last().getByText('OK', { exact: true }).click(); await page.waitForTimeout(500);
+    if (!(await page.getByText('Knie rechts', { exact: true }).count())) throw new Error('Schmerzkarte fehlt');
+    await page.goto(url + '#/sport/plan'); await page.waitForTimeout(400);
+    if (!(await page.getByText(/^Reha-Block: Knie rechts/).count()) && !(await page.getByText('Freitag', { exact: false }).count())) throw new Error('Reha-Block fehlt im Plan');
+    await page.goto(url + '#/sport/heute'); await page.waitForTimeout(300);
+    await page.getByText('Abgeklungen', { exact: true }).click(); await page.waitForTimeout(400);
+    if (await page.getByText('Knie rechts', { exact: true }).count()) throw new Error('Nicht als abgeklungen markiert');
+  });
+  await step('Körperbild: Warnzeichen → nicht weitertrainieren', async () => {
+    await page.getByText('+ Schmerzen melden (Körperbild)').click(); await page.waitForTimeout(300);
+    const full = page.locator('.full').last();
+    await full.locator('.seg button', { hasText: 'Hinten' }).click();
+    await full.locator('[data-id=ur_h]').click({ force: true });
+    await full.locator('.scale button').nth(7).click(); await full.locator('.seg button', { hasText: 'Stechend' }).click();
+    await full.getByText('Speichern', { exact: true }).click(); await page.waitForTimeout(400);
+    if (!(await page.getByText('Nicht weitertrainieren', { exact: true }).count())) throw new Error('Kein Sicherheitshinweis');
+    await shot('koerper-warnung'); await page.locator('.modal').last().getByText('OK', { exact: true }).click(); await page.waitForTimeout(400);
+    if (!(await page.getByText(/zum Arzt oder Physiotherapeuten/).count())) throw new Error('Warnung fehlt auf der Startseite');
+    await page.getByText('Abgeklungen', { exact: true }).click(); await page.waitForTimeout(300);
+  });
   await step('Wochen-Update (Vorschau)', async () => {
     await page.goto(url + '#/sport/plan'); await page.waitForTimeout(400);
     await page.getByText(/^Vorschau: laufende Woche$|^Vorschau laufende Woche$/).first().click(); await page.waitForTimeout(300);

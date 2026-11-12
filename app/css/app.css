@@ -294,3 +294,12 @@ select { width: 100%; background: var(--card); color: var(--txt); border: 1px so
 .reactbox.tgt { background: var(--sand); } .reactbox.dis { background: var(--olive); }
 
 .card.wofuer { border-left: 3px solid var(--olive); }
+
+/* Körperbild */
+svg.koerper { width: min(260px, 70vw); height: auto; touch-action: manipulation; }
+svg.koerper .reg { fill: #c9b47e14; stroke: #c9b47e55; stroke-width: 1.2; cursor: pointer; transition: fill .15s; }
+svg.koerper .reg:hover { fill: #c9b47e33; }
+svg.koerper .reg.on { fill: #c4613f66; stroke: var(--bad); }
+svg.koerper .reg.sel { fill: #c9b47e88; stroke: var(--sand); stroke-width: 2; }
+svg.koerper .koerper-t { fill: var(--mut); font: 9px var(--mono); letter-spacing: .08em; }
+.scale { display: flex; flex-wrap: wrap; gap: 4px; }

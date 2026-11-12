@@ -240,6 +240,9 @@ export function buildSession(code, ctx) {
       return { code, title: `Marsch ${['', 'leicht', 'mittel', 'schwer'][lvl]}`, sub: `MT${lvl} · ${km} km · ${kg} kg`, min: Math.round((km / 5.5) * 60), ruck: true,
         blocks: [{ kind: 'main', title: 'Marschtraining in Stiefeln', lines: [`${km} km mit ${kg} kg Gepäck, Tempo 4–7 km/h (${lvl === 1 ? 'flach' : 'mittleres Profil'})`, 'Nicht rennen mit Gepäck. Strecke vorher mit Karte planen.', 'Füße vorher und nachher kontrollieren. Socken wechseln.', 'Gute Gelegenheit für Kompass-Übung.'] }] };
     }
+    case 'ALTCARDIO':
+      return { code, title: 'Schonende Ausdauer', sub: 'Rad · Ergometer · Crosstrainer', min: 30,
+        blocks: [{ kind: 'main', title: 'Ohne Stoßbelastung', lines: ['Rad, Ergometer oder Crosstrainer in Zone 2 (Puls 135–150), gleiche Dauer wie geplant', 'Nur wenn es schmerzfrei ist – sonst Oberkörper-Ergometer oder Spaziergang', 'Danach den Reha-Block nicht vergessen.'] }] };
     case 'MTLANG': {
       // Spezifik: +5 km pro 6-Wochen-Block, 30 → 40 km, 15–20 kg (KSK-Trainingshandbuch S. 8)
       const block = Math.floor(((ctx.weekInPhase || 1) - 1) / 6);
