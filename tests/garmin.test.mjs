@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { mapGarmin, mergePayload } from '../app/js/core/garmin-map.js';
-import { encryptJSON, decryptJSON, newKey, normKey } from '../app/js/core/crypt.js';
+import { generateAppKeys, encryptFor, decryptWith, validPublicKey } from '../app/js/core/crypt.js';
 import { applyGarminPayload, syncGarmin } from '../app/js/core/garmin-sync.js';
 import { applyGarminStart, GARMIN_START } from '../app/js/data/garmin-start.js';
 import { readiness } from '../app/js/core/readiness.js';
@@ -32,36 +32,37 @@ test('Rohdaten → App-Format: alle geforderten Werte', () => {
   assert.equal(p.activities.find((a) => a.sport === 'kraft').name, 'Krafttraining');
 });
 
-test('Verschlüsselung: Rundweg, falscher Schlüssel scheitert', async () => {
-  const key = newKey();
-  assert.match(key, /^([A-Z2-7]{4}-){7}[A-Z2-7]{4}$/);
-  const env = await encryptJSON({ a: 1, t: 'Grüße' }, key);
+test('Verschlüsselung: nur das Handy mit dem geheimen Schlüssel kann lesen', async () => {
+  const app = await generateAppKeys(), other = await generateAppKeys();
+  assert.ok(await validPublicKey(app.publicKey)); assert.ok(!(await validPublicKey('abc')));
+  assert.equal(app.privateJwk.kty, 'EC'); assert.ok(app.privateJwk.d, 'geheimer Teil bleibt in der App');
+  const env = await encryptFor({ a: 1, t: 'Grüße' }, app.publicKey);
   assert.ok(!JSON.stringify(env).includes('Grüße'));
-  assert.deepEqual(await decryptJSON(env, key.toLowerCase().replace(/-/g, ' ')), { a: 1, t: 'Grüße' });
-  await assert.rejects(() => decryptJSON(env, newKey()), /Schlüssel falsch/);
-  assert.equal(normKey(' ab-cd 23 '), 'ABCD23');
+  assert.deepEqual(await decryptWith(env, app.privateJwk), { a: 1, t: 'Grüße' });
+  await assert.rejects(() => decryptWith(env, other.privateJwk), /anderer Verbindungscode/);
+  const env2 = await encryptFor({ a: 1 }, app.publicKey);
+  assert.notEqual(env2.epk, env.epk, 'jede Datei mit eigenem Einmal-Schlüssel');
 });
 
-test('Sync-Werkzeug: schreibt verschlüsselt, mischt mit Bestand', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'gsync-')); const out = join(dir, 'daten.enc.json'); const key = newKey();
-  const env = { ...process.env, GARMIN_APP_KEY: key, GARMIN_OUT: out };
+test('Sync-Werkzeug: braucht nur den öffentlichen Code, schreibt unlesbar', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'gsync-')); const out = join(dir, 'daten.enc.json');
+  const app = await generateAppKeys();
+  const env = { ...process.env, GARMIN_APP_PUBKEY: app.publicKey, GARMIN_OUT: out };
   execFileSync('node', ['tools/garmin-sync.mjs', FIX], { env });
   assert.ok(existsSync(out));
-  const file = JSON.parse(readFileSync(out, 'utf8'));
   assert.ok(!readFileSync(out, 'utf8').includes('2030-01-10'), 'Datei enthält keine lesbaren Daten');
-  const p1 = await decryptJSON(file, key);
-  execFileSync('node', ['tools/garmin-sync.mjs', FIX], { env }); // zweiter Lauf: keine Duplikate
-  const p2 = await decryptJSON(JSON.parse(readFileSync(out, 'utf8')), key);
-  assert.equal(p2.daily.length, p1.daily.length); assert.equal(p2.activities.length, 2);
-  assert.throws(() => execFileSync('node', ['tools/garmin-sync.mjs', FIX], { env: { ...env, GARMIN_APP_KEY: newKey() }, stdio: 'pipe' }));
+  const p = await decryptWith(JSON.parse(readFileSync(out, 'utf8')), app.privateJwk);
+  assert.equal(p.activities.length, 2); assert.ok(p.daily.find((d) => d.date === '2030-01-10').report);
+  assert.throws(() => execFileSync('node', ['tools/garmin-sync.mjs', FIX], { env: { ...env, GARMIN_APP_PUBKEY: 'kaputt', GARMIN_PUBFILE: join(dir, 'fehlt.json') }, stdio: 'pipe' }));
 });
 
 test('App: verschlüsselte Datei abholen und übernehmen (ohne Duplikate)', async () => {
-  const key = newKey(); const env = await encryptJSON(mergePayload({}, { ...mapGarmin(raw), created: '2030-01-10T07:15:00Z' }), key);
+  const app = await generateAppKeys();
+  const env = await encryptFor(mergePayload({}, { ...mapGarmin(raw), created: '2030-01-10T07:15:00Z' }), app.publicKey);
   const fetcher = async () => ({ ok: true, json: async () => env });
   const st = defaultState();
   assert.equal((await syncGarmin(st, { fetcher })).status, 'kein-schluessel');
-  st.settings.garminKey = key;
+  st.settings.garminKeys = app;
   const r = await syncGarmin(st, { fetcher });
   assert.equal(r.status, 'neu'); assert.equal(r.acts, 2);
   assert.equal(st.runs.filter((x) => x.garminId === '900001').length, 1);
@@ -69,8 +70,8 @@ test('App: verschlüsselte Datei abholen und übernehmen (ohne Duplikate)', asyn
   assert.equal((await syncGarmin(st, { fetcher })).status, 'aktuell');
   applyGarminPayload(st, mapGarmin(raw));
   assert.equal(st.activities.length, 2);
-  st.settings.garminKey = newKey(); st.settings.garminSync = null;
-  await assert.rejects(() => syncGarmin(st, { fetcher }), /Schlüssel falsch/);
+  st.settings.garminKeys = await generateAppKeys(); st.settings.garminSync = null;
+  await assert.rejects(() => syncGarmin(st, { fetcher }), /anderer Verbindungscode/);
 });
 
 test('Morgenbericht steuert die Einheit: schlecht = leichter, gut = voll', () => {

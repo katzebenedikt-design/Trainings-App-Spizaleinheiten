@@ -1,5 +1,6 @@
 // Einstellungen, Ersteinrichtung, Sichern & Wiederherstellen.
 import { syncGarmin } from '../core/garmin-sync.js';
+import { generateAppKeys } from '../core/crypt.js';
 import { h, card, modal, field, seg, toast, download, pickFile, confirmBox } from '../ui.js';
 import * as store from '../core/store.js';
 import { iso, fmtTime, parseTime, num, fmtDate } from '../core/util.js';
@@ -50,7 +51,6 @@ export function openSettings(app) {
     const height = h('input', { inputmode: 'numeric', value: p.heightCm });
     const maxhr = h('input', { inputmode: 'numeric', value: p.maxHR || '', placeholder: 'leer = 220 − Alter' });
     const puls = h('input', { inputmode: 'numeric', value: s.pulsGrenze || 70 });
-    const gkey = h('input', { value: s.garminKey || '', placeholder: 'XXXX-XXXX-…', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false' });
     const mo = h('input', { type: 'time', value: s.remindMorning }), ev = h('input', { type: 'time', value: s.remindEvening });
     let unit = p.unit, anrede = p.anrede;
     const saveProfile = () => {
@@ -68,10 +68,7 @@ export function openSettings(app) {
         field('Ruhepuls-Grenze morgens (Schonmodus erst ab diesem Wert)', puls),
         h('button', { class: 'btn', onclick: () => { saveProfile(); toast('Gespeichert.'); app.refresh(); } }, 'Speichern')),
       targetsCard(app),
-      card(h('div', { class: 'k' }, '[ GARMIN · AUTOMATISCHE ABHOLUNG ]'),
-        h('p', { class: 'small dim' }, 'Dein persönlicher Schlüssel entschlüsselt die Garmin-Datei, die jeden Morgen automatisch abgelegt wird. Ohne Schlüssel kann niemand die Daten lesen. Den Schlüssel nicht weitergeben.'),
-        field('Garmin-Schlüssel', gkey),
-        h('button', { class: 'btn', onclick: async () => { s.garminKey = gkey.value.trim(); s.garminSync = null; store.save(); try { const r = await syncGarmin(st); store.save(); toast(r.status === 'neu' ? `Verbunden: ${r.days} Tage, ${r.acts} Aktivitäten übernommen.` : r.status === 'kein-schluessel' ? 'Schlüssel entfernt.' : 'Gespeichert. Noch keine Daten gefunden.', 4000); app.refresh(); } catch (e) { toast(e.message, 4000); } } }, 'Schlüssel speichern und abholen')),
+      garminCard(app, st),
       card(h('div', { class: 'k' }, '[ ERINNERUNGEN ]'),
         h('div', { class: 'grid2' }, field('Morgens Check-in', mo), field('Abends Mental', ev)),
         h('button', { class: 'btn ' + (s.remindOn ? 'o' : 'f'), onclick: async () => { saveProfile(); try { await enableReminders(app); toast('Benachrichtigungen an.'); } catch (e) { toast(e.message, 4000); } } }, s.remindOn ? 'Benachrichtigungen sind an ✓' : 'Benachrichtigungen erlauben'),
@@ -142,4 +139,23 @@ function targetsCard(app) {
         p.targets = t; store.save(); toast('Zielwerte gespeichert. Plan neu berechnet.'); app.refresh();
       } }, 'Zielwerte speichern'),
       h('button', { class: 'btn', onclick: () => { p.targets = {}; store.save(); toast('Zurück auf Standard.'); app.refresh(); } }, 'Auf Standard zurücksetzen')));
+}
+
+// Garmin-Verbindung: Schlüsselpaar auf dem Handy, Verbindungscode (öffentlich) zum Weitergeben
+function garminCard(app, st) {
+  const s = st.settings;
+  const box = card(h('div', { class: 'k' }, '[ GARMIN · AUTOMATISCHE ABHOLUNG ]'));
+  const draw = () => {
+    const kk = s.garminKeys;
+    box.replaceChildren(h('div', { class: 'k' }, '[ GARMIN · AUTOMATISCHE ABHOLUNG ]'),
+      h('p', { class: 'small dim' }, 'Jeden Morgen wird dein Garmin-Morgenbericht abgeholt und verschlüsselt neben die App gelegt. Öffnen kann ihn nur dieses Handy: Der geheime Schlüssel bleibt hier (und in deiner Sicherungsdatei). Der Verbindungscode ist nicht geheim – er wird nur zum Verschlüsseln gebraucht.'),
+      kk ? h('div', {}, h('div', { class: 'm' }, 'DEIN VERBINDUNGSCODE'), h('textarea', { readonly: true, class: 'mono', style: { minHeight: '84px', fontSize: '13px' } }, kk.publicKey),
+        h('button', { class: 'btn f', onclick: async () => { try { await navigator.clipboard.writeText(kk.publicKey); toast('Kopiert. Jetzt im Chat an Claude schicken.'); } catch { toast('Bitte den Code markieren und kopieren.'); } } }, 'Code kopieren'),
+        h('p', { class: 'small dim' }, s.garminSync ? `Verbunden – letzte Daten vom ${s.garminSync.created.slice(8, 10)}.${s.garminSync.created.slice(5, 7)}. ${s.garminSync.created.slice(11, 16)} Uhr.` : 'Noch keine Daten empfangen. Code einmal an Claude schicken, danach kommt der Bericht jeden Morgen.'),
+        h('button', { class: 'btn', onclick: async () => { try { const r = await syncGarmin(st); store.save(); toast(r.status === 'neu' ? `${r.days} Tage, ${r.acts} Aktivitäten übernommen.` : r.status === 'aktuell' ? 'Schon aktuell.' : 'Noch keine Datei für dieses Handy.', 4000); draw(); app.refresh(); } catch (e) { toast(e.message, 5000); } } }, 'Jetzt abholen'),
+        h('button', { class: 'btn danger', onclick: async () => { if (!(await confirmBox('Neuen Code erzeugen? Der alte Code funktioniert danach nicht mehr – der neue muss wieder an Claude geschickt werden.', 'Neu erzeugen'))) return; s.garminKeys = { ...(await generateAppKeys()), created: new Date().toISOString() }; s.garminSync = null; store.save(); draw(); } }, 'Neuen Code erzeugen'))
+        : h('button', { class: 'btn f', onclick: async () => { s.garminKeys = { ...(await generateAppKeys()), created: new Date().toISOString() }; store.save(); draw(); } }, 'Verbindungscode erzeugen'));
+  };
+  draw();
+  return box;
 }

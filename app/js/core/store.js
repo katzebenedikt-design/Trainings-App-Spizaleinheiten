@@ -33,7 +33,7 @@ export function defaultState() {
     av: { lessons: {}, exams: {} }, // Wissenskurse „Nach dem AV“
     cat: { profile: 'bw', levels: {}, sims: [], train: [], tests: [] }, // CAT-Test: Stufen je Bereich, Simulationen, Training
     psych: { answers: [], topics: [], cv: {}, letter: {}, bogen: [], diary: [] }, // Psychologengespräch (Aufnahmen separat, nicht in der Sicherung)
-    settings: { garminKey: '', garminSync: null, garminStartDone: false, pulsGrenze: 70, remindMorning: '06:00', remindEvening: '21:00', remindOn: false, voice: true, lastBackup: null, lastRemind: {} },
+    settings: { garminKeys: null, garminSync: null, garminStartDone: false, pulsGrenze: 70, remindMorning: '06:00', remindEvening: '21:00', remindOn: false, voice: true, lastBackup: null, lastRemind: {} },
   };
 }
 

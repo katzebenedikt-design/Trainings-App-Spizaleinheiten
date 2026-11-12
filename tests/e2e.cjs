@@ -68,23 +68,27 @@ const shots = process.argv[3] || null;
     if (!(await page.getByText('[ GARMIN-MORGENBERICHT', { exact: false }).count())) throw new Error('Morgenbericht-Karte fehlt');
     await shot('garmin');
   });
-  await step('Garmin automatisch: verschlüsselte Datei, Schlüssel per Link', async () => {
+  await step('Garmin automatisch: Verbindungscode, verschlüsselte Datei', async () => {
     const path = require('path'); const fs = require('fs');
     const root = path.join(__dirname, '..');
-    const { encryptJSON, newKey } = await import(path.join(root, 'app/js/core/crypt.js'));
+    const { encryptFor } = await import(path.join(root, 'app/js/core/crypt.js'));
     const { mapGarmin, mergePayload } = await import(path.join(root, 'app/js/core/garmin-map.js'));
     const { iso, addDays, mondayOf } = await import(path.join(root, 'app/js/core/util.js'));
+    await page.goto(url + '#/sport/heute'); await page.waitForTimeout(300); await page.locator('[title=Einstellungen]').click();
+    await page.getByText('Verbindungscode erzeugen').click(); await page.waitForTimeout(400);
+    const code = (await page.locator('.full textarea[readonly]').inputValue()).trim();
+    if (!/^[A-Za-z0-9+/=]{80,}$/.test(code)) throw new Error('Kein Verbindungscode angezeigt');
+    await shot('garmin-verbindung');
     const t = iso();
     const swap = (txt) => txt.replaceAll('2030-01-10', t).replaceAll('2030-01-09', addDays(t, -1)).replaceAll('2030-01-07', mondayOf(t)).replaceAll('2030-01-05', addDays(t, -5)).replaceAll('2030-01-06', addDays(t, -4));
     const raw = {}; for (const k of ['readiness', 'status', 'hrv', 'sleep', 'stats', 'vo2', 'intensity', 'activities']) raw[k] = JSON.parse(swap(fs.readFileSync(path.join(root, 'tests/fixtures/garmin', k + '.json'), 'utf8')));
-    const key = newKey();
-    const env = await encryptJSON(mergePayload({}, { ...mapGarmin(raw), created: new Date().toISOString() }), key);
+    const env = await encryptFor(mergePayload({}, { ...mapGarmin(raw), created: new Date().toISOString() }), code);
     await ctx.route('**/garmin/daten.enc.json*', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(env) }));
-    await page.goto(url + '#/schluessel/' + key); await page.reload(); await page.waitForTimeout(1500);
+    await page.locator('.full').getByText('Jetzt abholen').click(); await page.waitForTimeout(1200);
+    await close(); await page.waitForTimeout(300);
     while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
     await page.goto(url + '#/sport/heute'); await page.waitForTimeout(500);
-    if (!(await page.getByText('Trainingsbereitschaft 31', { exact: false }).count()) && !(await page.locator('.verdict.warn').count())) throw new Error('Abgeholte Werte nicht übernommen');
-    if (!(await page.getByText('▼ Leichtere Ersatz-Einheit').count())) throw new Error('Morgenbericht (Bereitschaft 31, überlastet) führt nicht zur leichteren Einheit');
+    if (!(await page.getByText('▼ Leichtere Ersatz-Einheit').count())) throw new Error('Morgenbericht führt nicht zur leichteren Einheit');
     await shot('morgenbericht');
     await page.goto(url + '#/sport/garmin'); await page.waitForTimeout(600);
     for (const txt of ['Krafttraining', 'Intensitätsminuten pro Woche', 'Schlafphasen (letzte Nächte)', 'zuletzt aktualisiert']) if (!(await page.getByText(txt, { exact: false }).count())) throw new Error('Fehlt im Garmin-Bereich: ' + txt);

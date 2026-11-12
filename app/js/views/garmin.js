@@ -40,7 +40,7 @@ export function morningCard(app, date = iso(), { compact = false } = {}) {
   const r = readiness(st, date);
   const has = g && (g.report || MORGEN.some((m) => g[m.k] != null && g.source !== 'startwert'));
   if (!has) {
-    const sync = st.settings.garminKey ? 'Die automatische Abholung läuft jeden Morgen gegen 7:15 Uhr.' : 'Automatische Abholung: Schlüssel unter Einstellungen → Garmin eintragen.';
+    const sync = st.settings.garminKeys ? 'Die automatische Abholung läuft jeden Morgen gegen 7:15 Uhr.' : 'Automatische Abholung einrichten: Einstellungen → Garmin → Verbindungscode.';
     return card(h('div', { class: 'k' }, `[ GARMIN-MORGENBERICHT · ${fmtDate(date)} ]`), h('p', { class: 'small dim' }, `Noch kein Bericht für heute. ${sync}`),
       h('button', { class: 'btn s', onclick: () => dailyModal(app, date) }, 'Von Hand eintragen'));
   }
@@ -121,10 +121,10 @@ export function renderGarmin(el, app) {
   const sy = st.settings.garminSync;
   el.append(card(h('div', { class: 'k' }, '[ DATENQUELLEN ]'),
     h('ul', { class: 'plain small' }, SOURCES.map((s) => h('li', { class: s.active ? '' : 'dim' }, `${s.active ? '✓' : '○'} ${s.name}${s.active ? '' : ' – vorbereitet, nicht aktiv'}`))),
-    h('p', { class: 'small' }, st.settings.garminKey ? `Automatische Abholung: ${sy ? `zuletzt aktualisiert ${fmtDate(sy.created.slice(0, 10))}, ${sy.created.slice(11, 16)} Uhr` : 'noch keine Daten empfangen'}.` : 'Automatische Abholung: aus. Schlüssel unter Einstellungen → Garmin eintragen.'),
-    st.settings.garminKey ? h('button', { class: 'btn s', onclick: async () => { try { const r = await syncGarmin(st); app.save(); toast(r.status === 'neu' ? `Neue Garmin-Daten: ${r.days} Tage, ${r.acts} Aktivitäten.` : r.status === 'aktuell' ? 'Schon aktuell.' : 'Keine Daten gefunden.'); app.refresh(); } catch (e) { toast(e.message, 4000); } } }, 'Jetzt abholen') : null,
+    h('p', { class: 'small' }, st.settings.garminKeys ? `Automatische Abholung: ${sy ? `zuletzt aktualisiert ${fmtDate(sy.created.slice(0, 10))}, ${sy.created.slice(11, 16)} Uhr` : 'noch keine Daten empfangen'}.` : 'Automatische Abholung: aus. Einrichten unter Einstellungen → Garmin → Verbindungscode.'),
+    st.settings.garminKeys ? h('button', { class: 'btn s', onclick: async () => { try { const r = await syncGarmin(st); app.save(); toast(r.status === 'neu' ? `Neue Garmin-Daten: ${r.days} Tage, ${r.acts} Aktivitäten.` : r.status === 'aktuell' ? 'Schon aktuell.' : 'Keine Daten gefunden.'); app.refresh(); } catch (e) { toast(e.message, 4000); } } }, 'Jetzt abholen') : null,
     h('details', {}, h('summary', { class: 'm', style: { cursor: 'pointer' } }, 'WIE KOMMEN DIE DATEN IN DIE APP?'),
-      h('p', { class: 'small dim' }, 'Jeden Morgen holt eine geplante Aufgabe deinen Garmin-Morgenbericht und die Tageswerte ab und legt sie verschlüsselt (AES-256) neben die App. Nur deine App kann sie mit deinem Schlüssel lesen. Die App selbst braucht keinen Garmin-Zugang und keinen Server. Ohne Schlüssel: Datei-Import oder von Hand eintragen.')),
+      h('p', { class: 'small dim' }, 'Jeden Morgen holt eine geplante Aufgabe deinen Garmin-Morgenbericht und die Tageswerte ab und legt sie verschlüsselt neben die App (ECDH P-256 + AES-256). Nur dieses Handy hat den geheimen Schlüssel und kann sie lesen. Die App selbst braucht keinen Garmin-Zugang und keinen Server. Ohne Schlüssel: Datei-Import oder von Hand eintragen.')),
     h('details', {}, h('summary', { class: 'm', style: { cursor: 'pointer', marginTop: '6px' } }, 'SO EXPORTIERST DU AUS GARMIN CONNECT'),
       h('ul', { class: 'plain small' },
         h('li', {}, 'Einzelaktivität: Garmin Connect im Browser → Aktivität → Zahnrad → „Original exportieren“ (FIT) oder „Exportieren nach GPX/TCX“.'),

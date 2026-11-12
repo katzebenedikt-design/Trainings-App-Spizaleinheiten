@@ -1,6 +1,8 @@
 # Garmin: automatische Anbindung – Einschätzung
 
-**Kurz:** Für diese App (läuft nur auf dem Handy, ohne eigenen Server) ist eine offizielle automatische Garmin-Anbindung derzeit nicht realistisch. Deshalb gibt es Datei-Import und manuelle Eingabe. Die Anbindung ist im Code vorbereitet (`app/js/core/garmin-source.js`).
+**Stand November 2026:** Die Werte kommen jetzt automatisch: Eine geplante Aufgabe liest jeden Morgen über den Garmin-Connector von Claude den Morgenbericht und die Tageswerte, verschlüsselt sie mit dem Verbindungscode der App und legt sie neben die App (siehe `docs/garmin-abholung.md`). Die App selbst braucht weiter keinen Garmin-Zugang und keinen Server. Datei-Import und manuelle Eingabe bleiben als Reserve.
+
+**Früher (weiter gültig für eine direkte App-Anbindung):** Für diese App (läuft nur auf dem Handy, ohne eigenen Server) ist eine offizielle automatische Garmin-Anbindung nicht realistisch. Die Anbindung ist im Code vorbereitet (`app/js/core/garmin-source.js`).
 
 ## Warum nicht sofort
 - Die offiziellen Schnittstellen (Garmin Connect Developer Program: Health API, Activity API) gibt es nur nach **Antrag und Freigabe** durch Garmin. Gedacht sind sie für Firmen und Organisationen.

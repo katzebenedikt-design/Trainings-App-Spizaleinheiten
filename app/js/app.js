@@ -74,9 +74,6 @@ async function start() {
   await store.load();
   try { await loadPacks(); } catch (e) { console.warn('Sprachpakete nicht geladen', e); }
   if (applyGarminStart(store.state)) store.save();
-  // Garmin-Schlüssel per Link: …/#/schluessel/XXXX-XXXX-… (der Teil nach # geht nie an einen Server)
-  const km = location.hash.match(/^#\/schluessel\/([A-Za-z2-7-]{20,})/);
-  if (km) { store.state.settings.garminKey = km[1].toUpperCase(); store.state.settings.garminSync = null; store.save(); history.replaceState(null, '', location.pathname + '#/sport'); toast('Garmin-Schlüssel gespeichert.', 3000); }
   if (!store.state.profile.onboarded) await onboarding(app);
   render();
   app.badges();

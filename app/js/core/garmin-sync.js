@@ -1,5 +1,5 @@
 // App-Seite: verschlüsselte Garmin-Datei laden und in den Datenbestand übernehmen.
-import { decryptJSON, normKey } from './crypt.js';
+import { decryptWith } from './crypt.js';
 import { mergeDaily } from './garmin.js';
 
 export const GARMIN_FILE = './garmin/daten.enc.json';
@@ -26,11 +26,11 @@ export function applyGarminPayload(st, p) {
 
 // Beim App-Start: Datei holen (Netz zuerst), entschlüsseln, übernehmen. Leise bei fehlendem Schlüssel/Datei.
 export async function syncGarmin(st, { fetcher = (u) => fetch(u, { cache: 'no-store' }) } = {}) {
-  const key = st.settings?.garminKey;
-  if (!normKey(key)) return { status: 'kein-schluessel' };
+  const keys = st.settings?.garminKeys;
+  if (!keys?.privateJwk) return { status: 'kein-schluessel' };
   let env;
   try { const r = await fetcher(GARMIN_FILE + '?t=' + Date.now()); if (!r.ok) return { status: 'keine-datei' }; env = await r.json(); } catch { return { status: 'offline' }; }
-  const p = await decryptJSON(env, key); // wirft bei falschem Schlüssel
+  const p = await decryptWith(env, keys.privateJwk); // wirft, wenn die Datei für einen anderen Verbindungscode ist
   if (st.settings.garminSync?.created === p.created) return { status: 'aktuell', created: p.created };
   const res = applyGarminPayload(st, p);
   st.settings.garminSync = { created: p.created, at: new Date().toISOString(), ...res };
