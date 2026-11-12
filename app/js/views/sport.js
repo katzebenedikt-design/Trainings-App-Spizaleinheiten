@@ -20,7 +20,7 @@ import { voiceCommand } from './voice.js';
 import { spracheHome } from './sprache.js';
 import { morningCard } from './garmin.js';
 import { PLAN_AENDERUNGEN, PDF_DATEIEN } from '../data/plan-quellen.js';
-import { EINHEITEN } from '../data/einheiten.js';
+import { EINHEITEN, wochenErklaerung } from '../data/einheiten.js';
 import { kognitivItem, startKognitiv, kognitivWeekCard, psychItem, startPsych } from './kognitiv.js';
 
 export const sportTabs = [
@@ -164,6 +164,8 @@ export function openSession(app, s, date, idx) {
   const st = app.state;
   modal(({ close }) => {
     const wrap = h('div', {}, h('div', { class: 'k' }, `[ ${s.code} · ${fmtDate(date)} ]`), h('h1', {}, s.title), h('div', { class: 'm' }, s.sub + (s.min ? ` · ca. ${s.min} min` : '')));
+    const ei = EINHEITEN[s.code];
+    if (ei) wrap.append(h('div', { class: 'card wofuer' }, h('div', { class: 'k' }, '[ WOFÜR ]'), h('p', {}, `${ei.zweck} ${ei.nutzen}`), h('div', { class: 'm' }, 'PRAXIS'), h('ul', { class: 'plain small' }, ei.beispiele.map((b) => h('li', {}, b)))));
     for (const b of s.blocks) {
       const c = card(h('div', { class: 'k' }, `[ ${b.title.toUpperCase()} ]`));
       if (b.lines) c.append(h('ul', { class: 'plain' }, b.lines.map((l) => h('li', {}, l))));
@@ -227,6 +229,8 @@ function renderPlan(el, app) {
       h('button', { class: 'icon-btn', style: { transform: 'scaleX(-1)' }, onclick: () => { el.dataset.ref = addDays(mondayOf(ref), 7); el.replaceChildren(); renderPlan(el, app); } }, iconBtnIcon())),
     seg([['arbeit', 'Arbeitswoche'], ['schule', 'Berufsschulwoche']], mode, (m) => { st.week.overrides[key] = m; app.save(); el.replaceChildren(); renderPlan(el, app); }));
   const week = weekPlan(st, ref);
+  const w0 = week[0];
+  el.append(h('p', { class: 'small dim mt' }, wochenErklaerung(w0.phase.name, w0.cycleWeek, w0.deload, w0.phase.key === 'nachav' ? 4 : 6)));
   const wc = card();
   week.forEach((d) => {
     const isToday = d.date === today;

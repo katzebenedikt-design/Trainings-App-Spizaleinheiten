@@ -58,6 +58,8 @@ const shots = process.argv[3] || null;
       if (await btn.count()) { found = true; await btn.click(); } else await close();
     }
     if (!found) throw new Error('Kein Keine-Zeit-Knopf gefunden');
+    if (!(await page.getByText(/Belastungswoche \d von 5|Regenerationswoche \(Woche/).count())) throw new Error('Wochenerklärung fehlt');
+    if (!(await page.locator('.full').last().getByText('[ WOFÜR ]').count())) throw new Error('Erklärung „Wofür“ fehlt in der Einheit');
     await page.waitForTimeout(300); await shot('keine-zeit');
     const done = page.locator('.modal').last().getByText(/min-Ersatz erledigt$/).first();
     await done.click(); await page.waitForTimeout(400);

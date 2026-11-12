@@ -292,3 +292,5 @@ select { width: 100%; background: var(--card); color: var(--txt); border: 1px so
 
 .reactbox { height: 180px; border: 1px solid var(--line); background: var(--card); display: grid; place-items: center; margin: 10px 0; touch-action: manipulation; user-select: none; font: 30px var(--mono); }
 .reactbox.tgt { background: var(--sand); } .reactbox.dis { background: var(--olive); }
+
+.card.wofuer { border-left: 3px solid var(--olive); }
