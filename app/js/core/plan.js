@@ -5,7 +5,7 @@
 // Leitregeln (elite-selection-coach): Umfang max. ca. 10 % pro Woche steigern, alle 3–4 Wochen Entlastung,
 // mindestens 1 Ruhetag, kein Training durch Schmerz.
 import { addDays, daysBetween, mondayOf, weekday, isoWeekKey, clamp, fmtTime, sortByDate, last, iso } from './util.js';
-import { KICKBOX } from '../data/requirements.js';
+import { KICKBOX, WOCHEN_REGELN } from '../data/requirements.js';
 
 // Zielwerte kommen aus der zentralen Konfiguration (data/requirements.js).
 export { getNorms } from '../data/requirements.js';
@@ -351,7 +351,8 @@ export function baseDay(state, date) {
   const mode = weekMode(state, date);
   const wd = weekday(date);
   const best = currentBest(state);
-  const vol = state.plan.volFactor || 1;
+  const adj = state.weekAdj?.[isoWeekKey(date)];
+  const vol = (state.plan.volFactor || 1) * (adj?.faktor || 1);
   const kleider = ['aufbau', 'leistung', 'spezifik', 'nachav'].includes(phase.key);
   const ctx0 = { best, vol, week: weekTotal, weekInPhase, deload, mode, sat: wd === 5, sunday: wd === 6, friday: wd === 4, kleider, spez: state.profile.av?.spez || 'beide', cw, phaseKey: phase.key };
   let plan = TEMPLATES[phase.key][wd].map(([c, v]) => [c, v]);
@@ -370,6 +371,8 @@ export function baseDay(state, date) {
     if (code === 'KX') return [cw === 1 || cw === 4 ? 'K4' : 'K2', variant];
     return [code, variant];
   });
+  // Wochen-Update: in einer „runter“-Woche harte Einheiten abschwächen (WOCHEN_REGELN.abschwaechen)
+  if (adj?.stufe === 'runter' && !deload) plan = plan.map(([code, variant]) => [WOCHEN_REGELN.abschwaechen[code] || code, variant]);
   // Regenerationswoche: Montag Kraft-Test (Klimmzüge, Liegestütze, Sit-ups), Mittwoch 100 m Brust, Samstag 3000 m
   if (deload && wd === 0) plan = [['TESTKRAFT']];
   if (deload && wd === 2) plan = [['TESTSCHWIMMEN']];

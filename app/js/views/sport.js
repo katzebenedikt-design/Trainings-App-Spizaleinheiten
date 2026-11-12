@@ -21,6 +21,7 @@ import { spracheHome } from './sprache.js';
 import { morningCard } from './garmin.js';
 import { PLAN_AENDERUNGEN, PDF_DATEIEN } from '../data/plan-quellen.js';
 import { EINHEITEN, wochenErklaerung } from '../data/einheiten.js';
+import { wochenCard, wochenHistorie } from './wochen.js';
 import { kognitivItem, startKognitiv, kognitivWeekCard, psychItem, startPsych } from './kognitiv.js';
 
 export const sportTabs = [
@@ -55,8 +56,9 @@ function renderHeute(el, app) {
       h('h1', { class: 'typein' }, r.mode === 'pause' ? 'Lage: Pause' : r.mode === 'leicht' ? 'Lage: Schonen' : r.mode === 'offen' ? (anrede ? anrede + ', melden!' : 'Lage: Melden') : 'Lage: Bereit')),
     h('div', { class: 'row' }, iconBtn('mic', () => voiceCommand(app), 'Werte per Sprache eintragen'), iconBtn('gear', () => app.settings(), 'Einstellungen'))));
 
-  // Garmin-Morgenbericht als Tageskarte
+  // Garmin-Morgenbericht als Tageskarte, montags das Wochen-Update
   el.append(morningCard(app, today, { compact: true }));
+  if (weekday(today) <= 1) el.append(wochenCard(app, { kompakt: true }));
 
   // Countdown + Bereitschaft
   const dnum = h('div', { class: 'big', style: { fontSize: '46px' } }, '0');
@@ -207,6 +209,8 @@ function renderPlan(el, app) {
   const st = app.state; const today = iso();
   let ref = el.dataset.ref || today;
   const { phases, weekTotal } = phaseAt(st, ref);
+  el.append(wochenCard(app));
+  const hist = wochenHistorie(app); if (hist) el.append(hist);
   el.append(h('div', { class: 'k mt' }, '[ PHASENPLAN BIS ZUM AUSWAHLVERFAHREN ]'));
   const pc = card();
   const curPhase = phaseAt(st, today).phase;

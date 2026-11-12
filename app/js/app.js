@@ -13,6 +13,7 @@ import { checkReminders } from './views/reminders.js';
 import { loadPacks } from './core/langpacks.js';
 import { syncGarmin } from './core/garmin-sync.js';
 import { applyGarminStart } from './data/garmin-start.js';
+import { wochenUpdateFaellig } from './core/wochen.js';
 
 const AREAS = [
   { key: 'sport', label: 'Sport', icon: 'sport', tabs: sportTabs },
@@ -78,7 +79,9 @@ async function start() {
   render();
   app.badges();
   // Garmin-Daten im Hintergrund holen; bei neuen Daten Ansicht auffrischen
-  const pull = () => syncGarmin(store.state).then((r) => { if (r.status === 'neu') { store.save(); if (!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) render(true); toast(`Garmin: ${r.days} Tage aktualisiert.`, 2500); } }).catch((e) => toast('Garmin: ' + e.message, 4000));
+  // Danach (einmal pro Woche) das Wochen-Update der vergangenen Woche – mit den frischesten Garmin-Daten
+  const weekly = () => { const w = wochenUpdateFaellig(store.state); if (w) { store.save(); if (!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) render(true); toast(`Wochen-Update KW ${w.key.split('-W')[1]}: ${w.text.replace('Nächste Woche: ', '')}`, 4500); } };
+  const pull = () => syncGarmin(store.state).then((r) => { if (r.status === 'neu') { store.save(); if (!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) render(true); toast(`Garmin: ${r.days} Tage aktualisiert.`, 2500); } }).catch((e) => toast('Garmin: ' + e.message, 4000)).finally(weekly);
   pull();
   checkReminders(app);
   setInterval(() => checkReminders(app), 60000);

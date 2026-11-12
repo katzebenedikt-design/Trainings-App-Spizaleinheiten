@@ -55,6 +55,30 @@ export const KRAFT_SCHWIMMEN_GETRENNT = true;
 
 export const KICKBOX = { titel: 'Kickboxen', min: 90, zeit: 'abends' };
 
+// Wöchentliches Update → Plan der nächsten Woche (wird jeden Montag für die vergangene Woche berechnet).
+export const WOCHEN_REGELN = {
+  runter: {
+    hrvStatus: ['niedrig', 'schwach'], // letzter HRV-Status der Woche
+    bereitschaftUnter: 40, // Ø Trainingsbereitschaft
+    status: ['ueberlastet', 'ueberfordert'], // letzter Trainingszustand
+    belastungsQuoteUeber: 1.5, // akute / chronische Belastung
+    schmerzAb: 6, // aktiver Schmerz ab Stärke 6
+    faktor: 0.85, // Umfang −15 %, harte Einheiten werden abgeschwächt
+  },
+  hoch: {
+    bereitschaftAb: 60, erledigtAb: 0.85, // Ø Bereitschaft und Anteil erledigter Einheiten
+    faktor: 1.05, maxFaktor: 1.25, // +5 % pro Woche, höchstens 125 % Gesamtumfang
+  },
+  // Harte Einheiten und ihr leichterer Ersatz in einer „runter“-Woche
+  abschwaechen: { TB3: 'TB2', TB4: 'TB1', K4: 'K2', EILMARSCH: 'MT2', MTLANG: 'MT3', ZIRKEL: 'K1' },
+};
+
+// Ausbildung (Phase 2 / nach dem PFV) – Hinweise aus dem KSK-Handbuch S. 8; hier ergänzen, wenn neue Infos kommen.
+export const AUSBILDUNG = {
+  quelle: 'KSK-Trainingshandbuch S. 8 (PFV Phase 2)',
+  hinweise: ['Ein 40-km-Marsch sollte keine Herausforderung darstellen', 'Kleider- und Rettungsschwimmen', 'Belastung unter Schlafentzug: Durchhaltefähigkeit und Performance'],
+};
+
 // Garmin-Morgenbericht → heutige Einheit. Schlechte Werte = leichtere Ersatz-Einheit, gute = volle Einheit.
 // Garmin-Skala Trainingsbereitschaft: 1–24 schlecht, 25–49 niedrig, 50–74 mäßig, 75–94 hoch, 95–100 optimal.
 export const GARMIN_REGELN = {

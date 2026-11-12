@@ -47,6 +47,12 @@ const shots = process.argv[3] || null;
   for (const tab of ['plan', 'kraft', 'ausdauer', 'test', 'garmin', 'daten', 'timer']) {
     await step('Sport/' + tab, async () => { await page.goto(url + '#/sport/' + tab); await page.waitForTimeout(400); await shot('sport-' + tab); });
   }
+  await step('Wochen-Update (Vorschau)', async () => {
+    await page.goto(url + '#/sport/plan'); await page.waitForTimeout(400);
+    await page.getByText(/^Vorschau: laufende Woche$|^Vorschau laufende Woche$/).first().click(); await page.waitForTimeout(300);
+    for (const t of ['[ GARMIN ]', '[ TRAINING ]', '[ FORTSCHRITT ]', '[ ENTSCHEIDUNG FÜR DIE NÄCHSTE WOCHE ]']) if (!(await page.locator('.modal').last().getByText(t, { exact: true }).count())) throw new Error('Fehlt: ' + t);
+    await shot('wochen-update'); await close();
+  });
   await step('Keine Zeit: Ersatz-Einheit', async () => {
     await page.goto(url + '#/sport/plan'); await page.waitForTimeout(400);
     // irgendeine Einheit der Woche mit Ersatz öffnen
