@@ -1,9 +1,9 @@
 // Psychologengespräch: mündlich üben (Frage wird vorgelesen, Antwort aufnehmen, selbst bewerten),
 // schriftlich (Lebenslauf, Motivationsschreiben, Persönlichkeitsfragebögen) und Reflexionstagebuch.
-import { h, card, modal, seg, toast, lineChart, download, confirmBox } from '../ui.js';
-import { THEMEN, NACHFRAGEN, CHECK, LEBENSLAUF, MOTIVATION, FRAGEBOGEN, FRAGEBOGEN_INFO } from '../data/psych.js';
-import { pickQuestions, checkPct, weakestCriterion, fragebogenItems, fragebogenAuswerten, buildLetter, dailyPrompts } from '../core/psych.js';
-import { speak, stopSpeaking, listen, sttAvailable } from '../core/speech.js';
+import { h, card, modal, seg, toast, lineChart, download, confirmBox, field } from '../ui.js';
+import { THEMEN, NACHFRAGEN, CHECK, LEBENSLAUF, MOTIVATION, FRAGEBOGEN, FRAGEBOGEN_INFO, STAR, BEISPIEL_THEMEN, MEHRTEILIG, AUFSATZ, AUFSATZ_CHECK } from '../data/psych.js';
+import { pickQuestions, checkPct, weakestCriterion, fragebogenItems, fragebogenAuswerten, buildLetter, dailyPrompts, psychFuer, bogenStabilitaet, wortzahl } from '../core/psych.js';
+import { speak, stopSpeaking, listen, sttAvailable, beep } from '../core/speech.js';
 import { recAvailable, startRecording, saveAudio, loadAudio, deleteAudio, pruneIds } from '../core/recorder.js';
 import { iso, fmtDate, pick } from '../core/util.js';
 import { uid } from '../core/store.js';
@@ -13,7 +13,7 @@ const MAX_SEC = 180;
 const ps = (st) => {
   st.psych = st.psych || {};
   const p = st.psych;
-  for (const [k, v] of Object.entries({ answers: [], topics: [], cv: {}, letter: {}, bogen: [], diary: [] })) if (p[k] === undefined) p[k] = v;
+  for (const [k, v] of Object.entries({ answers: [], topics: [], cv: {}, letter: {}, bogen: [], diary: [], beispiele: {}, aufsaetze: [] })) if (p[k] === undefined) p[k] = v;
   return p;
 };
 const fmtSec = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
@@ -43,6 +43,7 @@ export function renderGespraech(el, app) {
     h('button', { class: 'btn f mt', onclick: () => runInterview(app, pickQuestions(P.topics, n, P.answers)) }, '> Übung starten'),
     recAvailable() ? null : h('div', { class: 'card warnc small' }, 'Aufnahme in diesem Browser nicht verfügbar. Du kannst trotzdem üben und dich selbst bewerten.'));
 
+  el.append(beispieleCard(app));
   const weak = weakestCriterion(P.answers);
   if (weak) el.append(card(h('div', { class: 'k' }, '[ DARAUF ACHTEST DU ALS NÄCHSTES ]'), h('b', {}, weak.t), h('p', { class: 'small dim' }, weak.d)));
 
@@ -68,7 +69,7 @@ export function renderGespraech(el, app) {
     h('p', { class: 'small dim' }, 'Bis dahin: Selbstbewertung, und die Aufnahmen einer Vertrauensperson vorspielen.')));
 }
 
-function runInterview(app, qs) {
+export function runInterview(app, qs, { zeit = 0, onDone } = {}) {
   const st = app.state; const P = ps(st);
   let i = 0, rec = null, iv = null, saved = 0;
   const m = modal(({ close }) => {
@@ -79,7 +80,8 @@ function runInterview(app, qs) {
       const Q = qs[i]; let blob = null, sec = 0; const check = {};
       speak(Q.q, { lang: 'de-DE', rate: 0.95 });
       const qText = h('h2', { class: 'hidden' }, Q.q);
-      const clock = h('div', { class: 'big center', style: { fontSize: '34px' } }, '0:00');
+      const limit = Q.zeit || zeit || MAX_SEC;
+      const clock = h('div', { class: 'big center', style: { fontSize: '34px' } }, zeit || Q.zeit ? fmtSec(limit) : '0:00');
       const after = h('div', {});
       const recBtn = h('button', { class: 'btn f' }, recAvailable() ? '🎙 Antwort aufnehmen' : '▶ Antwort laut geben');
       const stopRec = async () => {
@@ -92,16 +94,18 @@ function runInterview(app, qs) {
         stopSpeaking();
         if (recAvailable()) { try { rec = await startRecording(); } catch (e) { toast(e.message); } }
         const t0 = Date.now();
-        iv = setInterval(() => { sec = Math.round((Date.now() - t0) / 1000); clock.textContent = fmtSec(sec); if (sec >= MAX_SEC) stopRec(); }, 500);
+        iv = setInterval(() => { sec = Math.round((Date.now() - t0) / 1000); clock.textContent = zeit || Q.zeit ? fmtSec(Math.max(0, limit - sec)) : fmtSec(sec); if (limit - sec === 10) beep(660, 120); if (sec >= limit) { beep(440, 300); stopRec(); } }, 500);
         recBtn.textContent = '■ Antwort beenden'; recBtn.classList.remove('f'); recBtn.classList.add('danger');
       };
       const evaluate = () => {
         const note = h('textarea', { placeholder: 'Was sage ich nächstes Mal anders – in meinen eigenen Worten?', style: { minHeight: '70px' } });
         const rows = CHECK.map((c) => h('div', { class: 'chkrow' }, h('div', {}, h('b', {}, c.t), h('div', { class: 'small dim' }, c.d)),
           seg([[0, 'Nein'], [1, 'Teils'], [2, 'Ja']], null, (v) => { check[c.id] = v; })));
+        const teileOk = {};
+        const teileRow = Q.teile ? h('div', { class: 'chkrow' }, h('b', {}, 'Alle Teile beantwortet?'), ...Q.teile.map((t, k) => h('label', { class: 'small', style: { display: 'block', marginTop: '6px' } }, h('input', { type: 'checkbox', onchange: (e) => { teileOk[k] = e.target.checked; } }), ' ' + t))) : null;
         const save = async (followup) => {
           if (Object.keys(check).length < CHECK.length) return toast('Bitte alle vier Punkte bewerten.');
-          const entry = { id: uid(), ts: Date.now(), date: iso(), topic: Q.topic, q: Q.q, followup: !!Q.followup, sec, check: { ...check }, note: note.value.trim(), audio: false };
+          const entry = { id: uid(), ts: Date.now(), date: iso(), topic: Q.topic, q: Q.q, followup: !!Q.followup, sec, zeit: zeit || Q.zeit || null, check: { ...check }, note: note.value.trim(), audio: false, teile: Q.teile ? Q.teile.filter((_, k) => teileOk[k]).length + '/' + Q.teile.length : undefined };
           if (blob && blob.size) { try { await saveAudio(entry.id, blob); entry.audio = true; } catch { toast('Aufnahme konnte nicht gespeichert werden.'); } }
           P.answers.push(entry); saved++;
           for (const id of pruneIds(P.answers, KEEP_AUDIO)) { const a = P.answers.find((x) => x.id === id); if (a) { a.audio = false; a.audioGone = true; } deleteAudio(id).catch(() => {}); }
@@ -113,14 +117,14 @@ function runInterview(app, qs) {
         after.replaceChildren(...[
           blob ? h('audio', { controls: true, src: URL.createObjectURL(blob) }) : h('p', { class: 'small dim' }, `Antwortzeit: ${fmtSec(sec)}`),
           h('p', { class: 'small dim' }, sec < 20 ? 'Sehr kurz. Psychologen fragen dann meist nach – hast du ein Beispiel genannt?' : sec > 150 ? 'Recht lang. Kommst du auf den Punkt?' : 'Gute Länge: 30 Sekunden bis 2 Minuten.'),
-          h('div', { class: 'k mt' }, '[ SELBSTBEWERTUNG ]'), ...rows, note,
+          h('div', { class: 'k mt' }, '[ SELBSTBEWERTUNG ]'), teileRow, ...rows, note,
           h('button', { class: 'btn f', onclick: () => save(false) }, i < qs.length - 1 ? 'Speichern – nächste Frage' : 'Speichern – fertig'),
           Q.followup ? null : h('button', { class: 'btn', onclick: () => save(true) }, 'Speichern + Nachfrage stellen')].filter(Boolean));
       };
       body.replaceChildren(h('div', { class: 'm' }, `FRAGE ${i + 1}/${qs.length} · ${(THEMEN[Q.topic]?.name || '').toUpperCase()}${Q.followup ? ' · NACHFRAGE' : ''}`),
         h('p', { class: 'small dim' }, THEMEN[Q.topic]?.worum || ''),
         h('div', { class: 'row wrap mt' }, h('button', { class: 'btn s', onclick: () => speak(Q.q, { lang: 'de-DE', rate: 0.95 }) }, '🔊 Nochmal'), h('button', { class: 'btn s', onclick: () => qText.classList.toggle('hidden') }, 'Frage als Text')),
-        qText, clock, recBtn, after);
+        qText, Q.teile ? h('p', { class: 'warn small' }, `Merkaufgabe: Die Frage hat ${Q.teile.length} Teile. Beantworte alle, ohne nachzufragen.`) : null, zeit || Q.zeit ? h('p', { class: 'm' }, `ANTWORTZEIT ${fmtSec(limit)} – DANACH ENDET DIE AUFNAHME`) : null, beispielHinweis(P, Q.topic), clock, recBtn, after);
     };
     const summary = () => {
       stopSpeaking();
@@ -129,7 +133,7 @@ function runInterview(app, qs) {
       body.replaceChildren(h('div', { class: 'center mt2' }, h('div', { class: 'k' }, '[ ÜBUNG BEENDET ]'), h('div', { class: 'big' }, avg + ' %'), h('div', { class: 'm' }, `SELBSTBEWERTUNG · ${mine.length} ANTWORTEN`)),
         h('p', { class: 'small dim' }, 'Hör dir die Aufnahmen morgen noch einmal an – mit Abstand hört man mehr. Noch besser: Lass eine Vertrauensperson zuhören und ehrlich sagen, was sie glaubt und was nicht.'),
         h('button', { class: 'btn f', onclick: close }, 'Fertig'));
-      if (saved) app.award(10 + saved * 2, 'psych', 'Gespräch geübt.');
+      if (saved) { onDone?.(); app.award(10 + saved * 2, 'psych', 'Gespräch geübt.'); }
     };
     show();
     return h('div', {}, h('div', { class: 'k' }, '[ PSYCHOLOGENGESPRÄCH · ÜBUNG ]'), body);
@@ -138,10 +142,11 @@ function runInterview(app, qs) {
 }
 
 // ---------- Schriftlich ----------
+let subTab = 'lebenslauf'; // gewählter Unterreiter bleibt beim Auffrischen erhalten
 export function renderSchriftlich(el, app) {
   const st = app.state; const P = ps(st);
-  const sub = el.dataset.sub || 'lebenslauf';
-  el.append(h('div', { class: 'k mt' }, '[ SCHRIFTLICH ]'), seg([['lebenslauf', 'Lebenslauf'], ['motivation', 'Motivation'], ['bogen', 'Fragebögen']], sub, (v) => { el.dataset.sub = v; el.replaceChildren(); renderSchriftlich(el, app); }));
+  const sub = el.dataset.sub || subTab;
+  el.append(h('div', { class: 'k mt' }, '[ SCHRIFTLICH ]'), seg([['lebenslauf', 'Lebenslauf'], ['motivation', 'Motivation'], ['aufsatz', 'Aufsatz'], ['bogen', 'Fragebögen']], sub, (v) => { subTab = v; el.dataset.sub = v; el.replaceChildren(); renderSchriftlich(el, app); }));
   const area = (key, store, placeholder) => {
     const ta = h('textarea', { placeholder, style: { minHeight: '90px' } }, store[key] || '');
     const upd = () => { store[key] = ta.value; app.save(); };
@@ -160,36 +165,47 @@ export function renderSchriftlich(el, app) {
     el.append(card(h('div', { class: 'k' }, '[ ENTWURF ]'), h('p', { class: 'small dim' }, 'Setzt deine Antworten zu einem Rohtext zusammen. Danach selbst überarbeiten: Übergänge, Anrede, Schluss.'),
       h('button', { class: 'btn', onclick: async () => { if (P.letter.entwurf && !(await confirmBox('Vorhandenen Entwurf überschreiben?', 'Überschreiben'))) return; P.letter.entwurf = buildLetter(P.letter); draft.value = P.letter.entwurf; app.save(); } }, 'Aus meinen Antworten zusammensetzen'),
       draft, h('button', { class: 'btn', onclick: () => download('motivationsschreiben-entwurf.txt', draft.value, 'text/plain') }, 'Als Textdatei speichern')));
+  } else if (sub === 'aufsatz') {
+    el.append(card(h('p', { class: 'small' }, 'Aufsätze im Auswahlverfahren prüfen, ob du klar schreibst und ob deine Aussagen zu Gespräch und Fragebogen passen. Ehrlich, konkret, gleichbleibend.')));
+    for (const t of AUFSATZ) el.append(h('div', { class: 'card', style: { cursor: 'pointer' }, onclick: () => runAufsatz(app, { minuten: 15, thema: t }) }, h('b', {}, t), h('div', { class: 'm' }, `15 MIN${P.aufsaetze.some((a) => a.thema === t) ? ' · GESCHRIEBEN ✓' : ''}`)));
+    if (P.aufsaetze.length) el.append(h('div', { class: 'k mt2' }, `[ DEINE AUFSÄTZE (${P.aufsaetze.length}) ]`), ...[...P.aufsaetze].reverse().slice(0, 10).map((a) => h('details', { class: 'card' }, h('summary', { class: 'm', style: { cursor: 'pointer' } }, `${fmtDate(a.date)} · ${a.words} WÖRTER · ${a.thema.slice(0, 40)}…`), h('p', { class: 'small', style: { whiteSpace: 'pre-line' } }, a.text))));
   } else {
     el.append(...FRAGEBOGEN_INFO.map(([t, d]) => card(h('b', {}, t), h('p', { class: 'small' }, d))));
-    el.append(h('button', { class: 'btn f', onclick: () => runBogen(app) }, '> Übungsfragebogen (20 Aussagen, 3 min)'),
+    el.append(h('button', { class: 'btn f', onclick: () => runBogen(app) }, '> Übungsfragebogen (20 Aussagen, 3 min)'), h('button', { class: 'btn', onclick: () => runBogen(app, { sek: 5 }) }, 'Schnellrunde: 5 Sekunden je Aussage'),
       h('p', { class: 'small dim' }, 'Übung, keine Diagnose: Die Auswertung zeigt nur, ob du gleichbleibend antwortest und ob du dich bei Kontrollaussagen schönfärbst.'));
     const last = P.bogen[P.bogen.length - 1];
     if (last) el.append(h('div', { class: 'm' }, `LETZTER DURCHGANG ${fmtDate(last.date)}: ${last.stimmig}/${last.paare} PAARE STIMMIG · ${last.geschoent} KONTROLLAUSSAGEN GESCHÖNT`));
   }
 }
 
-function runBogen(app) {
+export function runBogen(app, { sek = 0, onDone } = {}) {
   const st = app.state; const P = ps(st);
-  const items = fragebogenItems(); const ans = {}; let i = 0;
+  const items = fragebogenItems(); const ans = {}; let i = 0, tmr = null, zuLangsam = 0;
   const m = modal(({ close }) => {
     const body = h('div', {});
     const show = () => {
+      clearInterval(tmr);
       if (i >= items.length) return result();
       const it = items[i];
-      body.replaceChildren(h('div', { class: 'm' }, `AUSSAGE ${i + 1}/${items.length}`), h('h2', { style: { minHeight: '84px' } }, it.t),
+      const bar = sek ? h('div', { class: 'bar' }, h('i', { style: { width: '100%', transition: `width ${sek}s linear` } })) : null;
+      body.replaceChildren(h('div', { class: 'm' }, `AUSSAGE ${i + 1}/${items.length}${sek ? ` · ${sek} S` : ''}`), bar, h('h2', { style: { minHeight: '84px' } }, it.t),
         h('div', { class: 'likert' }, ...FRAGEBOGEN.skala.map((s, k) => h('button', { onclick: () => { ans[it.id] = k + 1; i++; show(); } }, h('b', {}, k + 1), h('span', {}, s)))),
-        i ? h('button', { class: 'btn s', style: { width: 'auto' }, onclick: () => { i--; show(); } }, 'Zurück') : null);
+        i && !sek ? h('button', { class: 'btn s', style: { width: 'auto' }, onclick: () => { i--; show(); } }, 'Zurück') : null);
+      if (sek) { requestAnimationFrame(() => { if (bar) bar.firstChild.style.width = '0%'; }); let left = sek; tmr = setInterval(() => { if (--left <= 0) { zuLangsam++; i++; show(); } }, 1000); }
     };
     const result = () => {
       const r = fragebogenAuswerten(ans);
-      P.bogen.push({ date: iso(), stimmig: r.stimmig, paare: r.paare.length, geschoent: r.geschoent.length });
-      app.save();
+      P.bogen.push({ date: iso(), stimmig: r.stimmig, paare: r.paare.length, geschoent: r.geschoent.length, ans: { ...ans }, sek: sek || null, zuLangsam });
+      if (P.bogen.length > 60) P.bogen.shift();
+      app.save(); onDone?.();
+      const stab = bogenStabilitaet(P.bogen);
       const scale = (v) => FRAGEBOGEN.skala[v - 1];
       body.replaceChildren(h('div', { class: 'center' }, h('div', { class: 'k' }, '[ AUSWERTUNG · KEINE DIAGNOSE ]'), h('div', { class: 'big' }, `${r.stimmig}/${r.paare.length}`), h('div', { class: 'm' }, 'PAARE GLEICHBLEIBEND BEANTWORTET')),
         r.widerspruch.length ? card(h('div', { class: 'k' }, '[ WIDERSPRÜCHE ]'), h('p', { class: 'small dim' }, 'Diese Aussagen messen dasselbe, deine Antworten passen nicht zusammen. Im echten Gespräch würde hier nachgefragt. Was stimmt wirklich?'),
           ...r.widerspruch.map((p) => h('div', { class: 'mt small' }, h('div', {}, `„${p.a}“ → ${scale(p.x)}`), h('div', {}, `„${p.b}“ → ${scale(p.y)}`), h('div', { class: 'dim' }, p.rev ? '(umgekehrt formuliert)' : '(gleich formuliert)')))) : card(h('p', {}, 'Keine deutlichen Widersprüche.')),
         r.unklar.length ? card(h('div', { class: 'k' }, `[ LEICHT ABWEICHEND: ${r.unklar.length} ]`), h('p', { class: 'small dim' }, 'Zwei Stufen Unterschied – kein Widerspruch, aber schau ehrlich hin, was eher stimmt.'), ...r.unklar.map((p) => h('div', { class: 'small mt' }, `„${p.a}“ / „${p.b}“`))) : null,
+        sek ? card(h('div', { class: 'k' }, '[ UNTER ZEITDRUCK ]'), h('p', { class: 'small' }, zuLangsam ? `${zuLangsam} Aussagen nicht rechtzeitig beantwortet. Im echten Test zählt der erste Impuls – nicht grübeln.` : 'Alle Aussagen rechtzeitig beantwortet.')) : null,
+        stab ? card(h('div', { class: 'k' }, '[ GLEICHBLEIBEND ÜBER DIE ZEIT ]'), h('p', { class: 'small' }, `${stab.stabil} von ${stab.gesamt} Aussagen wie beim letzten Durchgang (±1 Stufe).`), stab.wechsel.length ? h('p', { class: 'small dim' }, 'Deutlich anders als letztes Mal: ' + stab.wechsel.map((id) => '„' + items.find((x) => x.id === id)?.t + '“').join(', ') + '. Was stimmt wirklich?') : null) : null,
         r.geschoent.length ? card(h('div', { class: 'k' }, '[ KONTROLLAUSSAGEN ]'), h('p', { class: 'small dim' }, 'Diesen Aussagen kann kaum jemand ehrlich voll zustimmen. Wer es tut, wirkt geschönt – das senkt die Glaubwürdigkeit des ganzen Bogens.'),
           ...r.geschoent.map((k) => h('div', { class: 'small mt' }, `„${k.t}“ → ${scale(k.v)}`))) : card(h('p', {}, 'Kontrollaussagen realistisch beantwortet.')),
         h('button', { class: 'btn f', onclick: close }, 'Fertig'));
@@ -217,6 +233,7 @@ export function renderTagebuch(el, app) {
     const first = !P.diary.includes(entry);
     if (!entry.texts.some((t) => t.trim())) return toast('Erst etwas schreiben.');
     if (first) P.diary.push(entry);
+    if (psychFuer(today).art === 'tagebuch') { const l = st.done[today] || (st.done[today] = []); if (!l.includes('psych-kurz')) l.push('psych-kurz'); }
     if (first) app.award(5, 'tagebuch', 'Tagebuch geschrieben.'); else { app.save(); toast('Gespeichert.'); }
   };
   el.append(card(h('div', { class: 'k' }, `[ HEUTE · ${fmtDate(today)} ]`), ...tas.map(({ p, ta }) => h('div', { class: 'mt' }, h('b', {}, p), ta, dictate(ta))), h('button', { class: 'btn f', onclick: save }, 'Speichern')));
@@ -226,4 +243,75 @@ export function renderTagebuch(el, app) {
     for (const d of old) el.append(h('details', { class: 'card' }, h('summary', { class: 'm', style: { cursor: 'pointer' } }, `${fmtDate(d.date)} · ${d.prompts[0].slice(0, 40)}…`),
       ...d.prompts.map((p, k) => h('div', { class: 'mt' }, h('b', { class: 'small' }, p), h('p', { class: 'small dim', style: { whiteSpace: 'pre-line' } }, d.texts[k] || '–')))));
   }
+}
+
+// ---------- Eigene Beispiele (STAR) ----------
+function beispielHinweis(P, topic) {
+  const list = P.beispiele?.[topic] || [];
+  if (!list.length) return h('p', { class: 'small dim' }, 'Tipp: Unter „Meine Beispiele“ echte Erlebnisse in Stichworten sammeln – dann hast du sie im Kopf, ohne auswendig zu lernen.');
+  const box = h('div', { class: 'hidden small dim' }, ...list.map((b) => h('div', { class: 'mt' }, h('b', {}, b.titel), h('div', {}, STAR.map((x) => b[x.id] ? `${x.t}: ${b[x.id]}` : '').filter(Boolean).join(' · ')))));
+  return h('div', {}, h('button', { class: 'btn s', style: { width: 'auto' }, onclick: () => box.classList.toggle('hidden') }, `Meine Beispiele (${list.length}) zeigen`), box);
+}
+
+export function beispieleCard(app) {
+  const P = ps(app.state);
+  const n = Object.values(P.beispiele).reduce((a, l) => a + l.length, 0);
+  return card(h('div', { class: 'k' }, `[ MEINE BEISPIELE (${n}) ]`),
+    h('p', { class: 'small dim' }, 'Echte Erlebnisse statt auswendig gelernter Sätze. Pro Thema 1–2 Beispiele in Stichworten (Situation – Aufgabe – Handlung – Ergebnis – Gelernt). Im Gespräch kannst du sie einblenden.'),
+    h('div', { class: 'chips' }, ...BEISPIEL_THEMEN.map((t) => h('button', { class: 'chip ' + ((P.beispiele[t] || []).length ? 'on' : ''), onclick: () => beispielModal(app, t) }, `${THEMEN[t].name} ${(P.beispiele[t] || []).length || ''}`))));
+}
+
+function beispielModal(app, topic) {
+  const P = ps(app.state);
+  modal(({ close }) => {
+    const list = h('div', {});
+    const draw = () => list.replaceChildren(...(P.beispiele[topic] || []).map((b, k) => card(h('b', {}, b.titel), ...STAR.map((x) => (b[x.id] ? h('div', { class: 'small' }, h('span', { class: 'm' }, x.t.toUpperCase() + ': '), b[x.id]) : null)),
+      h('button', { class: 'btn s', style: { width: 'auto' }, onclick: async () => { if (await confirmBox('Beispiel löschen?', 'Löschen')) { P.beispiele[topic].splice(k, 1); app.save(); draw(); } } }, 'Löschen'))));
+    draw();
+    const titel = h('input', { placeholder: 'Kurzer Titel, z. B. „Marsch im Regen 2025“' });
+    const inputs = STAR.map((x) => { const i = h('input', { placeholder: x.d }); return { x, i }; });
+    return h('div', {}, h('div', { class: 'k' }, `[ MEINE BEISPIELE · ${THEMEN[topic].name.toUpperCase()} ]`), h('p', { class: 'small dim' }, THEMEN[topic].worum), list,
+      card(h('div', { class: 'k' }, '[ NEUES BEISPIEL – NUR STICHWORTE ]'), field('Titel', titel), ...inputs.map(({ x, i }) => field(x.t, i, dictate(i))),
+        h('button', { class: 'btn f', onclick: () => { if (!titel.value.trim() || !inputs[2].i.value.trim()) return toast('Titel und Handlung eintragen.'); (P.beispiele[topic] = P.beispiele[topic] || []).push({ titel: titel.value.trim(), ...Object.fromEntries(inputs.map(({ x, i }) => [x.id, i.value.trim()])), date: iso() }); app.save(); toast('Gespeichert.'); close(); app.refresh(); } }, 'Speichern')));
+  }, { full: true });
+}
+
+// ---------- Aufsatz mit Zeitlimit ----------
+export function runAufsatz(app, { minuten = 15, thema, onDone } = {}) {
+  const P = ps(app.state);
+  const T = thema || pick(AUFSATZ);
+  let left = minuten * 60, iv = null; const t0 = Date.now();
+  const m = modal(({ close }) => {
+    const clock = h('span', { class: 'mono sand' }, fmtSec(left));
+    const words = h('span', { class: 'm' }, '0 WÖRTER');
+    const ta = h('textarea', { placeholder: 'In deinen eigenen Worten. Ein echtes Beispiel gehört rein.', style: { minHeight: '260px', fontSize: '17px' } });
+    ta.oninput = () => { words.textContent = wortzahl(ta.value) + ' WÖRTER'; };
+    const finish = () => {
+      clearInterval(iv); ta.readOnly = true;
+      const check = {};
+      body.replaceChildren(h('div', { class: 'k' }, '[ SELBSTPRÜFUNG ]'), h('div', { class: 'm' }, `${wortzahl(ta.value)} WÖRTER · ${fmtSec(Math.round((Date.now() - t0) / 1000))} MIN`),
+        ...AUFSATZ_CHECK.map((c) => h('div', { class: 'chkrow' }, h('div', {}, h('b', {}, c.t), h('div', { class: 'small dim' }, c.d)), seg([[0, 'Nein'], [1, 'Teils'], [2, 'Ja']], null, (v) => { check[c.id] = v; }))),
+        h('button', { class: 'btn f', onclick: () => {
+          if (Object.keys(check).length < AUFSATZ_CHECK.length) return toast('Bitte alle Punkte bewerten.');
+          P.aufsaetze.push({ id: uid(), date: iso(), thema: T, text: ta.value, words: wortzahl(ta.value), sec: Math.round((Date.now() - t0) / 1000), check });
+          if (P.aufsaetze.length > 100) P.aufsaetze.shift();
+          onDone?.(); app.award(10, 'psych', 'Aufsatz geschrieben.'); close();
+        } }, 'Speichern'));
+    };
+    const body = h('div', {}, h('h2', {}, T), h('div', { class: 'row between' }, words, clock), ta, dictate(ta, () => ta.oninput()), h('button', { class: 'btn f', onclick: finish }, 'Abgeben'));
+    iv = setInterval(() => { left--; clock.textContent = fmtSec(Math.max(0, left)); if (left === 60) beep(660, 150); if (left <= 0) { beep(440, 400); finish(); } }, 1000);
+    return h('div', {}, h('div', { class: 'k' }, `[ AUFSATZ · ${minuten} MIN ]`), h('p', { class: 'small dim' }, 'Schreib so, wie du im Gespräch reden würdest – ehrlich und gleichbleibend. Keine Vorlagen.'), body);
+  }, { full: true });
+  m.onClose(() => { clearInterval(iv); app.refresh(); });
+}
+
+// ---------- Tägliche Kurzeinheit (5–10 min) ----------
+export function startPsychKurz(app, date = iso(), onDone) {
+  const p = psychFuer(date); const P = ps(app.state);
+  if (p.art === 'gespraech') return runInterview(app, pickQuestions(p.topics, p.n, P.answers), { zeit: p.zeit, onDone });
+  if (p.art === 'mehrteilig') { const seen = new Set(P.answers.map((a) => a.q)); const q = MEHRTEILIG.find((x) => !seen.has(x.q)) || pick(MEHRTEILIG); return runInterview(app, [{ ...q, zeit: 150 }], { onDone }); }
+  if (p.art === 'bogen-schnell') return runBogen(app, { sek: p.sek, onDone });
+  if (p.art === 'aufsatz') return runAufsatz(app, { minuten: p.minuten || 8, onDone });
+  // Tagebuch: Reiter öffnen, beim Speichern gilt der Punkt als erledigt
+  app.go('#/auswahl/tagebuch');
 }

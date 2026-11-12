@@ -58,3 +58,21 @@ test('Aufnahmen: nur die letzten 30 bleiben, Daten in der Sicherung', () => {
   const st = normalize({ profile: { name: 'X' } });
   assert.deepEqual(st.psych.answers, []); assert.deepEqual(defaultState().cat.sims, []);
 });
+
+test('Tägliche Kurzeinheit: 7 Tage, 5–10 min, verbunden mit Kopftraining, geforderte Themen', async () => {
+  const { PSYCH_WOCHE, MEHRTEILIG, BEISPIEL_THEMEN, AUFSATZ, STAR } = await import('../app/js/data/psych.js');
+  const { psychFuer, wortzahl, bogenStabilitaet } = await import('../app/js/core/psych.js');
+  assert.equal(PSYCH_WOCHE.length, 7);
+  for (const p of PSYCH_WOCHE) { assert.ok(p.min >= 4 && p.min <= 10, p.titel); assert.ok(p.kopf); for (const t of p.topics || []) assert.ok(THEMEN[t], t); }
+  const topics = new Set(PSYCH_WOCHE.flatMap((p) => p.topics || []));
+  for (const t of ['motivation', 'stress', 'fehler']) assert.ok(topics.has(t));
+  assert.ok(MEHRTEILIG.some((q) => q.topic === 'lebenslauf') && MEHRTEILIG.some((q) => q.topic === 'team'));
+  for (const q of MEHRTEILIG) { assert.ok(THEMEN[q.topic]); assert.equal(q.teile.length, 3); }
+  for (const t of BEISPIEL_THEMEN) assert.ok(THEMEN[t], t);
+  assert.equal(STAR.length, 5); assert.ok(AUFSATZ.length >= 5);
+  assert.equal(psychFuer('2026-11-09').art, 'gespraech'); assert.ok(psychFuer('2026-11-13').optional);
+  assert.equal(wortzahl('  Ich will   das. Wirklich '), 4); assert.equal(wortzahl(''), 0);
+  assert.equal(bogenStabilitaet([{ ans: { a: 1 } }]), null);
+  const s = bogenStabilitaet([{ ans: { a: 1, b: 5, c: 3 } }, { ans: { a: 2, b: 1, c: 3 } }]);
+  assert.deepEqual(s, { stabil: 2, gesamt: 3, wechsel: ['b'] });
+});

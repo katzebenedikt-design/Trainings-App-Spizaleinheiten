@@ -163,3 +163,54 @@ export const TAGEBUCH = [
   'Was habe ich heute über mich gelernt?',
 ];
 export const TAGEBUCH_WOCHE = 'Wochenrückblick: Was waren die drei wichtigsten Momente der Woche? Welches Muster erkenne ich bei mir?';
+
+// ---------- Eigene Beispiele (STAR) ----------
+// Pro Thema echte Erlebnisse in Stichworten sammeln – nicht ausformulieren, sonst wird es auswendig gelernt.
+export const STAR = [
+  { id: 's', t: 'Situation', d: 'Wann, wo, mit wem? Ein Satz.' },
+  { id: 'a', t: 'Aufgabe', d: 'Was war deine Rolle oder dein Ziel?' },
+  { id: 'h', t: 'Handlung', d: 'Was hast DU konkret getan?' },
+  { id: 'e', t: 'Ergebnis', d: 'Was kam heraus? Ehrlich, auch wenn es nicht glatt lief.' },
+  { id: 'l', t: 'Gelernt', d: 'Was machst du seitdem anders?' },
+];
+export const BEISPIEL_THEMEN = ['motivation', 'lebenslauf', 'stress', 'team', 'fehler', 'konflikt', 'belastung', 'staerken'];
+
+// Mehrteilige Fragen: trainieren Merkfähigkeit unter Druck (alle Teile beantworten, ohne nachzufragen)
+export const MEHRTEILIG = [
+  { topic: 'staerken', q: 'Nennen Sie drei Stärken, zu jeder ein Beispiel – und sagen Sie, was Ihr bester Freund dazu sagen würde.', teile: ['drei Stärken', 'je ein Beispiel', 'Sicht des Freundes'] },
+  { topic: 'lebenslauf', q: 'Erzählen Sie, warum Sie Ihre Ausbildung gewählt haben, was Sie dort am meisten gelernt haben und was Sie heute anders machen würden.', teile: ['Grund der Wahl', 'wichtigstes Gelerntes', 'was heute anders'] },
+  { topic: 'stress', q: 'Beschreiben Sie eine Stresssituation, woran Sie den Stress gemerkt haben und was Sie konkret dagegen getan haben.', teile: ['Situation', 'Warnsignale', 'konkretes Handeln'] },
+  { topic: 'team', q: 'Welche Rolle hatten Sie zuletzt in einem Team, was lief gut, was schlecht – und was war Ihr Anteil daran?', teile: ['Rolle', 'gut und schlecht', 'eigener Anteil'] },
+  { topic: 'fehler', q: 'Nennen Sie einen Rückschlag, wie Sie sich damals gefühlt haben und was Sie in den Wochen danach getan haben.', teile: ['Rückschlag', 'Gefühl damals', 'Handeln danach'] },
+  { topic: 'motivation', q: 'Was ist Ihr wichtigster Grund für die Bewerbung, seit wann gibt es ihn und was opfern Sie dafür?', teile: ['wichtigster Grund', 'seit wann', 'was du opferst'] },
+];
+
+// Aufsatz-Themen (schriftlich, mit Zeitlimit). Ehrlich und gleichbleibend zu Gespräch und Fragebogen.
+export const AUFSATZ = [
+  'Warum ich zu dieser Einheit will – und warum nicht woandershin.',
+  'Ein Fehler, aus dem ich wirklich gelernt habe.',
+  'Was bedeutet Kameradschaft für mich? Ein Beispiel aus meinem Leben.',
+  'Die härteste Woche meines Lebens und was sie mir gezeigt hat.',
+  'Wie ich mit Kritik umgehe – ehrlich betrachtet.',
+  'Mein Plan B, falls es nicht klappt.',
+  'Welche Werte ich nie aufgeben würde.',
+];
+export const AUFSATZ_CHECK = [
+  { id: 'ehrlich', t: 'Ehrlich', d: 'Würde ich das genauso im Gespräch sagen?' },
+  { id: 'konkret', t: 'Konkret', d: 'Mindestens ein echtes Beispiel statt Behauptungen.' },
+  { id: 'gleich', t: 'Gleichbleibend', d: 'Passt es zu meinen Fragebogen-Antworten und zu dem, was ich sonst erzähle?' },
+  { id: 'aufbau', t: 'Aufbau', d: 'Einleitung, Hauptteil mit Beispiel, kurzer Schluss.' },
+];
+
+// ---------- Tägliche Kurzeinheit 5–10 min (Index 0 = Montag) ----------
+// art: gespraech (Fragen mit Antwort-Countdown), mehrteilig (Merkfähigkeit), bogen-schnell (Konzentration, Zeit je Aussage),
+//      tagebuch, aufsatz (Kurzform), beispiel (eigenes Beispiel ergänzen)
+export const PSYCH_WOCHE = [
+  { art: 'gespraech', topics: ['motivation'], n: 2, zeit: 90, titel: 'Gespräch: Motivation, 2 Fragen à 90 s', min: 6, kopf: 'Antworten unter Zeitdruck' },
+  { art: 'mehrteilig', titel: 'Mehrteilige Frage (Lebenslauf/Stärken)', min: 5, kopf: 'Merkfähigkeit: alle Teile beantworten' },
+  { art: 'bogen-schnell', sek: 5, titel: 'Fragebogen-Schnellrunde, 5 s je Aussage', min: 4, kopf: 'Konzentration, ehrlich und gleichbleibend' },
+  { art: 'gespraech', topics: ['stress'], n: 2, zeit: 90, titel: 'Gespräch: Stress, 2 Fragen à 90 s nach dem Kickboxen', min: 6, kopf: 'Klar antworten, wenn du müde bist' },
+  { art: 'tagebuch', titel: 'Reflexionstagebuch', min: 5, optional: true, kopf: 'Ruhetag: im Zug' },
+  { art: 'gespraech', topics: ['fehler'], n: 1, zeit: 120, titel: 'Gespräch: Rückschläge direkt nach dem Marsch', min: 5, kopf: 'Ehrlich bleiben unter Erschöpfung' },
+  { art: 'aufsatz', min: 8, minuten: 8, titel: 'Kurzaufsatz (8 min) + Teamarbeit-Beispiel', kopf: 'Schreiben unter Zeitdruck' },
+];

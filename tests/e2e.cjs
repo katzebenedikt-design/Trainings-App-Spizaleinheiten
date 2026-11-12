@@ -355,8 +355,47 @@ const shots = process.argv[3] || null;
     if (!(await page.getByText('NACHFRAGE', { exact: false }).count())) throw new Error('Nachfrage nicht gespeichert');
     await shot('psych-verlauf');
   });
+  await step('Meine Beispiele (STAR) anlegen', async () => {
+    await page.goto(url + '#/auswahl/gespraech'); await page.waitForTimeout(300);
+    await page.locator('.chip', { hasText: 'Teamarbeit' }).last().click(); await page.waitForTimeout(200);
+    const full = page.locator('.full').last();
+    await full.locator('label', { hasText: 'Titel' }).locator('input').fill('Marsch im Regen');
+    await full.locator('label', { hasText: 'Handlung' }).locator('input').fill('Gepäck vom Kameraden übernommen');
+    await full.getByText('Speichern', { exact: true }).click(); await page.waitForTimeout(300);
+    if (!(await page.getByText('[ MEINE BEISPIELE (1) ]').count())) throw new Error('Beispiel nicht gespeichert');
+  });
+  await step('Psychologe-Kurzeinheit aus dem Tagesbefehl', async () => {
+    await page.goto(url + '#/sport/heute'); await page.waitForTimeout(400);
+    const it = page.locator('.tl .it', { hasText: /^Psychologe:/ }); if (!(await it.count())) throw new Error('Kein Psychologen-Punkt im Tagesbefehl');
+    await it.click(); await page.waitForTimeout(500);
+    if (!(await page.locator('.full').count()) && !page.url().includes('tagebuch')) throw new Error('Kurzeinheit startet nicht');
+    await shot('psych-kurz'); await close();
+  });
+  await step('Aufsatz mit Zeitlimit', async () => {
+    await page.goto(url + '#/auswahl/schriftlich'); await page.locator('.seg button', { hasText: 'Aufsatz' }).click(); await page.waitForTimeout(200);
+    await page.locator('.card', { hasText: 'Kameradschaft' }).first().click(); await page.waitForTimeout(300);
+    const full = page.locator('.full').last();
+    await full.locator('textarea').fill('Kameradschaft heißt für mich, dass ich beim Marsch das Gepäck eines Kameraden übernommen habe, als er nicht mehr konnte.');
+    if (!(await full.getByText('19 WÖRTER', { exact: true }).count())) throw new Error('Wortzählung fehlt');
+    await full.getByText('Abgeben', { exact: true }).click(); await page.waitForTimeout(200);
+    for (let k = 0; k < 4; k++) await full.locator('.chkrow').nth(k).getByText('Ja', { exact: true }).click();
+    await full.getByText('Speichern', { exact: true }).click(); await page.waitForTimeout(400);
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    if (!(await page.getByText('GESCHRIEBEN ✓', { exact: false }).count())) throw new Error('Aufsatz nicht gespeichert');
+  });
+  await step('Fragebogen-Schnellrunde (5 s je Aussage)', async () => {
+    await page.goto(url + '#/auswahl/schriftlich'); await page.locator('.seg button', { hasText: 'Fragebögen' }).click(); await page.waitForTimeout(200);
+    await page.getByText('Schnellrunde: 5 Sekunden je Aussage').click();
+    for (let i = 0; i < 20; i++) { if (i === 3) { await page.waitForTimeout(5600); continue; } await page.locator('.likert button').nth(i % 5).click(); }
+    await page.getByText('[ AUSWERTUNG · KEINE DIAGNOSE ]').waitFor();
+    if (!(await page.getByText(/nicht rechtzeitig beantwortet/).count())) throw new Error('Zeitdruck nicht ausgewertet');
+    await shot('bogen-schnell');
+    await page.locator('.full').last().getByText('Fertig', { exact: true }).click();
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+  });
   await step('Lebenslauf + Motivationsschreiben', async () => {
     await page.goto(url + '#/auswahl/schriftlich'); await page.waitForTimeout(300);
+    await page.locator('.seg button', { hasText: 'Lebenslauf' }).click(); await page.waitForTimeout(200);
     await page.locator('textarea').first().fill('Realschule 2019, Ausbildung Kältetechnik seit 2024');
     await page.locator('.seg button', { hasText: 'Motivation' }).click(); await page.waitForTimeout(200);
     await page.locator('textarea').first().fill('Weil ich im Team Verantwortung tragen will.');
@@ -447,8 +486,8 @@ const shots = process.argv[3] || null;
     await it.click(); await page.waitForTimeout(400);
     if (!(await page.locator('.full').count())) throw new Error('Training startet nicht'); await shot('kognitiv-start'); await close();
     await page.goto(url + '#/sport/plan'); await page.waitForTimeout(400);
-    if (!(await page.getByText('[ KOGNITIVTRAINING · WOCHENPLAN ]').count())) throw new Error('Wochenplan fehlt');
-    await page.getByText('[ KOGNITIVTRAINING · WOCHENPLAN ]').scrollIntoViewIfNeeded(); await shot('kognitiv-plan');
+    if (!(await page.getByText('[ KOPF · WOCHENPLAN ]').count())) throw new Error('Wochenplan fehlt');
+    await page.getByText('[ KOPF · WOCHENPLAN ]').scrollIntoViewIfNeeded(); await shot('kognitiv-plan');
     await page.goto(url + '#/mental/spiele'); await page.waitForTimeout(300);
     if (!(await page.getByText('[ HEUTE IM PLAN ]').count())) throw new Error('Hinweis in Mental fehlt');
   });

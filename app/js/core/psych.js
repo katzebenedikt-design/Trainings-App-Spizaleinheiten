@@ -1,5 +1,5 @@
 // Psychologengespräch: Fragenauswahl, Selbstbewertung, Übungsfragebogen, Tagebuch-Leitfragen.
-import { THEMEN, FRAGEBOGEN, MOTIVATION, TAGEBUCH, TAGEBUCH_WOCHE, CHECK } from '../data/psych.js';
+import { THEMEN, FRAGEBOGEN, MOTIVATION, TAGEBUCH, TAGEBUCH_WOCHE, CHECK, PSYCH_WOCHE } from '../data/psych.js';
 import { weekday, daysBetween } from './util.js';
 
 // Zufällige Fragen aus den gewählten Themen; zuletzt geübte Fragen kommen später dran
@@ -70,3 +70,19 @@ export function dailyPrompts(date) {
   if (weekday(date) === 6) out.push(TAGEBUCH_WOCHE);
   return out;
 }
+
+// Tägliche Psychologen-Kurzeinheit
+export const psychFuer = (date) => ({ ...PSYCH_WOCHE[weekday(date)] });
+
+// Gleichbleibend über die Zeit: gleiche Aussage in verschiedenen Durchgängen (±1 Stufe = stabil)
+export function bogenStabilitaet(bogen) {
+  const runs = bogen.filter((b) => b.ans);
+  if (runs.length < 2) return null;
+  const [a, b] = runs.slice(-2).map((x) => x.ans);
+  const ids = Object.keys(b).filter((k) => a[k] != null);
+  const stabil = ids.filter((k) => Math.abs(a[k] - b[k]) <= 1).length;
+  return { stabil, gesamt: ids.length, wechsel: ids.filter((k) => Math.abs(a[k] - b[k]) > 1) };
+}
+
+// Wortzahl für den Aufsatz
+export const wortzahl = (t) => (String(t).trim().match(/\S+/g) || []).length;
