@@ -19,6 +19,7 @@ import { renderTimer, openTimer } from './timer.js';
 import { voiceCommand } from './voice.js';
 import { spracheHome } from './sprache.js';
 import { morningCard } from './garmin.js';
+import { PLAN_AENDERUNGEN, PDF_DATEIEN } from '../data/plan-quellen.js';
 import { kognitivItem, startKognitiv, kognitivWeekCard, psychItem, startPsych } from './kognitiv.js';
 
 export const sportTabs = [
@@ -63,7 +64,7 @@ function renderHeute(el, app) {
     h('div', { onclick: () => openCheckin(app), style: { cursor: 'pointer' } }, ring(r.percent, r.mode === 'offen' ? 'CHECK-IN' : 'BEREIT')),
     h('div', {}, h('div', { class: 'm' }, 'NOCH'), dnum, h('div', { class: 'm' }, `TAGE · ${Math.max(0, Math.ceil(daysLeft / 7))} WOCHEN`),
       h('div', { class: 'm', style: { marginTop: '4px' } }, `PHASE ${day.phase.name.toUpperCase()} · WO ${day.weekTotal}`),
-      h('div', { class: 'm' }, day.deload ? 'ENTLASTUNGSWOCHE + TEST' : `ZYKLUS ${day.cycleWeek}/4`, ' · ', h('span', { class: 'sand', style: { cursor: 'pointer', textDecoration: 'underline' }, onclick: () => toggleWeek(app, today) }, day.mode === 'schule' ? 'BERUFSSCHULE' : 'ARBEITSWOCHE')))));
+      h('div', { class: 'm' }, day.deload ? 'REGENERATIONSWOCHE + TEST' : `BLOCK-WOCHE ${day.cycleWeek}/${day.phase.key === 'nachav' ? 4 : 6}`, ' · ', h('span', { class: 'sand', style: { cursor: 'pointer', textDecoration: 'underline' }, onclick: () => toggleWeek(app, today) }, day.mode === 'schule' ? 'BERUFSSCHULE' : 'ARBEITSWOCHE')))));
 
   // Schonmodus-Hinweise
   if (r.mode === 'leicht' || r.mode === 'pause') {
@@ -211,7 +212,7 @@ function renderPlan(el, app) {
       h('div', { class: 'row between' }, h('b', { class: cur ? 'sand' : '' }, (cur ? '▶ ' : '') + p.name + ` (LG ${p.lg})`), h('span', { class: 'm' }, `${fmtDate(p.from)}–${fmtDate(p.to)} · ${p.weeks} WO`)),
       cur ? h('div', {}, h('p', { class: 'dim small' }, p.desc), h('div', { class: 'm' }, 'ZIELE: ' + p.ziele.join(' · '))) : null));
   }
-  pc.append(h('p', { class: 'm' }, 'Rückwärts vom Termin geplant. Jede 4. Woche Entlastung mit Monatstest. Zieldatum unter Einstellungen.'));
+  pc.append(h('p', { class: 'm' }, 'Rückwärts vom Termin geplant. Blöcke nach KSK-Handbuch (S. 14–16): 5 Belastungswochen + 1 Regenerationswoche mit Leistungstest. Zieldatum unter Einstellungen.'));
   el.append(pc);
 
   // Arbeits-/Berufsschulwoche
@@ -245,7 +246,10 @@ function renderPlan(el, app) {
   const pl = st.plan;
   el.append(card(h('div', { class: 'k' }, '[ AUTOMATISCHE ANPASSUNG ]'),
     h('div', { class: 'grid3 mt' }, h('div', { class: 'tile' }, h('i', {}, 'Umfang'), h('b', {}, Math.round(pl.volFactor * 100) + '%')), h('div', { class: 'tile' }, h('i', {}, 'Leistungsgr.'), h('b', {}, pl.group)), h('div', { class: 'tile' }, h('i', {}, 'Fokus'), h('b', { style: { fontSize: '15px' } }, week[0].focus.length ? week[0].focus.map((f) => f.label).join(', ') : '—'))),
-    pl.notes.length ? h('ul', { class: 'plain' }, pl.notes.map((n) => h('li', { class: 'small' }, n))) : h('p', { class: 'm' }, 'Nach jedem Monatstest passt sich der Plan an: Umfang, Fokus-Disziplin, Leistungsgruppe.')));
+    pl.notes.length ? h('ul', { class: 'plain' }, pl.notes.map((n) => h('li', { class: 'small' }, n))) : h('p', { class: 'm' }, 'Nach jedem Leistungstest (alle 6 Wochen) passt sich der Plan an: Umfang, Fokus-Disziplin, Leistungsgruppe.')));
+  el.append(h('details', { class: 'card' }, h('summary', { class: 'k', style: { cursor: 'pointer' } }, '[ PLANÄNDERUNGEN AUS DEN PDFS ]'),
+    h('p', { class: 'small dim' }, 'Priorität: 1. KSK, 2. EGB, 3. Navy SEAL nur bei Lücken.'),
+    ...PLAN_AENDERUNGEN.map((x) => h('div', { class: 'mt small' }, h('b', {}, x.was), h('div', { class: 'm' }, `${PDF_DATEIEN[x.quelle]} · S. ${x.seite}`), h('div', { class: 'dim' }, x.warum)))));
   el.append(card(h('div', { class: 'k' }, '[ ABKÜRZUNGEN (KSK-HANDBUCH) ]'), h('div', { class: 'small dim' },
     'TB1 Grundlage · TB2 Tempo · TB3 Schwelle · TB4 anaerob · TB-R Regeneration · K1 Kraftausdauer · K2 Muskelaufbau · K4 Maximalkraft · MT1–3 Marsch leicht–schwer · ST Schwimmen · KT Koordination · CAL Liegestütz/Sit-up/Klimmzug')));
 }

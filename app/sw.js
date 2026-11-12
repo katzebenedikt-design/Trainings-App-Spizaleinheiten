@@ -1,5 +1,5 @@
 // Service Worker: App läuft offline, Erinnerungen per Benachrichtigung.
-const VERSION = 'b6c3b4ffeb';
+const VERSION = 'acabb618e0';
 // eslint-disable-next-line no-undef -- Platzhalter, wird von tools/build-sw.mjs ersetzt
 const ASSETS = [
  "./",
@@ -48,6 +48,7 @@ const ASSETS = [
  "./js/data/kognitiv.js",
  "./js/data/mental.js",
  "./js/data/nachav.js",
+ "./js/data/plan-quellen.js",
  "./js/data/psych.js",
  "./js/data/requirements.js",
  "./js/ui.js",

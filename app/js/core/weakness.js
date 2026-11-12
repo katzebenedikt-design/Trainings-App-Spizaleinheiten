@@ -1,5 +1,5 @@
 // Schwächen-Analyse: aktuelle Leistungen gegen die Zielwerte (data/requirements.js).
-// Quellen: Monatstests, eingetragene Läufe/Märsche/Schwimmeinheiten, Kraft-Einträge, Garmin-VO2max.
+// Quellen: Leistungstests (alle 6 Wochen), eingetragene Läufe/Märsche/Schwimmeinheiten, Kraft-Einträge, Garmin-VO2max.
 import { getNorms } from '../data/requirements.js';
 import { normProgress } from './plan.js';
 import { addDays, sortByDate, last, fmtTime } from './util.js';

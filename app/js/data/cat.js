@@ -55,9 +55,9 @@ export const CAT_PROFILES = {
 };
 
 // Monatlicher Kopf-Test: feste Schwierigkeit, damit Ergebnisse über die Monate vergleichbar sind.
-// Termin: Sonntag der Entlastungswoche (zusammen mit dem Sport-Monatstest).
+// Termin: Sonntag der Regenerationswoche (alle 6 Wochen, zusammen mit dem Sport-Leistungstest).
 export const CAT_KOPFTEST = {
-  name: 'Kopf-Test (monatlich)',
+  name: 'Kopf-Test (alle 6 Wochen)',
   stufe: 5,
   module: [
     { id: 'sprache', n: 5, min: 2.5 }, { id: 'mathe', n: 5, min: 3 }, { id: 'logik', n: 5, min: 3 }, { id: 'raum', n: 4, min: 2 },

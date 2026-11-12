@@ -318,7 +318,7 @@ const shots = process.argv[3] || null;
     if (!(await page.getByText(/heute sicher dabei:/).count())) throw new Error('Kopf-Wochenplan zeigt den schwächsten CAT-Bereich nicht');
   });
 
-  await step('Kopf-Test (monatlich) komplett', async () => {
+  await step('Kopf-Test (alle 6 Wochen) komplett', async () => {
     await page.goto(url + '#/auswahl/cat'); await page.waitForTimeout(300);
     await page.getByText(/^> Kopf-Test starten/).click();
     await catLoop('[ AUSWERTUNG ]');
@@ -327,7 +327,7 @@ const shots = process.argv[3] || null;
     await page.locator('.full').last().getByText('Fertig', { exact: true }).click(); await page.waitForTimeout(400);
     while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
     if (!(await page.getByText(/^LETZTER TEST/).count())) throw new Error('Kopf-Test nicht gespeichert');
-    await page.getByText('[ KOPF-TEST · MONATLICH ]').scrollIntoViewIfNeeded(); await shot('kopftest-karte');
+    await page.getByText('[ KOPF-TEST · ALLE 6 WOCHEN ]').scrollIntoViewIfNeeded(); await shot('kopftest-karte');
   });
   for (const tab of ['gespraech', 'schriftlich', 'tagebuch']) await step('Auswahl/' + tab, async () => { await page.goto(url + '#/auswahl/' + tab); await page.waitForTimeout(400); await shot('auswahl-' + tab); await noOverflow('auswahl/' + tab); });
   await step('Psychologengespräch: 3 Fragen mit Aufnahme + Nachfrage', async () => {

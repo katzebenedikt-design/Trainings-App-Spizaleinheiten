@@ -1,6 +1,6 @@
 // Kognitivtraining: welches Training an welchem Tag (aus dem Wochenplan in data/kognitiv.js).
 import { KOGNITIV_WOCHE, KOPFTEST_TAG } from '../data/kognitiv.js';
-import { phaseAt, cycleWeek } from './plan.js';
+import { phaseAt, cycleWeek, isRegWeek } from './plan.js';
 import { CAT_MODULES, CAT_PROFILES } from '../data/cat.js';
 import { moduleStand } from './cat.js';
 import { weekday } from './util.js';
@@ -8,7 +8,7 @@ import { weekday } from './util.js';
 export function kognitivFuer(state, date) {
   if (weekday(date) === 6) {
     const { phase, weekTotal } = phaseAt(state, date);
-    if (cycleWeek(weekTotal) === 4 && !['taper', 'erholung', 'nachav'].includes(phase.key)) return { ...KOPFTEST_TAG };
+    if (isRegWeek(cycleWeek(weekTotal)) && !['taper', 'erholung', 'nachav'].includes(phase.key)) return { ...KOPFTEST_TAG };
   }
   const p = { ...KOGNITIV_WOCHE[weekday(date)] };
   if (p.typ === 'cat-kurz') {

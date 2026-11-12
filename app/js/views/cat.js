@@ -174,7 +174,7 @@ export function renderCat(el, app) {
   // Monatlicher Kopf-Test (feste Schwierigkeit, vergleichbar)
   const kt = c.tests; const ktMin = Math.round(CAT_KOPFTEST.module.reduce((a, x) => a + x.min, 0));
   const lastT = kt[kt.length - 1], firstT = kt[0];
-  el.append(card(h('div', { class: 'k' }, '[ KOPF-TEST · MONATLICH ]'),
+  el.append(card(h('div', { class: 'k' }, '[ KOPF-TEST · ALLE 6 WOCHEN ]'),
     h('p', { class: 'small dim' }, `Alle 8 Bereiche, feste Stufe ${CAT_KOPFTEST.stufe}, ca. ${ktMin} min mit Zeitlimit. Weil die Schwierigkeit immer gleich ist, zeigt der Verlauf ehrlich, ob du besser wirst. Termin: Sonntag der Entlastungswoche (steht im Kopf-Wochenplan).`),
     lastT ? h('div', { class: 'm' }, `LETZTER TEST ${fmtDate(lastT.date)}: ${lastT.total} %${kt.length > 1 ? ` · ERSTER ${firstT.total} % (${lastT.total - firstT.total >= 0 ? '+' : ''}${lastT.total - firstT.total})` : ''}`) : null,
     kt.length > 1 ? lineChart(kt.map((t) => ({ date: t.date, v: t.total })), { fmt: (v) => v + ' %', height: 120 }) : null,

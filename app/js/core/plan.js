@@ -113,8 +113,11 @@ export function phaseAt(state, date) {
   return { phase: ph, phases, weekInPhase, weekTotal: Math.max(1, weekTotal) };
 }
 
-// 4-Wochen-Zyklus: 3 Belastungswochen + 1 Entlastungswoche mit Monatstest (Samstag)
-export function cycleWeek(weekTotal) { return ((weekTotal - 1) % 4) + 1; }
+// Zyklus nach KSK-Trainingshandbuch S. 14–16: 5 Belastungswochen + 1 Regenerationswoche (6 Wochen),
+// in jeder Regenerationswoche der Leistungstest. Phase „Nach dem AV“ behält 4-Wochen-Blöcke.
+export const ZYKLUS = 6;
+export function cycleWeek(weekTotal, len = ZYKLUS) { return ((weekTotal - 1) % len) + 1; }
+export const isRegWeek = (cw, len = ZYKLUS) => cw === len;
 
 export function weekMode(state, date) {
   return state.week.overrides[isoWeekKey(date)] || state.week.mode || 'arbeit';
@@ -162,6 +165,8 @@ function paces(best) {
 }
 
 const warm = (min = 10) => ({ kind: 'warm', title: 'Aufwärmen', lines: [`${min} min lockeres Einlaufen oder Ergometer`, 'Lauf-ABC: Anfersen, Kniehebelauf, Hopserlauf je 20 m', 'Dynamisch dehnen 10–20 s je Übung'] });
+// Agilität und Hindernis-Technik vor Intervallen ab Aufbau (EGB-Report S. 9: HiBa-Training im Aufbau, Agilität im Peaking)
+const agil = (ctx) => (['aufbau', 'leistung', 'spezifik'].includes(ctx.phaseKey) ? { kind: 'main', title: 'Agilität & Hindernis-Technik · 10 min', lines: ['Nach dem Einlaufen: 4× 10 m Start aus der Bauchlage', '2× 10 m Robben (Tiefkriechen), 2× 10 m Hochkriechen', '3× Überklettern (Mauer, Tisch oder Bank) sauber und kontrolliert', 'Hürdensprünge: 3× 5 beidbeinig über niedrige Hindernisse', 'Technik vor Tempo – erst dann die Intervalle.'] } : null);
 const cool = { kind: 'cool', title: 'Abwärmen', lines: ['10–15 min locker auslaufen oder radeln', 'Faszienrolle 30–60 s je Muskel (nicht auf Knochen)'] };
 
 export function buildSession(code, ctx) {
@@ -208,12 +213,15 @@ export function buildSession(code, ctx) {
     case 'TB3': {
       const reps = clamp(Math.round(3 + week / 6), 3, 6);
       return { code, title: 'Schwellen-Intervalle', sub: `TB3 · ${reps}× 1000 m`, min: 55, run: true,
-        blocks: [warm(15), { kind: 'main', title: 'Extensive Intervalle', lines: [`${reps}× 1000 m in ca. ${fmtTime(p.schwelle)}`, 'Pause 3 min Trab (wie im PFV: 5×1000 m, 3 min Pause)', 'Puls vor dem nächsten Intervall unter 140'], timer: 'k1000' }, cool] };
+        blocks: [warm(15), agil(ctx), { kind: 'main', title: 'Extensive Intervalle', lines: [`${reps}× 1000 m in ca. ${fmtTime(p.schwelle)}`, 'Pause 3 min Trab (wie im PFV: 5×1000 m, 3 min Pause)', 'Puls vor dem nächsten Intervall unter 140'], timer: 'k1000' }, cool] };
     }
     case 'TB4': {
+      // 4. Woche des Blocks: kürzere, häufigere Intervalle (NSW Guide S. 4: „every 4th or 5th week“)
+      if (ctx.cw === 4) return { code, title: 'Kurze Intervalle', sub: 'TB4 · 16× 200 m', min: 50, run: true,
+        blocks: [warm(15), agil(ctx), { kind: 'main', title: 'Kurz und häufig (NSW Guide S. 4)', lines: [`16× 200 m in ca. ${fmtTime(p.int400 / 2 - 2)}`, 'Pause 200 m locker traben', 'Sauber und gleichmäßig – nicht sprinten bis zum Umfallen.'] }, cool] };
       const reps = clamp(4 + Math.floor(week / 2), 4, 10);
       return { code, title: 'Intensive Intervalle', sub: `TB4 · ${reps}× 400 m`, min: 50, run: true,
-        blocks: [warm(15), { kind: 'main', title: 'Intervallmethode', lines: [`${reps}× 400 m in ca. ${fmtTime(p.int400)}`, `Pause aktiv, 2–2,5× so lang wie die Belastung (ca. ${fmtTime(p.int400 * 2.2)})`, 'Gleichmäßig laufen, das letzte Intervall ist das schnellste. Max. 10 Intervalle.'], timer: 'int400' }, cool] };
+        blocks: [warm(15), agil(ctx), { kind: 'main', title: 'Intervallmethode', lines: [`${reps}× 400 m in ca. ${fmtTime(p.int400)}`, `Pause aktiv, 2–2,5× so lang wie die Belastung (ca. ${fmtTime(p.int400 * 2.2)})`, 'Gleichmäßig laufen, das letzte Intervall ist das schnellste. Max. 10 Intervalle.'], timer: 'int400' }, cool] };
     }
     case 'TBR':
       return { code, title: 'Regeneration', sub: 'TB-R · locker', min: 30, run: true,
@@ -222,7 +230,7 @@ export function buildSession(code, ctx) {
       const m = Math.round(clamp((600 + week * 60) * f, 400, 2200) / 50) * 50;
       return { code, title: 'Schwimmen Brust', sub: `ST · ca. ${m} m`, min: 45, swim: true,
         blocks: [{ kind: 'main', title: 'Schwimmtraining (einziger Schwimmtag – voll nutzen)', lines: ['200 m einschwimmen locker', week < 8 ? 'Technik: 6× 50 m Brust, Gleitphase betonen, Züge zählen' : `${clamp(4 + Math.floor(week / 4), 4, 10)}× 100 m Brust zügig, Pause halb so lang (NSW-Intervall)`, `Rest als ruhige Strecke bis ca. ${m} m gesamt`,
-          ...(ctx.kleider ? ['Kleiderschwimmen (wenn das Bad es erlaubt): 2× 100 m in langer Hose + Shirt, danach Entkleiden im Wasser üben – PFV: 200 m im Kampfanzug max. 7:30'] : []),
+          ...(ctx.kleider ? ['Kleiderschwimmen (wenn das Bad es erlaubt): 2× 100 m in langer Hose + Shirt, danach Entkleiden im Wasser üben – PFV: 200 m im Kampfanzug max. 7:30 (KSK S. 7), EGB: deutlich darunter (EGB-Report S. 8)', 'Apnoe-Gewöhnung (EGB-Report S. 8): 4–6× 15–25 m Streckentauchen ruhig, 1–2 min Pause dazwischen – NUR mit Aufsicht am Beckenrand.'] : []),
           'Streckentauchen nur mit Aufsicht, nie allein, nie vorher hyperventilieren.'] }] };
     }
     case 'MT1': case 'MT2': case 'MT3': {
@@ -231,6 +239,13 @@ export function buildSession(code, ctx) {
       const km = clamp(Math.round((lvl === 1 ? 8 + week * 0.4 : lvl === 2 ? 15 + week * 0.2 : 20 + week * 0.15) * (deload ? 0.6 : 1)), 6, lvl === 3 ? 25 : lvl === 2 ? 20 : 15);
       return { code, title: `Marsch ${['', 'leicht', 'mittel', 'schwer'][lvl]}`, sub: `MT${lvl} · ${km} km · ${kg} kg`, min: Math.round((km / 5.5) * 60), ruck: true,
         blocks: [{ kind: 'main', title: 'Marschtraining in Stiefeln', lines: [`${km} km mit ${kg} kg Gepäck, Tempo 4–7 km/h (${lvl === 1 ? 'flach' : 'mittleres Profil'})`, 'Nicht rennen mit Gepäck. Strecke vorher mit Karte planen.', 'Füße vorher und nachher kontrollieren. Socken wechseln.', 'Gute Gelegenheit für Kompass-Übung.'] }] };
+    }
+    case 'MTLANG': {
+      // Spezifik: +5 km pro 6-Wochen-Block, 30 → 40 km, 15–20 kg (KSK-Trainingshandbuch S. 8)
+      const block = Math.floor(((ctx.weekInPhase || 1) - 1) / 6);
+      const km = clamp(30 + block * 5, 30, 40), kg = clamp(15 + block * 2, 15, 20);
+      return { code, title: 'Langer Marsch', sub: `${km} km · ${kg} kg · 5 km/h`, min: Math.round((km / 5) * 60), ruck: true,
+        blocks: [{ kind: 'main', title: 'Marschhärte für Phase 2', lines: [`${km} km mit ${kg} kg, gleichmäßig 5 km/h, alle 60 min 5–10 min Pause`, 'KSK: Ein 40-km-Marsch soll in Phase 2 keine Herausforderung sein (Handbuch S. 8).', 'Füße abkleben, Ersatzsocken, 0,5 l Wasser pro Stunde, Essen dabei.', 'Bei Blasen oder Schmerzen im Sprunggelenk/Knie: abbrechen, nicht durchziehen.'] }, cool] };
     }
     case 'EILMARSCH':
       return { code, title: 'Eilmarsch-Training', sub: '5–7 km · 15–20 kg · zügig', min: 50, ruck: true,
@@ -252,13 +267,13 @@ export function buildSession(code, ctx) {
     case 'KRAFTO':
       return { code, title: 'Oberkörper-Kraft (moderat)', sub: 'Vor dem Kickboxen · 35–40 min · keine Beine', min: 40,
         blocks: [{ kind: 'main', title: 'Zug & Druck – 1–2 Wdh. im Tank lassen', ex: [{ id: 'klimmzug', sets: cal.pull[0] - (deload ? 2 : 0), reps: cal.pull[1], rest: 90 }, { id: 'liegestuetz', sets: Math.min(4, cal.push[0]) - (deload ? 1 : 0), reps: cal.push[1], rest: 75 }, { id: 'rudern', sets: deload ? 2 : 3, reps: '10–12', rest: 75 }, { id: 'schulterdruecken', sets: deload ? 2 : 3, reps: '8–10', rest: 90 }],
-          lines: ['Klimmzug und Liegestütz nach NSW-Tabelle (dein Maximum). Ablassen doppelt so langsam wie hochziehen.', 'Einmal im Monat stattdessen Maximaltest (Montag der Entlastungswoche).'] },
+          lines: ['Klimmzug und Liegestütz nach NSW-Tabelle (dein Maximum). Ablassen doppelt so langsam wie hochziehen.', 'Alle 6 Wochen stattdessen Maximaltest (Montag der Entlastungswoche).'] },
           { kind: 'main', title: 'Rumpf', lines: [`Sit-ups ${Math.min(4, cal.push[0])}× ${cal.push[1]}`, 'Unterarmstütz 2× 60 s'] }] };
     case 'TROCKEN':
       return { code, title: 'Schwimm-Trockentraining', sub: 'Schwäche Schwimmen · 15 min', min: 15,
         blocks: [{ kind: 'main', title: 'Ersetzt kein Wasser – hilft aber', lines: ['Brustzug mit Band im Stand (vorgebeugt): 3× 20', 'Außenrotation mit Band 2× 15', 'Superman 3× 10 (Rumpfspannung in Wasserlage)', 'Wenn möglich: zweiten Badtag über „Verfügbar“ eintragen.'] }] };
     case 'TESTSCHWIMMEN':
-      return { code, title: 'Monatstest: 100 m Brust', sub: 'Schwimmen auf Zeit · ausgeruht', min: 40, swim: true, test: true,
+      return { code, title: 'Leistungstest: 100 m Brust', sub: 'Schwimmen auf Zeit · ausgeruht', min: 40, swim: true, test: true,
         blocks: [{ kind: 'main', title: 'Test', lines: ['300 m einschwimmen, 2× 25 m Steigerung', '100 m Brust auf Zeit (Startsprung oder Abstoß – immer gleich)', '200 m locker aus', 'Zeit unter Sport → Test eintragen.'] }] };
     case 'KMAXU':
       return { code, title: 'Maximalkraft Unterkörper & Tragen', sub: 'Nach dem AV · 3–5 Wdh. · Pause 2–4 min', min: 60, gym: true,
@@ -296,10 +311,10 @@ export function buildSession(code, ctx) {
       return { code, title: 'Schwimmen Technik (leicht)', sub: 'Vor dem Kickboxen · 30 min · ruhig', min: 30, swim: true, light: true,
         blocks: [{ kind: 'main', title: 'Technik Brust', lines: ['200 m locker einschwimmen', '6× 50 m Brust, lange Gleitphase, Züge zählen', '100 m locker aus', 'Kein Sprint – abends ist Kickboxen.'] }] };
     case 'TESTKRAFT':
-      return { code, title: 'Monatstest: Kraft', sub: 'Klimmzüge · Liegestütze · Sit-ups', min: 60, test: true,
+      return { code, title: 'Leistungstest: Kraft', sub: 'Klimmzüge · Liegestütze · Sit-ups', min: 60, test: true,
         blocks: [warm(12), { kind: 'main', title: 'Testablauf (ausgeruht!)', lines: ['1. Klimmzüge max. (Ristgriff, ausgehängt)', '2. Liegestütze max.', '3. Sit-ups max.', 'Schwimmen folgt am Mittwoch, der 3000-m-Lauf am Samstag.', 'Ergebnisse unter Sport → Test eintragen.'] }] };
     case 'TESTLAUF':
-      return { code, title: 'Monatstest: 3000 m', sub: 'Lauf auf Zeit · flache Strecke', min: 45, test: true, run: true,
+      return { code, title: 'Leistungstest: 3000 m', sub: 'Lauf auf Zeit · flache Strecke', min: 45, test: true, run: true,
         blocks: [warm(15), { kind: 'main', title: 'Testlauf', lines: ['3000 m auf Zeit, gleichmäßig anlaufen, letzte Runde ziehen.', 'Zeit unter Sport → Test eintragen. Danach passt sich der Plan an.'] }, cool] };
     case 'KOPF':
       return { code, title: 'Kopftraining', sub: 'Kognitiv · 10–15 min', min: 15, mental: true,
@@ -330,14 +345,15 @@ const TEMPLATES = {
 // Grundplan eines Tages (ohne Schwächen, Verfügbarkeit und Schonmodus – das macht core/planner.js)
 export function baseDay(state, date) {
   const { phase, weekInPhase, weekTotal } = phaseAt(state, date);
-  const cw = cycleWeek(phase.key === 'nachav' ? weekInPhase : weekTotal);
-  const deload = cw === 4 && !['taper', 'erholung'].includes(phase.key);
+  const len = phase.key === 'nachav' ? 4 : ZYKLUS;
+  const cw = cycleWeek(phase.key === 'nachav' ? weekInPhase : weekTotal, len);
+  const deload = isRegWeek(cw, len) && !['taper', 'erholung'].includes(phase.key);
   const mode = weekMode(state, date);
   const wd = weekday(date);
   const best = currentBest(state);
   const vol = state.plan.volFactor || 1;
   const kleider = ['aufbau', 'leistung', 'spezifik', 'nachav'].includes(phase.key);
-  const ctx0 = { best, vol, week: weekTotal, weekInPhase, deload, mode, sat: wd === 5, sunday: wd === 6, friday: wd === 4, kleider, spez: state.profile.av?.spez || 'beide' };
+  const ctx0 = { best, vol, week: weekTotal, weekInPhase, deload, mode, sat: wd === 5, sunday: wd === 6, friday: wd === 4, kleider, spez: state.profile.av?.spez || 'beide', cw, phaseKey: phase.key };
   let plan = TEMPLATES[phase.key][wd].map(([c, v]) => [c, v]);
   plan = plan.map(([code, variant]) => {
     if (code === 'SAT') {
@@ -346,16 +362,19 @@ export function baseDay(state, date) {
       if (phase.key === 'grundlage') return [marsch ? 'MT1' : 'TB2']; // LG C: nur TB1/TB2 (KSK-Handbuch)
       if (phase.key === 'aufbau') return [marsch ? 'MT2' : 'TB3'];
       if (phase.key === 'leistung') return [marsch ? 'MT3' : 'TB4'];
+      // Spezifik: einmal pro Block langer Marsch bis 40 km (KSK S. 8: „40 km sollte keine Herausforderung sein“)
+      if (cw === 4) return ['MTLANG'];
       return [marsch ? 'EILMARSCH' : 'MT3'];
     }
-    if (code === 'KX') return [cw === 1 ? 'K4' : 'K2', variant];
+    // Leistung: Maximalkraft-Wochen 1 und 4 des 6-Wochen-Blocks (KSK S. 16: K1/K2/K4)
+    if (code === 'KX') return [cw === 1 || cw === 4 ? 'K4' : 'K2', variant];
     return [code, variant];
   });
-  // Entlastungswoche: Montag Kraft-Test (Klimmzüge, Liegestütze, Sit-ups), Mittwoch 100 m Brust, Samstag 3000 m
+  // Regenerationswoche: Montag Kraft-Test (Klimmzüge, Liegestütze, Sit-ups), Mittwoch 100 m Brust, Samstag 3000 m
   if (deload && wd === 0) plan = [['TESTKRAFT']];
   if (deload && wd === 2) plan = [['TESTSCHWIMMEN']];
   // Sonntag nach einem Marsch am Samstag: kein langer Lauf obendrauf
-  const marschSa = !deload && (phase.key === 'nachav' || (['grundlage', 'aufbau', 'leistung', 'spezifik'].includes(phase.key) && weekTotal % 2 === 1));
+  const marschSa = !deload && (phase.key === 'nachav' || (phase.key === 'spezifik' && cw === 4) || (['grundlage', 'aufbau', 'leistung', 'spezifik'].includes(phase.key) && weekTotal % 2 === 1));
   const sessions = plan.map(([code, variant]) => {
     const kurz = variant === 'kurz';
     const nachMarsch = wd === 6 && code === 'TB1' && marschSa;
@@ -366,7 +385,7 @@ export function baseDay(state, date) {
   return { date, phase, weekInPhase, weekTotal, cycleWeek: cw, deload, mode, sessions, ctx: ctx0, notes: [] };
 }
 
-// ---------- Anpassung nach dem Monatstest ----------
+// ---------- Anpassung nach dem Leistungstest (alle 6 Wochen) ----------
 export function adaptAfterTest(state, test) {
   const NORMS = getNorms(state.profile);
   const tests = sortByDate(state.tests).filter((t) => t.id !== test.id && t.date <= test.date);

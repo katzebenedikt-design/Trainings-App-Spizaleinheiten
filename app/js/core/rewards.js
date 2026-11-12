@@ -21,7 +21,7 @@ export const BADGES = {
   erstes_training: { name: 'Erste Einheit', icon: '▲', desc: 'Erste Trainingseinheit abgeschlossen' },
   zehn_einheiten: { name: '10 Einheiten', icon: '10', desc: '10 Trainingseinheiten abgeschlossen' },
   fuenfzig_einheiten: { name: '50 Einheiten', icon: '50', desc: '50 Trainingseinheiten abgeschlossen' },
-  erster_test: { name: 'Erster Test', icon: 'T', desc: 'Ersten Monatstest eingetragen' },
+  erster_test: { name: 'Erster Test', icon: 'T', desc: 'Ersten Leistungstest eingetragen' },
   lauf13: { name: '3000 m < 13:00', icon: '13', desc: '3000 m unter 13 Minuten' },
   lauf12: { name: '3000 m < 12:00', icon: '12', desc: '3000 m unter 12 Minuten (KSK-Richtwert)' },
   lauf11: { name: '3000 m < 11:00', icon: '11', desc: '3000 m unter 11 Minuten' },

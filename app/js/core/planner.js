@@ -50,7 +50,7 @@ export function plannedDay(state, date, { withReadiness = date === iso() } = {})
   if (wd === 6 && !day.deload && !['taper', 'erholung'].includes(day.phase.key) && focus.some((x) => BOOSTS[x.key].code === 'MARSCHPLUS')) sessions = sessions.map((s) => (s.code === 'TB1' && !s.title.includes('Marsch') ? buildSession('TB1', { ...day.ctx, nachMarsch: true }) : s));
   for (const f of focus) why.push(`${f.label}: aktuell ${fmtVal(f.norm, f.value)} (${f.src}), Ziel ${fmtVal(f.norm, f.norm.goal)}, Top ${fmtVal(f.norm, f.norm.top)} → ${BOOSTS[f.key].block} bekommt mehr Volumen (${BOOSTS[f.key].tage.map((t) => ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'][t]).join('/')}).`);
   if (wd === 2 && !['taper', 'erholung'].includes(day.phase.key) && focus.some((f) => f.key === 'swim100')) sessions = sessions.map((s) => (s.code === 'ST' ? { ...s, min: s.min + 15, sub: s.sub + ' · +15 min (Schwäche)', blocks: [...s.blocks, { kind: 'main', title: 'Schwäche Schwimmen', lines: ['Zusätzlich 6× 50 m Brust zügig, 30 s Pause'] }] } : s));
-  if (day.deload) why.push('Entlastungswoche: keine Zusatzblöcke, Monatstest (Mo Kraft, Mi 100 m Brust, Sa 3000 m).');
+  if (day.deload) why.push('Regenerationswoche (6. Woche, KSK-Handbuch S. 14–16): keine Zusatzblöcke, Leistungstest (Mo Kraft, Mi 100 m Brust, Sa 3000 m).');
   if (day.phase.key === 'erholung') why.push('Erholung nach dem AV: 2 Wochen bewusst locker, danach startet die Phase „Nach dem AV“.');
 
   // 3. Verfügbarkeit

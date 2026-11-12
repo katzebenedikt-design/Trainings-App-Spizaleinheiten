@@ -9,8 +9,8 @@ const fmtV = (unit, v) => (v == null ? '—' : unit === 'zeit' ? fmtTime(v) : St
 export function renderTest(el, app) {
   const st = app.state;
   const tests = sortByDate(st.tests);
-  el.append(h('div', { class: 'k mt' }, '[ MONATLICHER LEISTUNGSTEST ]'),
-    h('p', { class: 'small dim' }, 'Jede 4. Woche in der Entlastungswoche: Montag Kraft, Mittwoch 100 m Brust, Samstag 3000 m. Ausgeruht, gleiche Bedingungen, gleiche Reihenfolge. Danach passt sich der Plan automatisch an.'),
+  el.append(h('div', { class: 'k mt' }, '[ LEISTUNGSTEST · ALLE 6 WOCHEN ]'),
+    h('p', { class: 'small dim' }, 'In jeder Regenerationswoche (6. Woche, KSK-Handbuch S. 14–16): Montag Kraft, Mittwoch 100 m Brust, Samstag 3000 m. Ausgeruht, gleiche Bedingungen, gleiche Reihenfolge. Danach passt sich der Plan automatisch an.'),
     h('button', { class: 'btn f', onclick: () => testModal(app) }, '+ Test eintragen'));
 
   if (tests.length) {

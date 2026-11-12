@@ -15,6 +15,8 @@ export const DISCIPLINES = {
   ruck7: { label: '7 km Eilmarsch 20 kg', unit: 'zeit', lower: true, base: { min: 3120, goal: 2700, top: 2400 } },
   march20: { label: '20 km Marsch 20 kg', unit: 'zeit', lower: true, base: { min: 12600, goal: 11400, top: 10200 } },
   vo2max: { label: 'VO2max', unit: 'ml', base: { min: 45, goal: 50, top: 58 } },
+  // 200 m im Kampfanzug: KSK max. 7:30 (Handbuch S. 7), EGB „deutlich unter 7:30“ (Report S. 8) → Ziel 7:00 als Richtwert
+  kleider200: { label: '200 m Kleiderschwimmen', unit: 'zeit', lower: true, base: { min: 450, goal: 420, top: 390 } },
 };
 
 // Vorgaben je Einheit. Nur was belegt ist; leere Einheit = Richtwerte (base).
