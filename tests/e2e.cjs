@@ -47,6 +47,25 @@ const shots = process.argv[3] || null;
   for (const tab of ['plan', 'kraft', 'ausdauer', 'test', 'garmin', 'daten', 'timer']) {
     await step('Sport/' + tab, async () => { await page.goto(url + '#/sport/' + tab); await page.waitForTimeout(400); await shot('sport-' + tab); });
   }
+  await step('Keine Zeit: Ersatz-Einheit', async () => {
+    await page.goto(url + '#/sport/plan'); await page.waitForTimeout(400);
+    // irgendeine Einheit der Woche mit Ersatz öffnen
+    const rows = page.locator('.card b', { hasText: /Kraft|Lauf|Schwimm|Marsch|Prophylaxe|Kickboxen/ });
+    let found = false;
+    for (let i = 0; i < Math.min(await rows.count(), 12) && !found; i++) {
+      await rows.nth(i).click(); await page.waitForTimeout(300);
+      const btn = page.locator('.full').last().getByText('⏱ Keine Zeit – Ersatz-Einheit');
+      if (await btn.count()) { found = true; await btn.click(); } else await close();
+    }
+    if (!found) throw new Error('Kein Keine-Zeit-Knopf gefunden');
+    await page.waitForTimeout(300); await shot('keine-zeit');
+    const done = page.locator('.modal').last().getByText(/min-Ersatz erledigt$/).first();
+    await done.click(); await page.waitForTimeout(400);
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    await page.waitForTimeout(600);
+    const n = await page.evaluate(() => new Promise((res) => { const r = indexedDB.open('trainings-app'); r.onsuccess = () => { const g = r.result.transaction('kv').objectStore('kv').get('state'); g.onsuccess = () => res((g.result.ersatzLog || []).length); }; }));
+    if (!n) throw new Error('Ersatz nicht gespeichert');
+  });
   await step('Verfügbarkeit: kein Studio, kein Bad', async () => {
     await page.goto(url + '#/sport/plan'); await page.waitForTimeout(300);
     await page.locator('.chip', { hasText: 'Fitnessstudio' }).click(); await page.waitForTimeout(300);

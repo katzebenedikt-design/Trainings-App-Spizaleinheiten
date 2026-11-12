@@ -28,6 +28,7 @@ export function defaultState() {
     lang: { active: 'en', langs: {}, custom: {} }, // custom: importierte Sprachpakete
     cards: {}, // Karteikarten-Status { cardId: { box, due } }
     activities: [], // alle Garmin-Aktivitäten { garminId, date, time, type, typeLabel, sport, durSec, distM, avgHR, maxHR }
+    ersatzLog: [], // genutzte Ersatz-Einheiten (Keine Zeit) { date, code, title, min, ersatz }
     garminWeeks: {}, // Intensitätsminuten je Woche { '2026-W46': { moderate, vigorous, total, goal } }
     courses: {},
     av: { lessons: {}, exams: {} }, // Wissenskurse „Nach dem AV“

@@ -20,6 +20,7 @@ import { voiceCommand } from './voice.js';
 import { spracheHome } from './sprache.js';
 import { morningCard } from './garmin.js';
 import { PLAN_AENDERUNGEN, PDF_DATEIEN } from '../data/plan-quellen.js';
+import { EINHEITEN } from '../data/einheiten.js';
 import { kognitivItem, startKognitiv, kognitivWeekCard, psychItem, startPsych } from './kognitiv.js';
 
 export const sportTabs = [
@@ -183,6 +184,8 @@ export function openSession(app, s, date, idx) {
     if (s.run || s.ruck || s.swim) wrap.append(h('button', { class: 'btn', onclick: () => logRunModal(app, s.swim ? 'schwimmen' : s.ruck ? 'marsch' : 'lauf', date) }, s.swim ? 'Schwimmen eintragen' : s.ruck ? 'Marsch eintragen' : 'Lauf eintragen'));
     if (s.test) wrap.append(h('button', { class: 'btn', onclick: () => { close(); app.go('#/sport/test'); } }, 'Testergebnisse eintragen'));
     const id = 'train:' + idx;
+    const info = EINHEITEN[s.code];
+    if (!s.rest && !isDone(st, date, id) && info && (info.ersatz?.length || info.ersatzHinweis)) wrap.append(h('button', { class: 'btn o mt2', onclick: () => keineZeit(app, s, date, id, close) }, '⏱ Keine Zeit – Ersatz-Einheit'));
     if (!s.rest) wrap.append(isDone(st, date, id) ? h('div', { class: 'center olive mt2' }, '✓ ABGESCHLOSSEN')
       : h('button', { class: 'btn f mt2', onclick: () => { markDone(st, date, id); close(); app.award(s.schon ? 25 : 40, 'train'); app.refresh(); } }, '> Einheit abgeschlossen'));
     return wrap;
@@ -257,4 +260,25 @@ const iconBtnIcon = () => { const b = iconBtn('back', null); return b.firstChild
 
 export function openProfile(app) {
   import('./profile.js').then((m) => m.openProfile(app));
+}
+
+// „Keine Zeit“: Ersatz-Einheiten mit möglichst gleichem Trainingsreiz (data/einheiten.js)
+function keineZeit(app, s, date, id, closeSession) {
+  const st = app.state; const info = EINHEITEN[s.code];
+  modal(({ close }) => {
+    const body = h('div', {}, h('div', { class: 'k' }, `[ KEINE ZEIT · ${s.title.toUpperCase()} ]`), h('h2', {}, 'Ersatz-Einheit wählen'),
+      h('p', { class: 'small dim' }, 'Kurz statt gar nicht: Der Ersatz setzt möglichst denselben Reiz. Die festen Regeln gelten weiter (an Kickbox-Tagen kein Laufen, kein Schwimmen).'));
+    if (info.ersatzHinweis) body.append(card(h('p', {}, info.ersatzHinweis)));
+    for (const e of info.ersatz || []) {
+      body.append(card(h('div', { class: 'row between' }, h('b', {}, e.titel), h('span', { class: 'mono sand' }, `${e.min} MIN`)),
+        h('ul', { class: 'plain small' }, e.lines.map((l) => h('li', {}, l))), h('div', { class: 'm' }, 'REIZ: ' + e.reiz.toUpperCase()),
+        h('button', { class: 'btn f', onclick: () => {
+          markDone(st, date, id);
+          st.ersatzLog = st.ersatzLog || []; st.ersatzLog.push({ date, code: s.code, title: s.title, min: e.min, ersatz: e.titel });
+          if (st.ersatzLog.length > 300) st.ersatzLog.shift();
+          close(); closeSession(); app.award(25, 'train', `Ersatz erledigt: ${e.min} min.`); app.refresh();
+        } }, `> ${e.min}-min-Ersatz erledigt`)));
+    }
+    return body;
+  });
 }
