@@ -15,6 +15,8 @@ export function startKognitiv(app, date = iso()) {
   const p = kognitivFuer(app.state, date);
   const done = () => markDone(app, date);
   if (p.typ === 'kopftest') runSimulation(app, false, { kopftest: true, onDone: done });
+  else if (p.typ === 'probetest') runSimulation(app, false, { onDone: done });
+  else if (p.typ === 'cat-kurz') runSimulation(app, false, { daily: true, onDone: done });
   else if (p.typ === 'spiel') runGame(app, p.key, !!p.belastung, done);
   else runTraining(app, p.key, undefined, done);
 }

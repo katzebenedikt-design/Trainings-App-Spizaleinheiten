@@ -275,6 +275,8 @@ const shots = process.argv[3] || null;
       const start = full.getByText('> Start', { exact: true }); if (await start.count()) { await start.click(); continue; }
       const weiter = full.getByText('Weiter', { exact: true }); if (await weiter.count()) { await weiter.click(); continue; }
       const ready = full.getByText('Ich bin so weit'); if (await ready.count()) { await ready.click(); await page.waitForTimeout(1200); continue; }
+      if (await full.locator('.reactbox').count()) { await page.waitForTimeout(400); continue; }
+      const dk = full.locator('textarea'); if (await dk.count() && await full.getByText('DIKTAT', { exact: true }).count() && !(await full.getByText('Richtig:', { exact: false }).count())) { await dk.first().fill('Das ist ein Test.'); await full.getByText('Fertig', { exact: true }).click(); await page.waitForTimeout(250); continue; }
       const d2 = full.locator('.d2'); if (await d2.count()) { for (let k = 0; k < 6; k++) await d2.nth(k).click(); await full.getByText('Fertig', { exact: true }).click(); await page.waitForTimeout(250); continue; }
       const opt = full.locator('.catopts button'); if (await opt.count()) { await opt.first().click(); await page.waitForTimeout(260); continue; }
       await page.waitForTimeout(300);
@@ -282,7 +284,16 @@ const shots = process.argv[3] || null;
     throw new Error('Ende nicht erreicht: ' + endText);
   };
   await step('Auswahl/CAT', async () => { await page.goto(url + '#/auswahl/cat'); await page.waitForTimeout(400); await shot('cat'); await noOverflow('auswahl/cat'); });
-  for (const mod of ['Sprache', 'Mathe', 'Logik', 'Raum', 'Technik', 'Merken', 'Konzentr.', 'Wissen']) await step('CAT-Training ' + mod, async () => {
+  await step('CAT-Kurzeinheit (Schwächen, Zeitdruck, Lösungswege)', async () => {
+    await page.goto(url + '#/auswahl/cat'); await page.waitForTimeout(300);
+    await page.getByText('> Kurzeinheit starten').click();
+    await catLoop('[ KURZEINHEIT · AUSWERTUNG ]');
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    await shot('cat-kurzeinheit');
+    await page.locator('.full').last().getByText('Fertig', { exact: true }).click(); await page.waitForTimeout(300);
+    if (!(await page.getByText('Heute erledigt ✓ – nochmal').count())) throw new Error('Kurzeinheit nicht als erledigt markiert');
+  });
+  for (const mod of ['Sprache', 'Mathe', 'Logik', 'Raum', 'Technik', 'Merken', 'Konzentr.', 'Reaktion', 'Diktat', 'Wissen']) await step('CAT-Training ' + mod, async () => {
     await page.goto(url + '#/auswahl/cat'); await page.waitForTimeout(300);
     await page.locator('.tile', { hasText: mod }).click();
     await page.waitForTimeout(300); await shot('cat-train-' + mod.replace('.', ''));
@@ -304,7 +315,7 @@ const shots = process.argv[3] || null;
     if (!(await page.getByText('[ EMPFOHLEN: SCHWÄCHSTE BEREICHE ]').count())) throw new Error('Keine Empfehlung nach Simulation');
     await shot('cat-verlauf');
     await page.goto(url + '#/sport/plan'); await page.waitForTimeout(400);
-    if (!(await page.getByText(/schwächster Bereich der letzten Simulation|Kopf-Test \(monatlich/).count())) throw new Error('Sonntag im Kopf-Wochenplan nutzt nicht den schwächsten CAT-Bereich');
+    if (!(await page.getByText(/heute sicher dabei:/).count())) throw new Error('Kopf-Wochenplan zeigt den schwächsten CAT-Bereich nicht');
   });
 
   await step('Kopf-Test (monatlich) komplett', async () => {

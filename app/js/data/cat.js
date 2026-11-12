@@ -11,6 +11,8 @@ export const CAT_MODULES = {
   merken: { name: 'Merkfähigkeit', kurz: 'Merken', typen: ['memo'] },
   konzentration: { name: 'Konzentration', kurz: 'Konzentr.', typen: ['d2'] },
   allgemein: { name: 'Allgemeinwissen', kurz: 'Wissen', typen: ['wissen'] },
+  reaktion: { name: 'Reaktion', kurz: 'Reaktion', typen: ['reaktion'] },
+  diktat: { name: 'Diktat (Rechtschreibung nach Gehör)', kurz: 'Diktat', typen: ['diktat'] },
 };
 
 // Testprofile. module: Reihenfolge, Aufgabenzahl (n) und Zeit in Minuten (min) für die Simulation.
@@ -19,7 +21,7 @@ export const CAT_PROFILES = {
   bw: {
     name: 'Bundeswehr – Karrierecenter',
     fuer: 'KSK, Kampfschwimmer (Laufbahnen der Bundeswehr)',
-    hinweis: 'Typische Bereiche des computergestützten Tests im Karrierecenter laut öffentlich zugänglichen Informationen und Vorbereitungsliteratur. Ablauf, Zeiten und Gewichtung können abweichen.',
+    hinweis: 'Laut Bundeswehr: computergestützt und adaptiv (die nächste Aufgabe richtet sich nach der vorigen Antwort); geprüft werden u. a. Sprachbeherrschung, mathematische Kompetenz, logisches Denken sowie Reaktions- und Konzentrationsfähigkeit. Raum und Technik nennen Vorbereitungsanbieter. Zeitlimits je nach Laufbahn und Abschnitt; eine feste Reihenfolge gibt das Karrierecenter nicht an.',
     quelle: { titel: 'bundeswehrkarriere.de', url: 'https://www.bundeswehrkarriere.de/' },
     module: [
       { id: 'sprache', n: 12, min: 8 },
@@ -29,15 +31,17 @@ export const CAT_PROFILES = {
       { id: 'technik', n: 8, min: 6 },
       { id: 'merken', n: 2, min: 5 },
       { id: 'konzentration', n: 2, min: 2 },
+      { id: 'reaktion', n: 1, min: 1.5 },
       { id: 'allgemein', n: 8, min: 4 },
     ],
   },
   bpol: {
     name: 'Bundespolizei – Einstellungstest',
     fuer: 'GSG 9 (Weg über den Polizeivollzugsdienst der Bundespolizei)',
-    hinweis: 'Typische Bereiche des computergestützten Einstellungstests der Bundespolizei laut öffentlich zugänglichen Informationen und Vorbereitungsliteratur. Für die GSG 9 bewirbt man sich als Polizeivollzugsbeamter. Ablauf, Zeiten und Gewichtung können abweichen.',
+    hinweis: 'Laut Vorbereitungsliteratur beginnt der schriftliche Teil (mittlerer Dienst) mit einem Diktat, danach computergestützt Sprachverständnis, Allgemeinwissen und Intelligenztest (Zahlenreihen, Matrizen, Würfel). Eine offizielle Ablaufbeschreibung der Bundespolizei gibt es dazu nicht öffentlich. Für die GSG 9 bewirbt man sich als Polizeivollzugsbeamter.',
     quelle: { titel: 'komm-zur-bundespolizei.de', url: 'https://www.komm-zur-bundespolizei.de/' },
     module: [
+      { id: 'diktat', n: 5, min: 6 },
       { id: 'sprache', n: 15, min: 10, typen: { rechtschreibung: 3, dasdass: 2, synonym: 1, analogie: 1 } },
       { id: 'mathe', n: 12, min: 10 },
       { id: 'logik', n: 12, min: 10 },
@@ -57,7 +61,7 @@ export const CAT_KOPFTEST = {
   stufe: 5,
   module: [
     { id: 'sprache', n: 5, min: 2.5 }, { id: 'mathe', n: 5, min: 3 }, { id: 'logik', n: 5, min: 3 }, { id: 'raum', n: 4, min: 2 },
-    { id: 'technik', n: 4, min: 2 }, { id: 'merken', n: 1, min: 2 }, { id: 'konzentration', n: 1, min: 1 }, { id: 'allgemein', n: 4, min: 1.5 },
+    { id: 'technik', n: 4, min: 2 }, { id: 'merken', n: 1, min: 2 }, { id: 'konzentration', n: 1, min: 1 }, { id: 'reaktion', n: 1, min: 1 }, { id: 'diktat', n: 2, min: 2 }, { id: 'allgemein', n: 4, min: 1.5 },
   ],
 };
 
@@ -169,6 +173,18 @@ export const WISSEN = [
   [3, 'Welcher Grundsatz steht in Artikel 20 des Grundgesetzes?', 'Deutschland ist ein demokratischer und sozialer Bundesstaat', 'Die Würde des Menschen ist unantastbar', 'Alle Menschen sind vor dem Gesetz gleich', 'Die Freiheit der Person ist unverletzlich'],
   [3, 'Wie heißt das Prinzip, nach dem Gesetzgebung, Regierung und Gerichte getrennt sind?', 'Gewaltenteilung', 'Föderalismus', 'Subsidiarität', 'Rechtsstaatsprinzip'],
   [3, 'Welche Stadt war Hauptstadt der Bundesrepublik bis zur Wiedervereinigung?', 'Bonn', 'Frankfurt am Main', 'Köln', 'Berlin'],
+];
+
+// Diktat: [Stufe, Satz] – wird vorgelesen, Groß-/Kleinschreibung zählt
+export const DIKTAT = [
+  [1, 'Der Zug fährt um acht Uhr ab.'], [1, 'Wir treffen uns morgen früh am Bahnhof.'], [1, 'Bitte nimm deinen Rucksack mit.'],
+  [1, 'Er hat die Prüfung bestanden.'], [1, 'Das Wetter ist heute sehr schlecht.'],
+  [2, 'Ich hoffe, dass das Training heute nicht ausfällt.'], [2, 'Beim Laufen im Wald ist ihm etwas Merkwürdiges aufgefallen.'],
+  [2, 'Die Kameraden haben das Gepäck gemeinsam getragen.'], [2, 'Wir müssen uns beeilen, damit wir pünktlich ankommen.'],
+  [2, 'Er weiß, dass er sich auf seine Gruppe verlassen kann.'], [2, 'Im Großen und Ganzen verlief die Übung reibungslos.'],
+  [3, 'Seit gestern liegt der Bericht dem Zugführer zur Überprüfung vor.'], [3, 'Der Einsatzleiter forderte, dass sämtliche Fahrzeuge unverzüglich zurückkehren.'],
+  [3, 'Trotz des schlechten Wetters setzten die Bewerber ihren Marsch fort.'], [3, 'Das Dokument wurde im Voraus sorgfältig überprüft und anschließend abgezeichnet.'],
+  [3, 'Die Kommission bemängelte die unzureichende Dokumentation des Vorfalls.'],
 ];
 
 // Merkfähigkeit: Bausteine für Datensätze

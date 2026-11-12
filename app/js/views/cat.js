@@ -2,11 +2,12 @@
 // (einzelne Bereiche, Lösungsweg nach jeder Aufgabe). Alles Übungsaufgaben.
 import { h, card, modal, seg, toast, progressBar, lineChart } from '../ui.js';
 import { CAT_MODULES, CAT_PROFILES, CAT_KOPFTEST } from '../data/cat.js';
-import { makeItem, adaptStep, adaptTraining, moduleScore, evaluate, profileOf } from '../core/cat.js';
+import { makeItem, adaptStep, adaptTraining, moduleScore, evaluate, profileOf, diktatScore, pickDaily, moduleStand } from '../core/cat.js';
 import { iso, fmtDate } from '../core/util.js';
-import { beep, vibrate } from '../core/speech.js';
+import { beep, vibrate, speak, stopSpeaking } from '../core/speech.js';
+import { mondayOf } from '../core/util.js';
 
-const catState = (st) => { st.cat = st.cat || {}; const c = st.cat; c.profile = c.profile || 'bw'; c.levels = c.levels || {}; c.sims = c.sims || []; c.train = c.train || []; c.tests = c.tests || []; return c; };
+const catState = (st) => { st.cat = st.cat || {}; const c = st.cat; c.profile = c.profile || 'bw'; c.levels = c.levels || {}; c.sims = c.sims || []; c.train = c.train || []; c.tests = c.tests || []; c.daily = c.daily || []; return c; };
 const modName = (id) => CAT_MODULES[id]?.name || id;
 const fmtClock = (s) => `${Math.floor(Math.max(0, s) / 60)}:${String(Math.max(0, s) % 60).padStart(2, '0')}`;
 
@@ -51,7 +52,7 @@ function renderItem(item, done, { feedback = false } = {}) {
       if (feedback) {
         ev.currentTarget.classList.add(ok ? 'ok' : 'no'); btns[item.answer].classList.add('ok');
         wrap.append(h('h2', { class: ok ? 'olive' : 'warn' }, ok ? 'Richtig.' : 'Falsch.'), exp(), h('button', { class: 'btn f', onclick: () => done([{ score: ok ? 1 : 0, level: item.level }]) }, 'Weiter'));
-      } else { ev.currentTarget.classList.add('sel'); setTimeout(() => done([{ score: ok ? 1 : 0, level: item.level }]), 180); }
+      } else { ev.currentTarget.classList.add('sel'); setTimeout(() => done([{ score: ok ? 1 : 0, level: item.level, review: ok ? null : { q: item.q, a: item.options[item.answer].t || 'Antwort ' + 'ABCD'[item.answer] + ' (Figur)', explain: item.explain } }]), 180); }
     } }, h('small', { class: 'm' }, 'ABCD'[i]), optView(o)));
     wrap.append(h('div', { class: 'm' }, (item.sub || '').toUpperCase()), h('p', { class: 'catq' }, item.q), visual, h('div', { class: 'choice catopts ' + (visualOpts ? 'v' : '') }, ...btns));
     return wrap;
@@ -72,6 +73,53 @@ function renderItem(item, done, { feedback = false } = {}) {
     const iv = setInterval(() => { left--; clock.textContent = `EINPRÄGEN: NOCH ${left} S`; if (left <= 0 || !wrap.isConnected) { clearInterval(iv); if (wrap.isConnected) ask(); } }, 1000);
     clock.textContent = `EINPRÄGEN: NOCH ${left} S`;
     wrap.append(h('div', { class: 'm' }, 'MERKFÄHIGKEIT'), h('p', { class: 'catq' }, item.q), clock, table, h('button', { class: 'btn', onclick: () => { left = 1; } }, 'Ich bin so weit'));
+    return wrap;
+  }
+  if (item.kind === 'diktat') {
+    let plays = 0, done_ = false;
+    const play = () => { if (plays >= 2) return toast('Höchstens 2× – wie im Test.'); plays++; speak(item.text, { lang: 'de-DE', rate: 0.82 }); };
+    const ta = h('textarea', { placeholder: 'Hier schreiben …', autocapitalize: 'sentences', spellcheck: 'false', autocorrect: 'off', style: { minHeight: '90px', fontSize: '18px' } });
+    setTimeout(play, 300);
+    const check = () => {
+      if (done_) return; done_ = true; stopSpeaking();
+      const r = diktatScore(item.text, ta.value);
+      if (feedback) wrap.append(h('h2', { class: r.errors ? 'warn' : 'olive' }, r.errors ? `${r.errors} Fehler` : 'Fehlerfrei.'), h('p', {}, 'Richtig: ', h('b', {}, item.text)), r.wrong.length ? h('p', { class: 'small dim' }, 'Prüfen: ' + r.wrong.join(', ')) : null, h('button', { class: 'btn f', onclick: () => done([{ score: r.score, level: item.level }]) }, 'Weiter'));
+      else done([{ score: r.score, level: item.level, review: r.errors ? { q: 'Diktat', a: item.text, du: ta.value } : null }]);
+    };
+    wrap.append(h('div', { class: 'm' }, 'DIKTAT'), h('p', { class: 'catq' }, item.q), h('button', { class: 'btn s', onclick: play }, '🔊 Anhören'), ta, h('button', { class: 'btn f', onclick: check }, 'Fertig'));
+    return wrap;
+  }
+  if (item.kind === 'react') {
+    const box = h('div', { class: 'reactbox' }, h('span', { class: 'm' }, 'BEREIT …'));
+    let i = 0, shownAt = 0, cur = null, hits = 0, fa = 0, miss = 0, started = false; const rts = []; let tmr = null, over = false;
+    const finish = () => {
+      over = true; clearTimeout(tmr);
+      const targets = item.trials.filter((t) => t.target).length;
+      const score = Math.max(0, Math.min(1, (hits - fa) / Math.max(1, targets)));
+      const rt = rts.length ? Math.round(rts.reduce((a, b) => a + b, 0) / rts.length) : null;
+      const summary = h('div', {}, h('h2', {}, `${hits}/${targets} Treffer · ${fa} Fehlalarme`), h('p', { class: 'm' }, `${rt ? `Ø REAKTIONSZEIT ${rt} MS · ` : ''}${miss} VERPASST`));
+      if (feedback) wrap.append(summary, h('p', {}, item.explain), h('button', { class: 'btn f', onclick: () => done([{ score, level: item.level }]) }, 'Weiter'));
+      else done([{ score, level: item.level }]);
+    };
+    const next = () => {
+      if (over || !wrap.isConnected) return;
+      if (i >= item.trials.length) return finish();
+      const t = item.trials[i];
+      box.className = 'reactbox'; box.replaceChildren(h('span', { class: 'm' }, '+')); cur = null;
+      tmr = setTimeout(() => {
+        if (!wrap.isConnected) return;
+        cur = t; shownAt = performance.now(); box.className = 'reactbox ' + (t.target ? 'tgt' : 'dis'); box.replaceChildren();
+        tmr = setTimeout(() => { if (cur && cur.target) miss++; cur = null; i++; next(); }, item.windowMs);
+      }, t.waitMs);
+    };
+    box.onpointerdown = () => {
+      if (over) return;
+      if (!cur) { fa++; return; }
+      clearTimeout(tmr);
+      if (cur.target) { hits++; rts.push(Math.round(performance.now() - shownAt)); } else fa++;
+      cur = null; i++; box.className = 'reactbox'; next();
+    };
+    wrap.append(h('div', { class: 'm' }, 'REAKTION'), h('p', { class: 'catq' }, item.q), box, h('button', { class: 'btn', onclick: (ev) => { if (over || started) return; started = true; ev.currentTarget.remove(); next(); } }, '> Start'));
     return wrap;
   }
   // d2: Durchstreichtest
@@ -103,6 +151,20 @@ export function renderCat(el, app) {
   el.append(h('div', { class: 'k mt' }, '[ CAT · COMPUTERGESTÜTZTER EIGNUNGSTEST ]'),
     h('div', { class: 'card warnc small' }, 'Alle Aufgaben sind selbst erstellte Übungsaufgaben im Stil typischer Eignungstests – keine offiziellen Originalaufgaben.'),
     h('div', { class: 'm mt' }, 'TESTPROFIL'), seg(Object.entries(CAT_PROFILES).map(([k, p]) => [k, p.name.split(' – ')[0]]), c.profile, (v) => { c.profile = v; app.save(); app.refresh(); }));
+  // Täglich + wöchentlich
+  const today = iso(); const doneToday = c.daily.some((d) => d.date === today);
+  const mon = mondayOf(today); const probe = c.sims.find((s) => s.date >= mon && !s.kurz);
+  const stand = moduleStand(c, P.module.map((m) => m.id));
+  const weakest = Object.entries(stand).sort((a, b) => a[1] - b[1]).slice(0, 3);
+  el.append(card(h('div', { class: 'k' }, '[ TÄGLICH: KURZEINHEIT · 10–15 MIN ]'),
+    h('p', { class: 'small dim' }, 'Drei Bereiche in Test-Reihenfolge, mit Zeitdruck. Dein schwächster Bereich ist immer dabei, schwache Bereiche kommen öfter. Lösungswege am Ende.'),
+    h('div', { class: 'm' }, 'SCHWÄCHSTE BEREICHE: ' + weakest.map(([id, v]) => `${CAT_MODULES[id].kurz.toUpperCase()} ${v}`).join(' · ')),
+    h('button', { class: 'btn ' + (doneToday ? '' : 'f'), onclick: () => runSimulation(app, false, { daily: true }) }, doneToday ? 'Heute erledigt ✓ – nochmal' : '> Kurzeinheit starten')));
+  el.append(card(h('div', { class: 'k' }, '[ WÖCHENTLICH: VOLLER PROBETEST ]'),
+    h('p', { class: 'small dim' }, `Einmal pro Woche (Sonntag im Kopf-Plan) der komplette Ablauf deines Profils mit allen Zeitlimits – ca. ${Math.round(totalMin)} min.`),
+    h('div', { class: 'm' }, probe ? `DIESE WOCHE ERLEDIGT (${fmtDate(probe.date)}): ${probe.total} PUNKTE` : 'DIESE WOCHE NOCH OFFEN'),
+    h('button', { class: 'btn ' + (probe ? '' : 'f'), onclick: () => runSimulation(app, false) }, `> Probetest starten (ca. ${Math.round(totalMin)} min)`)));
+
   el.append(card(h('b', {}, P.name), h('div', { class: 'm' }, `FÜR: ${P.fuer.toUpperCase()}`), h('p', { class: 'small dim' }, P.hinweis),
     h('a', { class: 'small', href: P.quelle.url, target: '_blank', rel: 'noopener' }, `Offizielle Infos: ${P.quelle.titel} ↗`),
     h('ul', { class: 'plain small mt' }, P.module.map((m) => h('li', {}, `${modName(m.id)} · ${m.id === 'merken' ? m.n + ' Durchgänge' : m.id === 'konzentration' ? m.n + ' Blöcke' : m.n + ' Aufgaben'} · ${m.min} min`))),
@@ -149,10 +211,12 @@ export function renderCat(el, app) {
 }
 
 // ---------- Simulation ----------
-export function runSimulation(app, kurz, { kopftest = false, onDone } = {}) {
+export function runSimulation(app, kurz, { kopftest = false, daily = false, onDone } = {}) {
   const st = app.state; const c = catState(st); const P = kopftest ? CAT_KOPFTEST : profileOf(c.profile);
-  const label = kopftest ? 'KOPF-TEST' : 'SIMULATION';
-  const plan = P.module.map((m) => ({ ...m, n: kurz ? Math.max(1, Math.ceil(m.n / 2)) : m.n, sec: Math.round((kurz ? m.min / 2 : m.min) * 60) }));
+  const label = kopftest ? 'KOPF-TEST' : daily ? 'KURZEINHEIT' : 'SIMULATION';
+  const base = daily ? pickDaily(c, P) : P.module;
+  const plan = base.map((m) => ({ ...m, n: kurz ? Math.max(1, Math.ceil(m.n / 2)) : m.n, sec: Math.round((kurz ? m.min / 2 : m.min) * 60) }));
+  const review = [];
   const results = {}; let mi = 0, iv = null, aborted = false;
   const m = modal(({ close }) => {
     const head = h('div', {}); const body = h('div', {});
@@ -161,7 +225,8 @@ export function runSimulation(app, kurz, { kopftest = false, onDone } = {}) {
       const mod = plan[mi];
       head.replaceChildren(h('div', { class: 'k' }, `[ ${label} · TEIL ${mi + 1}/${plan.length} ]`), progressBar(mi / plan.length));
       body.replaceChildren(h('h2', {}, modName(mod.id)), h('p', { class: 'm' }, `${mod.n} ${mod.id === 'merken' ? 'DURCHGÄNGE' : mod.id === 'konzentration' ? 'BLÖCKE' : 'AUFGABEN'} · ZEIT ${fmtClock(mod.sec)}`),
-        h('p', { class: 'small dim' }, 'Keine Lösungen während der Simulation. Unbeantwortete Aufgaben zählen als falsch. Lieber zügig entscheiden als hängen bleiben.'),
+        mod.weak ? h('p', { class: 'warn small' }, `Dein schwächster Bereich (Stand ${mod.stand}). Darum ist er heute dabei.`) : null,
+        h('p', { class: 'small dim' }, daily ? 'Mit Zeitdruck wie im Test. Die Lösungswege kommen am Ende.' : 'Keine Lösungen während der Simulation. Unbeantwortete Aufgaben zählen als falsch. Lieber zügig entscheiden als hängen bleiben.'),
         h('button', { class: 'btn f', onclick: () => runModule(mod) }, '> Start'));
     };
     const runModule = (mod) => {
@@ -184,6 +249,7 @@ export function runSimulation(app, kurz, { kopftest = false, onDone } = {}) {
         body.replaceChildren(renderItem(item, (r) => {
           if (left <= 0) return;
           res.push(...r); done++;
+          for (const x of r) if (x.review) review.push({ ...x.review, mod: mod.id });
           const avg = r.reduce((a, x) => a + x.score, 0) / r.length;
           if (!kopftest) level = adaptStep(level, avg >= 0.6);
           next();
@@ -195,8 +261,22 @@ export function runSimulation(app, kurz, { kopftest = false, onDone } = {}) {
       clearInterval(iv);
       const mods = {}; for (const [id, r] of Object.entries(results)) { mods[id] = moduleScore(r); if (kopftest) mods[id].score = Math.round((mods[id].correct / Math.max(1, mods[id].total)) * 100); }
       const ev = evaluate(mods);
+      if (daily) {
+        c.daily.push({ date: iso(), profile: c.profile, total: ev.total, mods });
+        if (c.daily.length > 120) c.daily.splice(0, c.daily.length - 120);
+        for (const [id, m] of Object.entries(mods)) { c.train.push({ date: iso(), mod: id, correct: m.correct, total: m.total, level: m.level, daily: true }); c.levels[id] = Math.max(1, Math.round(m.level)); }
+        if (c.train.length > 300) c.train.splice(0, c.train.length - 300);
+        onDone?.();
+        head.replaceChildren(h('div', { class: 'k' }, '[ KURZEINHEIT · AUSWERTUNG ]'));
+        body.replaceChildren(card(...ev.sorted.map((id) => h('div', { class: 'mt' }, h('div', { class: 'row between' }, h('span', { class: 'small' }, modName(id)), h('span', { class: 'm' }, `${String(mods[id].correct).replace('.', ',')}/${mods[id].total} · ST. ${String(mods[id].level).replace('.', ',')}`)), progressBar(mods[id].score / 100)))),
+          review.length ? card(h('div', { class: 'k' }, '[ LÖSUNGSWEGE DEINER FEHLER ]'), ...review.slice(0, 10).map((x) => h('div', { class: 'mt small' }, h('b', { style: { whiteSpace: 'pre-line' } }, x.q), h('div', { class: 'olive' }, '→ ' + x.a), x.du != null ? h('div', { class: 'dim' }, 'Du: ' + (x.du || '–')) : null, x.explain ? h('div', { class: 'dim' }, x.explain) : null))) : card(h('p', {}, 'Keine Fehler. Die Schwierigkeit steigt beim nächsten Mal.')),
+          h('p', { class: 'small dim' }, 'Schwache Bereiche kommen öfter dran, bis sie aufholen. Jeden Sonntag: voller Probetest.'),
+          h('button', { class: 'btn f', onclick: close }, 'Fertig'));
+        app.award(15, 'cat', 'CAT-Kurzeinheit erledigt.');
+        return;
+      }
       if (kopftest) { c.tests.push({ date: iso(), total: ev.total, mods }); onDone?.(); } else {
-        c.sims.push({ date: iso(), profile: c.profile, kurz, total: ev.total, mods });
+        c.sims.push({ date: iso(), profile: c.profile, kurz, total: ev.total, mods }); onDone?.();
         for (const [id, s] of Object.entries(mods)) c.levels[id] = Math.max(1, Math.round(s.level));
       }
       const prevT = kopftest ? c.tests[c.tests.length - 2] : null;
@@ -216,7 +296,7 @@ export function runSimulation(app, kurz, { kopftest = false, onDone } = {}) {
 }
 
 // ---------- Training ----------
-export function runTraining(app, mod, n = mod === 'merken' || mod === 'konzentration' ? 3 : 10, onDone) {
+export function runTraining(app, mod, n = ({ merken: 3, konzentration: 3, reaktion: 2, diktat: 5 })[mod] || 10, onDone) {
   const st = app.state; const c = catState(st);
   let level = c.levels[mod] || 1, i = 0; const recent = [], all = [];
   const m = modal(({ close }) => {

@@ -2,15 +2,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { CAT_MODULES, CAT_PROFILES, RECHTSCHREIBUNG, SYNONYME, WISSEN, TECHNIK, ANALOGIEN } from '../app/js/data/cat.js';
-import { makeItem, seeded, adaptStep, adaptTraining, moduleScore, evaluate, cubeNet, rotN, mirror, keyOf, MAXL } from '../app/js/core/cat.js';
+import { makeItem, seeded, adaptStep, adaptTraining, moduleScore, evaluate, cubeNet, rotN, mirror, keyOf, MAXL, diktatScore, pickDaily, moduleStand } from '../app/js/core/cat.js';
+import { DIKTAT } from '../app/js/data/cat.js';
+
+test('Profile: Bundespolizei beginnt mit Diktat, Bundeswehr prüft Reaktion', () => {
+  assert.equal(CAT_PROFILES.bpol.module[0].id, 'diktat');
+  assert.ok(CAT_PROFILES.bw.module.some((m) => m.id === 'reaktion'));
+});
 
 test('Profile: Bundeswehr und Bundespolizei, alle Module gültig', () => {
   assert.deepEqual(Object.keys(CAT_PROFILES).sort(), ['bpol', 'bw']);
   for (const P of Object.values(CAT_PROFILES)) {
     assert.ok(P.name && P.fuer && P.hinweis && /^https:\/\//.test(P.quelle.url));
     for (const m of P.module) { assert.ok(CAT_MODULES[m.id], m.id); assert.ok(m.n > 0 && m.min > 0); if (m.typen) for (const t of Object.keys(m.typen)) assert.ok(CAT_MODULES[m.id].typen.includes(t), t); }
-    // Alle 8 Testbereiche sind enthalten
-    assert.deepEqual(P.module.map((m) => m.id).sort(), Object.keys(CAT_MODULES).sort());
+    // Alle Grundbereiche sind enthalten, keine doppelt
+    for (const id of ['sprache', 'mathe', 'logik', 'raum', 'technik', 'merken', 'konzentration', 'allgemein']) assert.ok(P.module.some((m) => m.id === id), id);
+    assert.equal(new Set(P.module.map((m) => m.id)).size, P.module.length);
   }
 });
 
@@ -86,4 +93,37 @@ test('Adaptivität und Auswertung', () => {
   assert.ok(hi.score > 90 && lo.score < 45);
   const ev = evaluate({ sprache: { score: 80 }, mathe: { score: 40 }, raum: { score: 60 }, logik: { score: 20 } });
   assert.deepEqual(ev.schwaechen, ['logik', 'mathe']); assert.deepEqual(ev.staerken, ['sprache', 'raum']); assert.equal(ev.total, 50);
+});
+
+test('Diktat: Groß-/Kleinschreibung und das/dass zählen, Satzzeichen nicht', () => {
+  const t = 'Ich hoffe, dass das Training heute nicht ausfällt.';
+  assert.equal(diktatScore(t, 'Ich hoffe dass das Training heute nicht ausfällt').errors, 0);
+  const r = diktatScore(t, 'ich hoffe das das training heute nicht ausfällt');
+  assert.equal(r.errors, 3); assert.deepEqual(r.wrong, ['Ich', 'dass', 'Training']);
+  assert.equal(diktatScore(t, '').score, 0);
+  for (const [, s] of DIKTAT) { assert.match(s, /^[A-ZÄÖÜ].*[.!?]$/); assert.equal(diktatScore(s, s).score, 1); }
+});
+
+test('Reaktion: Ziele und Ablenker, Zeitfenster schrumpft mit der Stufe', () => {
+  const a = makeItem('reaktion', 1, seeded(2)), b = makeItem('reaktion', 10, seeded(2));
+  assert.equal(a.kind, 'react'); assert.ok(a.trials.some((t) => t.target)); assert.ok(a.trials.some((t) => !t.target));
+  assert.ok(b.windowMs < a.windowMs && b.trials.length > a.trials.length);
+});
+
+test('Tägliche Kurzeinheit: schwächster Bereich immer dabei, Schwächen öfter, Reihenfolge wie im Test', () => {
+  const c = { sims: [{ date: '2026-11-01', mods: { raum: { score: 20 }, mathe: { score: 90 }, sprache: { score: 85 }, logik: { score: 80 }, technik: { score: 85 }, merken: { score: 80 }, konzentration: { score: 85 }, reaktion: { score: 85 }, allgemein: { score: 90 } } }], train: [] };
+  const order = CAT_PROFILES.bw.module.map((m) => m.id);
+  let rare = 0, often = 0;
+  for (let s = 1; s < 300; s++) {
+    const p = pickDaily(c, CAT_PROFILES.bw, Math.random);
+    assert.equal(p.length, 3); assert.ok(p.some((m) => m.id === 'raum' && m.weak));
+    const idx = p.map((m) => order.indexOf(m.id)); assert.deepEqual(idx, [...idx].sort((x, y) => x - y));
+    if (p.some((m) => m.id === 'mathe')) rare++; if (p.some((m) => m.id === 'logik')) often++;
+  }
+  assert.ok(often > rare, 'schwächerer Bereich (Logik 80) öfter als stärkerer (Mathe 90)');
+  // Training fließt ein: schlechte Trainings senken den Stand
+  c.train = [{ mod: 'mathe', correct: 2, total: 10 }];
+  assert.equal(moduleStand(c, ['mathe']).mathe, 55);
+  const sum = pickDaily(c, CAT_PROFILES.bw).reduce((a, m) => a + m.min, 0);
+  assert.ok(sum >= 7 && sum <= 15, 'ca. 10–15 Minuten');
 });

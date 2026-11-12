@@ -1,6 +1,6 @@
 // CAT-Test: Aufgaben-Generatoren (Übungsaufgaben) mit Schwierigkeit 1–10 und Lösungsweg,
 // adaptive Schwierigkeit, Auswertung. Reine Logik ohne Oberfläche (testbar).
-import { CAT_MODULES, CAT_PROFILES, RECHTSCHREIBUNG, DASDASS, SYNONYME, ANALOGIEN, TECHNIK, WISSEN, MEMO } from '../data/cat.js';
+import { CAT_MODULES, CAT_PROFILES, RECHTSCHREIBUNG, DASDASS, SYNONYME, ANALOGIEN, TECHNIK, WISSEN, MEMO, DIKTAT } from '../data/cat.js';
 
 export const MAXL = 10;
 const ri = (r, a, b) => a + Math.floor(r() * (b - a + 1));
@@ -173,6 +173,17 @@ const GEN = {
     return { kind: 'memo', sub: 'Datensätze merken', q: 'Präg dir die Datensätze ein.', recs, show: 20 + k * 6, qs, explain: 'Tipp: Bilder verknüpfen (Becker backt in Kiel …) und Zahlen in Gruppen sprechen.' };
   },
 
+  // ---------- Diktat (wird vorgelesen) ----------
+  diktat(r, lv) { const [, text] = fromBank(r, DIKTAT, lv); return { kind: 'diktat', sub: 'Diktat', q: 'Hör genau zu und schreib den Satz auf. Groß- und Kleinschreibung zählen. Höchstens 2× anhören.', text, explain: `Richtig: „${text}“` }; },
+
+  // ---------- Reaktion: nur bei Ziel tippen ----------
+  reaktion(r, lv) {
+    const n = 14 + Math.min(10, lv); const windowMs = Math.max(450, 950 - lv * 45);
+    const trials = Array.from({ length: n }, () => ({ target: r() < 0.6, waitMs: ri(r, 600, 1700) }));
+    if (!trials.some((t) => t.target)) trials[0].target = true;
+    return { kind: 'react', sub: 'Reaktion', q: 'Tippe so schnell wie möglich, wenn das SANDFARBENE Quadrat erscheint. Beim grünen nicht tippen.', trials, windowMs, explain: `Zeitfenster ${windowMs} ms. Ruhig atmen, Finger über dem Feld lassen, nicht raten.` };
+  },
+
   // ---------- Konzentration (Durchstreichtest wie d2) ----------
   d2(r, lv) {
     const n = Math.min(64, 36 + lv * 3); const sec = Math.max(25, 50 - lv * 2);
@@ -182,6 +193,16 @@ const GEN = {
     return { kind: 'd2', sub: 'Durchstreichtest', q: 'Tippe jedes „d“ mit genau zwei Strichen an (oben und unten zusammen).', items, sec, explain: 'Gesucht: d mit genau 2 Strichen. Nicht: p, d mit 1, 3 oder 4 Strichen. Zeile für Zeile, gleichmäßiges Tempo.' };
   },
 };
+
+// Diktat bewerten: Wort für Wort (Satzzeichen am Wortende zählen nicht, Groß-/Kleinschreibung schon)
+export function diktatScore(text, said) {
+  const tok = (s) => String(s).trim().split(/\s+/).map((w) => w.replace(/^[„“"']+|[.,;:!?„“"']+$/g, '')).filter(Boolean);
+  const A = tok(said), B = tok(text);
+  let prev = Array.from({ length: B.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= A.length; i++) { const cur = [i]; for (let j = 1; j <= B.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (A[i - 1] === B[j - 1] ? 0 : 1)); prev = cur; }
+  const errors = prev[B.length];
+  return { errors, words: B.length, score: Math.max(0, 1 - errors / B.length), wrong: B.filter((w) => !A.includes(w)) };
+}
 
 // ---------- Raum-Helfer ----------
 function polyomino(r, n) {
@@ -246,3 +267,34 @@ export const profileOf = (key) => CAT_PROFILES[key] || CAT_PROFILES.bw;
 
 // Seed-fähiger Zufall (für Tests)
 export function seeded(seed = 1) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+
+// ---------- Tägliche Kurzeinheit: Schwächen öfter ----------
+// Stand je Bereich (0–100): letzte Simulation bzw. letzter Kopf-Test, gemischt mit den letzten 5 Trainings.
+export function moduleStand(c, profileMods) {
+  const last = [...(c.sims || []), ...(c.tests || []), ...(c.daily || [])].sort((a, b) => (a.date < b.date ? -1 : 1)).pop();
+  const out = {};
+  for (const id of profileMods) {
+    const tr = (c.train || []).filter((x) => x.mod === id).slice(-5);
+    const acc = tr.length ? (tr.reduce((a, x) => a + x.correct, 0) / Math.max(1, tr.reduce((a, x) => a + x.total, 0))) * 100 : null;
+    const sim = last?.mods?.[id]?.score ?? null;
+    out[id] = sim != null && acc != null ? Math.round((sim + acc) / 2) : sim ?? (acc != null ? Math.round(acc) : 50);
+  }
+  return out;
+}
+// Gewicht: je schwächer, desto öfter (mind. 10, damit Stärken nicht verkümmern)
+export const weakWeights = (stand) => Object.fromEntries(Object.entries(stand).map(([id, v]) => [id, Math.max(10, 100 - v)]));
+
+// 3 Bereiche: der schwächste immer, die anderen gewichtet zufällig; Reihenfolge wie im Testprofil
+export function pickDaily(c, profile, r = Math.random, k = 3) {
+  const ids = profile.module.map((m) => m.id);
+  const stand = moduleStand(c, ids); const w = weakWeights(stand);
+  const weakest = [...ids].sort((a, b) => stand[a] - stand[b])[0];
+  const chosen = [weakest];
+  while (chosen.length < Math.min(k, ids.length)) {
+    const pool = ids.filter((id) => !chosen.includes(id)); const sum = pool.reduce((a, id) => a + w[id], 0);
+    let x = r() * sum; const pickId = pool.find((id) => (x -= w[id]) <= 0) || pool[pool.length - 1];
+    chosen.push(pickId);
+  }
+  const SHORT = { merken: [1, 2.5], konzentration: [1, 1.2], reaktion: [1, 1.5], diktat: [3, 3.5] };
+  return ids.filter((id) => chosen.includes(id)).map((id) => { const [n, min] = SHORT[id] || [4, 3.5]; return { id, n, min, weak: id === weakest, stand: stand[id] }; });
+}

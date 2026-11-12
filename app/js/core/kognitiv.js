@@ -1,9 +1,9 @@
 // Kognitivtraining: welches Training an welchem Tag (aus dem Wochenplan in data/kognitiv.js).
-import { KOGNITIV_WOCHE, ROTATION, KOPFTEST_TAG } from '../data/kognitiv.js';
+import { KOGNITIV_WOCHE, KOPFTEST_TAG } from '../data/kognitiv.js';
 import { phaseAt, cycleWeek } from './plan.js';
-import { CAT_MODULES } from '../data/cat.js';
-import { evaluate } from './cat.js';
-import { weekday, isoWeekKey } from './util.js';
+import { CAT_MODULES, CAT_PROFILES } from '../data/cat.js';
+import { moduleStand } from './cat.js';
+import { weekday } from './util.js';
 
 export function kognitivFuer(state, date) {
   if (weekday(date) === 6) {
@@ -11,12 +11,12 @@ export function kognitivFuer(state, date) {
     if (cycleWeek(weekTotal) === 4 && !['taper', 'erholung', 'nachav'].includes(phase.key)) return { ...KOPFTEST_TAG };
   }
   const p = { ...KOGNITIV_WOCHE[weekday(date)] };
-  if (p.typ === 'cat' && p.key === 'schwaechster') {
-    // Neuestes Ergebnis aus Simulation oder Kopf-Test
-    const last = [...(state.cat?.sims || []), ...(state.cat?.tests || [])].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)).pop();
-    if (last) { p.key = evaluate(last.mods).schwaechen[0]; p.grund = 'schwächster Bereich der letzten Simulation bzw. des letzten Kopf-Tests'; }
-    else { p.key = ROTATION[Number(isoWeekKey(date).split('-W')[1]) % ROTATION.length]; p.grund = 'wechselt wöchentlich, bis eine CAT-Simulation gemacht ist'; }
-    p.titel = `CAT-Training: ${CAT_MODULES[p.key].name}`;
+  if (p.typ === 'cat-kurz') {
+    const c = state.cat || {};
+    const prof = CAT_PROFILES[c.profile] || CAT_PROFILES.bw;
+    const stand = moduleStand(c, prof.module.map((m) => m.id));
+    const weak = Object.entries(stand).sort((x, y) => x[1] - y[1])[0];
+    if (weak) p.grund = `heute sicher dabei: ${CAT_MODULES[weak[0]].kurz} (Stand ${weak[1]})`;
   }
   return p;
 }
