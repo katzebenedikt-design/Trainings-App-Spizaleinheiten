@@ -1,4 +1,5 @@
 // Einstellungen, Ersteinrichtung, Sichern & Wiederherstellen.
+import { syncGarmin } from '../core/garmin-sync.js';
 import { h, card, modal, field, seg, toast, download, pickFile, confirmBox } from '../ui.js';
 import * as store from '../core/store.js';
 import { iso, fmtTime, parseTime, num, fmtDate } from '../core/util.js';
@@ -49,6 +50,7 @@ export function openSettings(app) {
     const height = h('input', { inputmode: 'numeric', value: p.heightCm });
     const maxhr = h('input', { inputmode: 'numeric', value: p.maxHR || '', placeholder: 'leer = 220 − Alter' });
     const puls = h('input', { inputmode: 'numeric', value: s.pulsGrenze || 70 });
+    const gkey = h('input', { value: s.garminKey || '', placeholder: 'XXXX-XXXX-…', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false' });
     const mo = h('input', { type: 'time', value: s.remindMorning }), ev = h('input', { type: 'time', value: s.remindEvening });
     let unit = p.unit, anrede = p.anrede;
     const saveProfile = () => {
@@ -66,6 +68,10 @@ export function openSettings(app) {
         field('Ruhepuls-Grenze morgens (Schonmodus erst ab diesem Wert)', puls),
         h('button', { class: 'btn', onclick: () => { saveProfile(); toast('Gespeichert.'); app.refresh(); } }, 'Speichern')),
       targetsCard(app),
+      card(h('div', { class: 'k' }, '[ GARMIN · AUTOMATISCHE ABHOLUNG ]'),
+        h('p', { class: 'small dim' }, 'Dein persönlicher Schlüssel entschlüsselt die Garmin-Datei, die jeden Morgen automatisch abgelegt wird. Ohne Schlüssel kann niemand die Daten lesen. Den Schlüssel nicht weitergeben.'),
+        field('Garmin-Schlüssel', gkey),
+        h('button', { class: 'btn', onclick: async () => { s.garminKey = gkey.value.trim(); s.garminSync = null; store.save(); try { const r = await syncGarmin(st); store.save(); toast(r.status === 'neu' ? `Verbunden: ${r.days} Tage, ${r.acts} Aktivitäten übernommen.` : r.status === 'kein-schluessel' ? 'Schlüssel entfernt.' : 'Gespeichert. Noch keine Daten gefunden.', 4000); app.refresh(); } catch (e) { toast(e.message, 4000); } } }, 'Schlüssel speichern und abholen')),
       card(h('div', { class: 'k' }, '[ ERINNERUNGEN ]'),
         h('div', { class: 'grid2' }, field('Morgens Check-in', mo), field('Abends Mental', ev)),
         h('button', { class: 'btn ' + (s.remindOn ? 'o' : 'f'), onclick: async () => { saveProfile(); try { await enableReminders(app); toast('Benachrichtigungen an.'); } catch (e) { toast(e.message, 4000); } } }, s.remindOn ? 'Benachrichtigungen sind an ✓' : 'Benachrichtigungen erlauben'),

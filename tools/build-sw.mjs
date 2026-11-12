@@ -4,8 +4,8 @@ import { join, relative } from 'node:path';
 import { createHash } from 'node:crypto';
 const root = new URL('../app/', import.meta.url).pathname;
 const files = [];
-// PDF-Seitenbilder (pdfseiten/) werden nicht vorab gecacht, sondern erst beim Ansehen
-const walk = (d) => { for (const f of readdirSync(d)) { const p = join(d, f); if (statSync(p).isDirectory()) { if (f !== 'pdfseiten') walk(p); } else if (!/sw\.js$|\.DS_Store/.test(f)) files.push(p); } };
+// PDF-Seitenbilder (pdfseiten/) und Garmin-Daten (garmin/) werden nicht vorab gecacht
+const walk = (d) => { for (const f of readdirSync(d)) { const p = join(d, f); if (statSync(p).isDirectory()) { if (f !== 'pdfseiten' && f !== 'garmin') walk(p); } else if (!/sw\.js$|\.DS_Store/.test(f)) files.push(p); } };
 walk(root);
 files.sort();
 const hash = createHash('sha1');

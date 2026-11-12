@@ -131,14 +131,26 @@ export function parseCSV(txt) {
   const rows = splitCSV(txt.replace(/^\uFEFF/, ''));
   if (rows.length < 2) throw new Error('CSV ist leer');
   const head = rows[0].map((h) => h.trim().toLowerCase());
-  const col = (...names) => head.findIndex((h) => names.some((n) => h === n || h.startsWith(n)));
+  const used = new Set();
+  // Spalte suchen; schon vergebene Spalten (z. B. „Schlafscore“ vor „Schlaf“) werden übersprungen
+  const col = (...names) => { const i = head.findIndex((h, k) => !used.has(k) && names.some((n) => h === n || h.startsWith(n))); if (i >= 0) used.add(i); return i; };
   const cType = col('aktivitätstyp', 'activity type', 'typ', 'type');
   const cDate = col('datum', 'date', 'calendar date', 'start time');
   const cDist = col('distanz', 'distance');
   const cTime = col('zeit', 'time', 'dauer', 'duration');
   const cHR = col('ø herzfrequenz', 'avg hr', 'durchschnittliche herzfrequenz', 'average heart rate');
+  const cMaxHR = col('max. herzfrequenz', 'max herzfrequenz', 'max hr', 'maximale herzfrequenz', 'max heart rate');
   const cRest = col('ruhepuls', 'resting heart rate', 'resting hr');
+  const cSleepScore = col('schlafscore', 'schlafwert', 'sleep score');
+  const cDeep = col('tiefschlaf', 'deep sleep'), cLight = col('leichtschlaf', 'light sleep'), cRem = col('rem'), cAwake = col('wach', 'awake');
   const cSleep = col('schlaf', 'sleep');
+  const cHRV7 = col('hrv 7', 'hrv-7', '7-tage-hrv', 'hrv (7', 'hrv wochen', 'weekly hrv', 'hrv weekly', '7 day hrv');
+  const cHRVStat = col('hrv-status', 'hrv status');
+  const cReady = col('trainingsbereitschaft', 'training readiness');
+  const cStatus = col('trainingszustand', 'trainingsstatus', 'training status');
+  const cChronic = col('chronische', 'chronic');
+  const cRecov = col('erholungszeit', 'recovery time');
+  const cIntens = col('intensitätsminuten', 'intensity minutes');
   const cBB = col('body battery');
   const cVO2 = col('vo2', 'vo2max', 'vo2 max');
   const cHRV = col('hrv', 'herzfrequenzvariabilität', 'nächtliche hrv', 'overnight hrv');
@@ -153,13 +165,24 @@ export function parseCSV(txt) {
       const sport = /schwimm|swim/.test(type) ? 'schwimmen' : /lauf|run/.test(type) ? 'lauf' : /geh|walk|wander|hik/.test(type) ? 'gehen' : /rad|cycl|bik/.test(type) ? 'rad' : 'sonstiges';
       let dist = numDE(r[cDist]);
       if (dist != null) dist = sport === 'schwimmen' && dist > 20 ? dist : dist * 1000; // Schwimmen meist in m, sonst km
-      acts.push({ start: d, sport, distM: dist, durSec: timeToSec(r[cTime]), avgHR: cHR >= 0 ? numDE(r[cHR]) : null });
-    } else if (cRest >= 0 || cSleep >= 0 || cBB >= 0 || cVO2 >= 0 || cHRV >= 0 || cLoad >= 0) {
+      acts.push({ start: d, sport, type, distM: dist, durSec: timeToSec(r[cTime]), avgHR: cHR >= 0 ? numDE(r[cHR]) : null, maxHR: cMaxHR >= 0 ? numDE(r[cMaxHR]) : null });
+    } else if ([cRest, cSleep, cBB, cVO2, cHRV, cLoad, cReady, cSleepScore, cHRV7, cStatus, cChronic, cIntens].some((c) => c >= 0)) {
       const sl = cSleep >= 0 ? r[cSleep] : null;
-      daily.push({ date: toIso(d), restHR: cRest >= 0 ? numDE(r[cRest]) : null, sleepH: sl ? (sl.includes(':') ? timeToSec(sl) / 3600 * (sl.split(':').length === 2 ? 60 : 1) : numDE(sl)) : null, bodyBattery: cBB >= 0 ? numDE(r[cBB]) : null, vo2max: cVO2 >= 0 ? numDE(r[cVO2]) : null, hrv: cHRV >= 0 ? numDE(r[cHRV]) : null, load: cLoad >= 0 ? numDE(r[cLoad]) : null });
+      daily.push({ date: toIso(d), restHR: cRest >= 0 ? numDE(r[cRest]) : null, sleepH: sl ? (sl.includes(':') ? timeToSec(sl) / 3600 * (sl.split(':').length === 2 ? 60 : 1) : numDE(sl)) : null, bodyBattery: cBB >= 0 ? numDE(r[cBB]) : null, vo2max: cVO2 >= 0 ? numDE(r[cVO2]) : null, hrv: cHRV >= 0 ? numDE(r[cHRV]) : null, load: cLoad >= 0 ? numDE(r[cLoad]) : null , ...extraDaily(r, { cSleepScore, cDeep, cLight, cRem, cAwake, cHRV7, cHRVStat, cReady, cStatus, cChronic, cRecov, cIntens }) });
     }
   }
   return { acts, daily };
+}
+
+// Zusätzliche Garmin-Tageswerte aus CSV-Spalten
+const HRV_WORDS = { ausgeglichen: 'ausgeglichen', balanced: 'ausgeglichen', unausgeglichen: 'unausgeglichen', unbalanced: 'unausgeglichen', niedrig: 'niedrig', low: 'niedrig', schwach: 'schwach', poor: 'schwach' };
+const STATUS_WORDS = { produktiv: 'produktiv', productive: 'produktiv', erhaltend: 'erhaltend', maintaining: 'erhaltend', erholung: 'erholung', recovery: 'erholung', unproduktiv: 'unproduktiv', unproductive: 'unproduktiv', überlastet: 'ueberlastet', strained: 'ueberlastet', überfordert: 'ueberfordert', overreaching: 'ueberfordert', spitzenform: 'spitzenform', peaking: 'spitzenform', leistungsabbau: 'abbau', detraining: 'abbau' };
+function extraDaily(r, c) {
+  const n = (k) => (c[k] >= 0 ? numDE(r[c[k]]) : null);
+  const h = (k) => { if (c[k] < 0 || !r[c[k]]) return null; const v = r[c[k]]; return String(v).includes(':') ? Math.round((timeToSec(v) / 3600) * 100) / 100 : numDE(v); };
+  const word = (k, map) => (c[k] >= 0 && r[c[k]] ? map[String(r[c[k]]).trim().toLowerCase()] || null : null);
+  const out = { sleepScore: n('cSleepScore'), sleepDeep: h('cDeep'), sleepLight: h('cLight'), sleepRem: h('cRem'), sleepAwake: h('cAwake'), hrv7: n('cHRV7'), hrvStatus: word('cHRVStat', HRV_WORDS), readiness: n('cReady'), trainingStatus: word('cStatus', STATUS_WORDS), chronicLoad: n('cChronic'), recoveryH: n('cRecov'), intensMin: n('cIntens') };
+  return Object.fromEntries(Object.entries(out).filter(([, v]) => v != null));
 }
 
 function parseAnyDate(s) {

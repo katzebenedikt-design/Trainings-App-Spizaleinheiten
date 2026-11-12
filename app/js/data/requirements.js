@@ -53,6 +53,18 @@ export const KRAFT_SCHWIMMEN_GETRENNT = true;
 
 export const KICKBOX = { titel: 'Kickboxen', min: 90, zeit: 'abends' };
 
+// Garmin-Morgenbericht → heutige Einheit. Schlechte Werte = leichtere Ersatz-Einheit, gute = volle Einheit.
+// Garmin-Skala Trainingsbereitschaft: 1–24 schlecht, 25–49 niedrig, 50–74 mäßig, 75–94 hoch, 95–100 optimal.
+export const GARMIN_REGELN = {
+  bereitschaftLeicht: 50, // darunter: leichtere Einheit
+  bereitschaftPause: 25, // darunter UND HRV niedrig UND Schlafscore schlecht: Pause
+  schlafScoreLeicht: 50, // Schlafscore darunter: leichter
+  erholungStdLeicht: 36, // Garmin-Erholungszeit (h) darüber: leichter
+  bodyBatteryLeicht: 25, // Body Battery nach dem Aufwachen darunter: leichter
+  hrvStatusLeicht: ['niedrig', 'schwach'],
+  statusLeicht: ['ueberlastet', 'ueberfordert'], // Trainingszustand
+};
+
 // Wirksame Zielwerte: Einheit gewählt → Einheit über Richtwerten; „offen“ → strengster Wert je Disziplin.
 // Eigene Werte aus den Einstellungen (profile.targets) haben immer Vorrang.
 export function getNorms(profile = {}) {

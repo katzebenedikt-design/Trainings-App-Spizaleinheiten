@@ -19,6 +19,11 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(caches.match('./index.html').then((r) => r || fetch(req)));
     return;
   }
+  // Garmin-Daten (verschlüsselt): immer zuerst aus dem Netz, offline die letzte Fassung
+  if (new URL(req.url).pathname.includes('/garmin/')) {
+    e.respondWith(fetch(req, { cache: 'no-store' }).then((res) => { if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); } return res; }).catch(() => caches.match(req, { ignoreSearch: true })));
+    return;
+  }
   e.respondWith(caches.match(req, { ignoreSearch: true }).then((r) => r || fetch(req).then((res) => {
     if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
     return res;

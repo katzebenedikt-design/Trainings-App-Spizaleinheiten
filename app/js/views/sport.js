@@ -18,6 +18,7 @@ import { renderGarmin } from './garmin.js';
 import { renderTimer, openTimer } from './timer.js';
 import { voiceCommand } from './voice.js';
 import { spracheHome } from './sprache.js';
+import { morningCard } from './garmin.js';
 import { kognitivItem, startKognitiv, kognitivWeekCard } from './kognitiv.js';
 
 export const sportTabs = [
@@ -51,6 +52,9 @@ function renderHeute(el, app) {
     h('div', {}, h('div', { class: 'm' }, `// ZIEL: AUSWAHLVERFAHREN ${fmtMonth(st.profile.targetDate).toUpperCase()} · ${unit}`),
       h('h1', { class: 'typein' }, r.mode === 'pause' ? 'Lage: Pause' : r.mode === 'leicht' ? 'Lage: Schonen' : r.mode === 'offen' ? (anrede ? anrede + ', melden!' : 'Lage: Melden') : 'Lage: Bereit')),
     h('div', { class: 'row' }, iconBtn('mic', () => voiceCommand(app), 'Werte per Sprache eintragen'), iconBtn('gear', () => app.settings(), 'Einstellungen'))));
+
+  // Garmin-Morgenbericht als Tageskarte
+  el.append(morningCard(app, today, { compact: true }));
 
   // Countdown + Bereitschaft
   const dnum = h('div', { class: 'big', style: { fontSize: '46px' } }, '0');

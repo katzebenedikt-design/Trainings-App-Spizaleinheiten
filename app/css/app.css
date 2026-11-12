@@ -280,3 +280,12 @@ table.memo th { font: 11px var(--mono); color: var(--mut); letter-spacing: .08em
 .likert button { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); background: var(--card); color: var(--txt); padding: 13px 12px; font: 17px var(--head); text-align: left; cursor: pointer; }
 .likert button b { font: 18px var(--mono); color: var(--sand); width: 18px; }
 audio { width: 100%; margin-top: 8px; }
+
+/* Garmin */
+.verdict { border-left: 3px solid var(--line); padding: 8px 10px; margin: 10px 0 4px; background: #ffffff06; }
+.verdict.ok { border-color: var(--olive); } .verdict.ok b { color: var(--olive); }
+.verdict.warn { border-color: var(--sand); } .verdict.warn b { color: var(--sand); }
+.verdict.bad { border-color: var(--bad); } .verdict.bad b { color: var(--bad); }
+.phase-row { display: grid; grid-template-columns: 44px 1fr 48px; gap: 8px; align-items: center; margin: 6px 0; }
+.phase-bar { display: flex; height: 14px; background: #ffffff0a; } .phase-bar i { display: block; height: 100%; }
+select { width: 100%; background: var(--card); color: var(--txt); border: 1px solid var(--line); padding: 10px; font: 16px var(--head); }

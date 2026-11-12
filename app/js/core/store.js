@@ -16,7 +16,7 @@ export function defaultState() {
     week: { mode: 'arbeit', overrides: {}, avail: {}, availDefault: null }, // overrides: { '2026-W45': 'schule' }, avail: Verfügbarkeit je Woche
     checkins: [], bodyweight: [], strength: [], runs: [], swims: [], tests: [],
     customExercises: [],
-    daily: [], // Garmin-Tageswerte {date, restHR, hrv, sleepH, bodyBattery, vo2max, load, steps, stress}
+    daily: [], // Garmin-Tageswerte {date, restHR, hrv, hrv7, hrvStatus, sleepH, sleepScore, sleepDeep/Light/Rem/Awake, bodyBattery, readiness, recoveryH, trainingStatus, acuteLoad, chronicLoad, vo2max, report}
     done: {}, // { '2026-10-30': ['train', 'checkin', ...] }
     plan: { volFactor: 1, focus: [], group: 'C', lastAdapt: null, notes: [] },
     rewards: { points: 0, badges: {}, log: [] },
@@ -27,11 +27,13 @@ export function defaultState() {
     },
     lang: { active: 'en', langs: {}, custom: {} }, // custom: importierte Sprachpakete
     cards: {}, // Karteikarten-Status { cardId: { box, due } }
+    activities: [], // alle Garmin-Aktivitäten { garminId, date, time, type, typeLabel, sport, durSec, distM, avgHR, maxHR }
+    garminWeeks: {}, // Intensitätsminuten je Woche { '2026-W46': { moderate, vigorous, total, goal } }
     courses: {},
     av: { lessons: {}, exams: {} }, // Wissenskurse „Nach dem AV“
     cat: { profile: 'bw', levels: {}, sims: [], train: [], tests: [] }, // CAT-Test: Stufen je Bereich, Simulationen, Training
     psych: { answers: [], topics: [], cv: {}, letter: {}, bogen: [], diary: [] }, // Psychologengespräch (Aufnahmen separat, nicht in der Sicherung)
-    settings: { pulsGrenze: 70, remindMorning: '06:00', remindEvening: '21:00', remindOn: false, voice: true, lastBackup: null, lastRemind: {} },
+    settings: { garminKey: '', garminSync: null, garminStartDone: false, pulsGrenze: 70, remindMorning: '06:00', remindEvening: '21:00', remindOn: false, voice: true, lastBackup: null, lastRemind: {} },
   };
 }
 

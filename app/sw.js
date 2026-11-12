@@ -1,5 +1,5 @@
 // Service Worker: App läuft offline, Erinnerungen per Benachrichtigung.
-const VERSION = '82a03f6a3e';
+const VERSION = 'd9f8f61387';
 // eslint-disable-next-line no-undef -- Platzhalter, wird von tools/build-sw.mjs ersetzt
 const ASSETS = [
  "./",
@@ -18,8 +18,11 @@ const ASSETS = [
  "./js/app.js",
  "./js/core/availability.js",
  "./js/core/cat.js",
+ "./js/core/crypt.js",
  "./js/core/games.js",
+ "./js/core/garmin-map.js",
  "./js/core/garmin-source.js",
+ "./js/core/garmin-sync.js",
  "./js/core/garmin.js",
  "./js/core/kognitiv.js",
  "./js/core/lang.js",
@@ -41,6 +44,7 @@ const ASSETS = [
  "./js/data/courses.js",
  "./js/data/exercise-info.js",
  "./js/data/exercises.js",
+ "./js/data/garmin-start.js",
  "./js/data/kognitiv.js",
  "./js/data/mental.js",
  "./js/data/nachav.js",
@@ -95,6 +99,11 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
   if (req.mode === 'navigate') {
     e.respondWith(caches.match('./index.html').then((r) => r || fetch(req)));
+    return;
+  }
+  // Garmin-Daten (verschlüsselt): immer zuerst aus dem Netz, offline die letzte Fassung
+  if (new URL(req.url).pathname.includes('/garmin/')) {
+    e.respondWith(fetch(req, { cache: 'no-store' }).then((res) => { if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); } return res; }).catch(() => caches.match(req, { ignoreSearch: true })));
     return;
   }
   e.respondWith(caches.match(req, { ignoreSearch: true }).then((r) => r || fetch(req).then((res) => {

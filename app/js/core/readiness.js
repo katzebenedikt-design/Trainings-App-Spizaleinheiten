@@ -1,5 +1,7 @@
 // Automatischer Schonmodus nach festen, nachvollziehbaren Regeln. Keine Diagnosen.
 // Check-in-Skala: Schlaf, Energie, Stimmung 1 = schlecht … 5 = sehr gut; Muskelkater, Schmerzen 1 = keine … 5 = stark.
+import { GARMIN_REGELN } from '../data/requirements.js';
+import { HRV_LABEL, STATUS_LABEL } from './garmin-map.js';
 import { addDays, median, sortByDate } from './util.js';
 
 export const CHECK_ITEMS = [
@@ -76,8 +78,18 @@ export function readiness(state, date) {
 
 // Garmin-Werte: Body Battery, HRV (gegen eigenen 28-Tage-Schnitt), Schlaf, Trainingsbelastung
 function garminRules(state, date, g, up, reasons) {
+  const R = GARMIN_REGELN;
+  const hrvLow = R.hrvStatusLeicht.includes(g.hrvStatus);
+  if (g.readiness != null) {
+    if (g.readiness < R.bereitschaftPause && hrvLow && g.sleepScore != null && g.sleepScore < R.schlafScoreLeicht) { up('pause'); reasons.push(`Trainingsbereitschaft ${g.readiness}, HRV ${HRV_LABEL[g.hrvStatus] || ''} und schlechter Schlaf: Pause, nur Spaziergang.`); }
+    else if (g.readiness < R.bereitschaftLeicht) { up('leicht'); reasons.push(`Trainingsbereitschaft ${g.readiness} (unter ${R.bereitschaftLeicht}): leichtere Einheit.`); }
+  }
+  if (hrvLow) { up('leicht'); reasons.push(`HRV-Status ${HRV_LABEL[g.hrvStatus]}${g.hrv7 ? ` (7-Tage-Schnitt ${g.hrv7} ms)` : ''}: Intensität runter.`); }
+  if (R.statusLeicht.includes(g.trainingStatus)) { up('leicht'); reasons.push(`Trainingszustand „${STATUS_LABEL[g.trainingStatus]}“: Belastung senken.`); }
+  if (g.sleepScore != null && g.sleepScore < R.schlafScoreLeicht) { up('leicht'); reasons.push(`Schlafscore ${g.sleepScore}: keine harte Einheit.`); }
+  if (g.recoveryH != null && g.recoveryH > R.erholungStdLeicht) { up('leicht'); reasons.push(`Garmin-Erholungszeit noch ${Math.round(g.recoveryH)} h: leicht trainieren.`); }
   const avg = (k) => { const v = []; for (let i = 1; i <= 28; i++) { const x = state.daily.find((d) => d.date === addDays(date, -i))?.[k]; if (x) v.push(x); } return v.length >= 5 ? median(v) : null; };
-  if (g.bodyBattery != null && g.bodyBattery < 25) { up('leicht'); reasons.push(`Body Battery ${g.bodyBattery}: leicht trainieren.`); }
+  if (g.bodyBattery != null && g.bodyBattery < R.bodyBatteryLeicht) { up('leicht'); reasons.push(`Body Battery ${g.bodyBattery}: leicht trainieren.`); }
   if (g.hrv) {
     const b = avg('hrv');
     if (b && g.hrv < b * 0.75) { up('pause'); reasons.push(`HRV ${g.hrv} ms deutlich unter deinem Schnitt (${Math.round(b)} ms): Pause, nur Spaziergang.`); }

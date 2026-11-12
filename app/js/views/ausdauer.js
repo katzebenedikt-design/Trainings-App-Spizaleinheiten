@@ -100,6 +100,12 @@ export async function doImport(app) {
     for (const a of res.acts) {
       if (!a.start || !(a.durSec > 0)) continue;
       const date = toIso(new Date(a.start));
+      // Alle Aktivitäten (auch Kraft, Rad …) für den Garmin-Bereich und das Wochen-Update
+      st.activities = st.activities || [];
+      if (!st.activities.some((x) => x.date === date && Math.abs((x.durSec || 0) - a.durSec) < 30)) {
+        const t = new Date(a.start); const LBL = { lauf: 'Laufen', schwimmen: 'Schwimmen', gehen: 'Gehen', wandern: 'Wandern', rad: 'Radfahren', kraft: 'Krafttraining' };
+        st.activities.push({ garminId: 'i' + uid(), date, time: `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`, type: a.type || a.sport, typeLabel: LBL[a.sport] || (a.type || 'Aktivität'), sport: /kraft|strength/i.test(a.type || '') ? 'kraft' : a.sport, durSec: Math.round(a.durSec), distM: a.distM ? Math.round(a.distM) : null, avgHR: a.avgHR || null, maxHR: a.maxHR || null, source: 'import' });
+      }
       if (a.sport === 'schwimmen') {
         if (st.swims.some((x) => x.date === date && Math.abs((x.durSec || 0) - a.durSec) < 30)) { dup++; continue; }
         st.swims.push({ id: uid(), date, distM: Math.round(a.distM || 0), durSec: Math.round(a.durSec), stroke: 'brust', source: 'garmin' });

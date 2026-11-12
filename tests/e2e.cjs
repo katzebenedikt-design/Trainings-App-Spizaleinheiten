@@ -13,6 +13,7 @@ const shots = process.argv[3] || null;
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   const shot = async (n) => { if (shots) await page.screenshot({ path: `${shots}/${n}.png` }); };
   const step = async (name, fn) => { if (name !== 'Ersteinrichtung') await page.evaluate(() => document.querySelectorAll('.full,.modal-bg,.reward').forEach((e) => e.remove())).catch(() => {}); try { await fn(); console.log('✓', name); } catch (e) { await shot('FEHLER-' + name.replace(/[^\w]/g, '_')).catch(() => {}); errors.push(`${name}: ${e.message.split('\n')[0]}`); console.log('✗', name, e.message.split('\n').slice(0, 4).join(' | ')); } };
+  const noOverflow = async (n) => { const w = await page.evaluate(() => document.documentElement.scrollWidth); if (w > 413) throw new Error(`${n}: seitliches Scrollen (${w}px)`); };
   const close = async () => { const b = page.locator('.close .icon-btn').last(); if (await b.count()) await b.click(); };
 
   await page.goto(url);
@@ -57,14 +58,38 @@ const shots = process.argv[3] || null;
     await page.locator('.chip', { hasText: 'Fitnessstudio' }).click(); await page.waitForTimeout(200);
     await page.locator('.chip', { hasText: 'Schwimmbad' }).click(); await page.waitForTimeout(200);
   });
-  await step('Garmin-Werte manuell', async () => {
+  await step('Garmin-Werte manuell (Morgenbericht)', async () => {
     await page.goto(url + '#/sport/garmin'); await page.waitForTimeout(300);
     await page.getByText('+ Werte heute').click();
-    const f = page.locator('.full input[inputmode=decimal]');
-    await f.nth(0).fill('52'); await f.nth(1).fill('61'); await f.nth(2).fill('7,5');
+    const fill = async (label, v) => page.locator('.full label', { hasText: label }).first().locator('input').fill(v);
+    await fill('Schlaf (h)', '7,5'); await fill('Schlafscore', '61'); await fill('HRV letzte Nacht', '52'); await fill('Trainingsbereitschaft', '64');
     await page.locator('.full').getByText('> Speichern').click(); await page.waitForTimeout(400);
     while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    if (!(await page.getByText('[ GARMIN-MORGENBERICHT', { exact: false }).count())) throw new Error('Morgenbericht-Karte fehlt');
     await shot('garmin');
+  });
+  await step('Garmin automatisch: verschlüsselte Datei, Schlüssel per Link', async () => {
+    const path = require('path'); const fs = require('fs');
+    const root = path.join(__dirname, '..');
+    const { encryptJSON, newKey } = await import(path.join(root, 'app/js/core/crypt.js'));
+    const { mapGarmin, mergePayload } = await import(path.join(root, 'app/js/core/garmin-map.js'));
+    const { iso, addDays, mondayOf } = await import(path.join(root, 'app/js/core/util.js'));
+    const t = iso();
+    const swap = (txt) => txt.replaceAll('2030-01-10', t).replaceAll('2030-01-09', addDays(t, -1)).replaceAll('2030-01-07', mondayOf(t)).replaceAll('2030-01-05', addDays(t, -5)).replaceAll('2030-01-06', addDays(t, -4));
+    const raw = {}; for (const k of ['readiness', 'status', 'hrv', 'sleep', 'stats', 'vo2', 'intensity', 'activities']) raw[k] = JSON.parse(swap(fs.readFileSync(path.join(root, 'tests/fixtures/garmin', k + '.json'), 'utf8')));
+    const key = newKey();
+    const env = await encryptJSON(mergePayload({}, { ...mapGarmin(raw), created: new Date().toISOString() }), key);
+    await ctx.route('**/garmin/daten.enc.json*', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(env) }));
+    await page.goto(url + '#/schluessel/' + key); await page.reload(); await page.waitForTimeout(1500);
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    await page.goto(url + '#/sport/heute'); await page.waitForTimeout(500);
+    if (!(await page.getByText('Trainingsbereitschaft 31', { exact: false }).count()) && !(await page.locator('.verdict.warn').count())) throw new Error('Abgeholte Werte nicht übernommen');
+    if (!(await page.getByText('▼ Leichtere Ersatz-Einheit').count())) throw new Error('Morgenbericht (Bereitschaft 31, überlastet) führt nicht zur leichteren Einheit');
+    await shot('morgenbericht');
+    await page.goto(url + '#/sport/garmin'); await page.waitForTimeout(600);
+    for (const txt of ['Krafttraining', 'Intensitätsminuten pro Woche', 'Schlafphasen (letzte Nächte)', 'zuletzt aktualisiert']) if (!(await page.getByText(txt, { exact: false }).count())) throw new Error('Fehlt im Garmin-Bereich: ' + txt);
+    if (!(await page.getByText('47,2').count())) throw new Error('VO2max aus Abholung fehlt');
+    await shot('garmin-sync'); await noOverflow('sport/garmin');
   });
   await step('Animationen neben Übungen', async () => {
     await page.goto(url + '#/sport/kraft'); await page.waitForTimeout(400);
@@ -147,7 +172,6 @@ const shots = process.argv[3] || null;
   }
   await step('Warum speichern', async () => { await page.goto(url + '#/mental/warum'); await page.locator('textarea').fill('Weil ich es will.'); await page.getByText('Speichern', { exact: true }).click(); await page.waitForTimeout(400); while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); } });
 
-  const noOverflow = async (n) => { const w = await page.evaluate(() => document.documentElement.scrollWidth); if (w > 413) throw new Error(`${n}: seitliches Scrollen (${w}px)`); };
   const lessonLoop = async () => {
     for (let i = 0; i < 80; i++) {
       const full = page.locator('.full').last();

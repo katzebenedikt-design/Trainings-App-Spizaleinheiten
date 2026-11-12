@@ -8,6 +8,7 @@ import { importFile } from './garmin.js';
 
 export const SOURCES = [
   { id: 'datei', name: 'Datei-Export (CSV, FIT, GPX, TCX, ZIP)', active: true, fetch: (file, onProgress) => importFile(file, onProgress) },
+  { id: 'sync', name: 'Automatische Abholung (verschlüsselte Datei, täglich)', active: true },
   { id: 'manuell', name: 'Manuelle Eingabe', active: true },
   {
     id: 'garmin-connect-api', name: 'Garmin Connect (automatisch)', active: false,

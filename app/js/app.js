@@ -11,6 +11,8 @@ import { nachavTabs } from './views/nachav.js';
 import { openSettings, onboarding } from './views/settings.js';
 import { checkReminders } from './views/reminders.js';
 import { loadPacks } from './core/langpacks.js';
+import { syncGarmin } from './core/garmin-sync.js';
+import { applyGarminStart } from './data/garmin-start.js';
 
 const AREAS = [
   { key: 'sport', label: 'Sport', icon: 'sport', tabs: sportTabs },
@@ -71,12 +73,19 @@ window.addEventListener('hashchange', () => render());
 async function start() {
   await store.load();
   try { await loadPacks(); } catch (e) { console.warn('Sprachpakete nicht geladen', e); }
+  if (applyGarminStart(store.state)) store.save();
+  // Garmin-Schlüssel per Link: …/#/schluessel/XXXX-XXXX-… (der Teil nach # geht nie an einen Server)
+  const km = location.hash.match(/^#\/schluessel\/([A-Za-z2-7-]{20,})/);
+  if (km) { store.state.settings.garminKey = km[1].toUpperCase(); store.state.settings.garminSync = null; store.save(); history.replaceState(null, '', location.pathname + '#/sport'); toast('Garmin-Schlüssel gespeichert.', 3000); }
   if (!store.state.profile.onboarded) await onboarding(app);
   render();
   app.badges();
+  // Garmin-Daten im Hintergrund holen; bei neuen Daten Ansicht auffrischen
+  const pull = () => syncGarmin(store.state).then((r) => { if (r.status === 'neu') { store.save(); if (!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) render(true); toast(`Garmin: ${r.days} Tage aktualisiert.`, 2500); } }).catch((e) => toast('Garmin: ' + e.message, 4000));
+  pull();
   checkReminders(app);
   setInterval(() => checkReminders(app), 60000);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkReminders(app); else store.flush(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { checkReminders(app); pull(); } else store.flush(); });
   window.addEventListener('pagehide', () => store.flush());
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('./sw.js').then((reg) => {

@@ -180,18 +180,21 @@ function next() {
   document.body.append(el);
 }
 
-// ---------- Diagramm (eine Linie, Referenzlinien, Tipp zeigt Wert) ----------
-export function lineChart(points, { refs = [], fmt = (v) => v, lowerBetter = false, height = 170, title } = {}) {
+// ---------- Diagramm (Linie, optional zweite Linie, Referenzlinien, Tipp zeigt Wert) ----------
+// Flüssig auch bei vielen Punkten: Punkte nur bis 45 Werten, ein einziger Berührungsbereich sucht den nächsten Wert.
+export function lineChart(points, { refs = [], fmt = (v) => v, lowerBetter = false, height = 170, title, second = null, label = null } = {}) {
   const W = 340, H = height, L = 44, R = 10, T = 12, B = 22;
   const wrap = h('div', {});
   if (title) wrap.append(h('div', { class: 'k' }, title));
   if (!points.length) { wrap.append(h('div', { class: 'm', style: { padding: '20px 0' } }, 'Noch keine Daten.')); return wrap; }
-  const xs = points.map((p) => new Date(p.date).getTime());
-  const vals = [...points.map((p) => p.v), ...refs.map((r) => r.v)];
+  const sec = second?.points?.length ? second.points : null;
+  const all = [...points, ...(sec || [])];
+  const xsAll = all.map((p) => new Date(p.date).getTime());
+  const vals = [...all.map((p) => p.v), ...refs.map((r) => r.v)];
   let min = Math.min(...vals), max = Math.max(...vals);
   if (max - min < 4) { const m = (max + min) / 2; min = m - 2; max = m + 2; }
   const pad = (max - min) * 0.1; min -= pad; max += pad;
-  const x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const x0 = Math.min(...xsAll), x1 = Math.max(...xsAll);
   const X = (t) => (x1 === x0 ? L + (W - L - R) / 2 : L + ((t - x0) / (x1 - x0)) * (W - L - R));
   const Y = (v) => T + (1 - (v - min) / (max - min)) * (H - T - B);
   const svg = s('svg', { class: 'chart', viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': title || 'Verlauf' });
@@ -204,31 +207,38 @@ export function lineChart(points, { refs = [], fmt = (v) => v, lowerBetter = fal
     svg.append(s('line', { x1: L, x2: W - R, y1: Y(r.v), y2: Y(r.v), stroke: '#8a9a4a', 'stroke-width': 1.5, 'stroke-dasharray': r.dash || '5 4' }));
     svg.append(s('text', { x: W - R - 2, y: Y(r.v) - 4, 'text-anchor': 'end', style: 'fill:#a7ab90' }, `${r.label} ${fmt(r.v)}`));
   }
-  svg.append(s('text', { x: L, y: H - 6 }, fmtDate(points[0].date)));
-  if (points.length > 1) svg.append(s('text', { x: W - R, y: H - 6, 'text-anchor': 'end' }, fmtDate(points[points.length - 1].date)));
-  const d = points.map((p, i) => `${i ? 'L' : 'M'}${X(xs[i]).toFixed(1)} ${Y(p.v).toFixed(1)}`).join(' ');
-  svg.append(s('path', { d, stroke: '#c9b47e', 'stroke-width': 2, fill: 'none', 'stroke-linejoin': 'round' }));
+  const first = all.reduce((a, p) => (p.date < a.date ? p : a)), lastD = all.reduce((a, p) => (p.date > a.date ? p : a));
+  svg.append(s('text', { x: L, y: H - 6 }, fmtDate(first.date)));
+  if (first.date !== lastD.date) svg.append(s('text', { x: W - R, y: H - 6, 'text-anchor': 'end' }, fmtDate(lastD.date)));
+  const pathOf = (ps) => ps.map((p, i) => `${i ? 'L' : 'M'}${X(new Date(p.date).getTime()).toFixed(1)} ${Y(p.v).toFixed(1)}`).join(' ');
+  if (sec) svg.append(s('path', { d: pathOf(sec), stroke: second.color || '#8a9a4a', 'stroke-width': 2, fill: 'none', 'stroke-dasharray': second.dash || '6 4', 'stroke-linejoin': 'round' }));
+  svg.append(s('path', { d: pathOf(points), stroke: '#c9b47e', 'stroke-width': 2, fill: 'none', 'stroke-linejoin': 'round' }));
+  if (points.length <= 45) for (const p of points) svg.append(s('circle', { cx: X(new Date(p.date).getTime()), cy: Y(p.v), r: points.length > 20 ? 2.5 : 4, fill: '#c9b47e', stroke: '#10120d', 'stroke-width': 1.5 }));
+  // Tipp: nächster Punkt zur Fingerposition
   const tip = s('g', { visibility: 'hidden' });
   const tipBg = s('rect', { fill: '#161911', stroke: '#c9b47e', 'stroke-width': 1, height: 30, rx: 0 });
   const tipT = s('text', { style: 'fill:#e8dcb8;font-size:11px' });
   const cross = s('line', { stroke: '#7f8a5a', 'stroke-width': 1, y1: T, y2: H - B });
-  tip.append(cross, tipBg, tipT);
-  points.forEach((p, i) => {
-    const cx = X(xs[i]), cy = Y(p.v);
-    svg.append(s('circle', { cx, cy, r: 4, fill: '#c9b47e', stroke: '#10120d', 'stroke-width': 2 }));
-    const show = () => {
-      const label = `${fmtDate(p.date)} · ${fmt(p.v)}${p.note ? ' · ' + p.note : ''}`;
-      tipT.textContent = label;
-      const w = label.length * 6.4 + 12; const tx = Math.min(Math.max(cx - w / 2, L), W - R - w);
-      tipBg.setAttribute('x', tx); tipBg.setAttribute('y', Math.max(0, cy - 40)); tipBg.setAttribute('width', w);
-      tipT.setAttribute('x', tx + 6); tipT.setAttribute('y', Math.max(0, cy - 40) + 19);
-      cross.setAttribute('x1', cx); cross.setAttribute('x2', cx);
-      tip.setAttribute('visibility', 'visible');
-    };
-    svg.append(s('circle', { cx, cy, r: 16, fill: 'transparent', onclick: show, onmouseenter: show, onmouseleave: () => tip.setAttribute('visibility', 'hidden') }));
-  });
-  svg.append(tip);
+  const dot = s('circle', { r: 5, fill: '#c9b47e', stroke: '#10120d', 'stroke-width': 2 });
+  tip.append(cross, dot, tipBg, tipT);
+  const pxs = points.map((p) => X(new Date(p.date).getTime()));
+  const show = (ev) => {
+    const rect = svg.getBoundingClientRect(); if (!rect.width) return;
+    const x = ((ev.clientX - rect.left) / rect.width) * W;
+    let i = 0; for (let k = 1; k < pxs.length; k++) if (Math.abs(pxs[k] - x) < Math.abs(pxs[i] - x)) i = k;
+    const p = points[i]; const cx = pxs[i], cy = Y(p.v);
+    const sv = sec ? sec.find((q) => q.date === p.date) : null;
+    const text = `${fmtDate(p.date)} · ${fmt(p.v)}${sv ? ` / ${second.label || ''} ${fmt(sv.v)}` : ''}${p.note ? ' · ' + p.note : ''}`;
+    tipT.textContent = text;
+    const w = text.length * 6.4 + 12; const tx = Math.min(Math.max(cx - w / 2, L), W - R - w);
+    tipBg.setAttribute('x', tx); tipBg.setAttribute('y', Math.max(0, cy - 40)); tipBg.setAttribute('width', w);
+    tipT.setAttribute('x', tx + 6); tipT.setAttribute('y', Math.max(0, cy - 40) + 19);
+    cross.setAttribute('x1', cx); cross.setAttribute('x2', cx); dot.setAttribute('cx', cx); dot.setAttribute('cy', cy);
+    tip.setAttribute('visibility', 'visible');
+  };
+  svg.append(tip, s('rect', { x: L, y: 0, width: W - L - R, height: H, fill: 'transparent', onpointerdown: show, onpointermove: show, onpointerleave: () => tip.setAttribute('visibility', 'hidden') }));
   wrap.append(svg);
+  if (sec || label) wrap.append(h('div', { class: 'm' }, h('span', { class: 'sand' }, '━ '), label || 'Wert', sec ? h('span', { class: 'olive' }, '  ┅ ') : null, sec ? second.label : null));
   const lastP = points[points.length - 1], firstP = points[0];
   if (points.length > 1) {
     const diff = lastP.v - firstP.v; const good = lowerBetter ? diff < 0 : diff > 0;
