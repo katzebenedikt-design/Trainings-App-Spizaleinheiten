@@ -56,9 +56,23 @@ export function currentBest(state) {
   return b;
 }
 
+// Sortierte Gewichtsliste zwischenspeichern (wird pro Kraft-Eintrag abgefragt)
+const bwCache = new WeakMap();
+function sortedBw(list) {
+  const c = bwCache.get(list);
+  const sig = list.length + ':' + (list[list.length - 1]?.date || '') + ':' + (list[list.length - 1]?.kg ?? '');
+  if (c && c.sig === sig) return c.sorted;
+  const sorted = sortByDate(list);
+  bwCache.set(list, { sig, sorted });
+  return sorted;
+}
 export function bodyweightOn(state, date) {
-  const list = sortByDate(state.bodyweight).filter((w) => w.date <= date);
-  return list.length ? last(list).kg : state.bodyweight.length ? sortByDate(state.bodyweight)[0].kg : null;
+  const list = state.bodyweight || [];
+  if (!list.length) return null;
+  const s = sortedBw(list);
+  let lo = 0, hi = s.length - 1, found = -1; // letzter Eintrag mit date <= Datum
+  while (lo <= hi) { const m = (lo + hi) >> 1; if (s[m].date <= date) { found = m; lo = m + 1; } else hi = m - 1; }
+  return found >= 0 ? s[found].kg : s[0].kg;
 }
 
 // ---------- Phasen ----------

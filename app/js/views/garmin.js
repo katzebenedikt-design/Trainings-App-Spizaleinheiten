@@ -79,7 +79,7 @@ export function renderGarmin(el, app) {
     tile('VO2max', vo2 ? f1(vo2.vo2max) : '—', vo2 ? fmtDate(vo2.date) : ''),
     tile('HRV 7 Tage', hrv7 ? `${hrv7.hrv7} ms` : '—', hrv7?.hrvStatus ? HRV_LABEL[hrv7.hrvStatus] : '', ['niedrig', 'schwach'].includes(hrv7?.hrvStatus) ? 'warn' : ''),
     tile('Ruhepuls', rest ? `${rest.restHR}` : '—', 'BPM'),
-    tile('Schlaf Ø', sl ? `${f1(sl)} h` : '—', sls ? `SCORE Ø ${Math.round(sls)}` : ''),
+    sl ? tile('Schlaf Ø', `${f1(sl)} h`, sls ? `SCORE Ø ${Math.round(sls)}` : '') : tile('Schlaf Ø', `${f1(GARMIN_START.werte.sleepAvgH)} h`, `STARTWERT · SCORE Ø ${GARMIN_START.werte.sleepScoreAvg}`),
     tile('Bereitschaft', rd ? `${rd.readiness}` : '—', rd ? fmtDate(rd.date) : '', rd && rd.readiness < 50 ? 'warn' : ''),
     tile('Zustand', stat ? STATUS_LABEL[stat.trainingStatus] || '—' : '—', '', ['ueberlastet', 'ueberfordert'].includes(stat?.trainingStatus) ? 'warn' : ''),
     tile('Belastung', load ? `${load.acuteLoad}${chron ? ' / ' + chron.chronicLoad : ''}` : '—', 'AKUT / CHRONISCH', load && chron && load.acuteLoad > chron.chronicLoad * 1.3 ? 'warn' : ''),
@@ -97,7 +97,8 @@ export function renderGarmin(el, app) {
   const daily = sortByDate(st.daily).filter((d) => d.date > addDays(today, -range));
   const pts = (k) => daily.filter((d) => d[k] != null).map((d) => ({ date: d.date, v: d[k] }));
   const charts = [
-    ['HRV (ms)', pts('hrv'), { second: { points: pts('hrv7'), label: '7-Tage-Schnitt' }, label: 'Nacht', fmt: r0 }],
+    // Ohne Nachtwerte (z. B. nur Startwerte) den 7-Tage-Schnitt als Hauptlinie zeigen
+    pts('hrv').length ? ['HRV (ms)', pts('hrv'), { second: { points: pts('hrv7'), label: '7-Tage-Schnitt' }, label: 'Nacht', fmt: r0 }] : ['HRV (ms)', pts('hrv7'), { label: '7-Tage-Schnitt', fmt: r0 }],
     ['Schlaf (h)', pts('sleepH'), { refs: [{ v: 7, label: 'Min' }], fmt: f1 }],
     ['Schlafscore', pts('sleepScore'), { refs: [{ v: 70, label: 'gut' }], fmt: r0 }],
     ['VO2max', pts('vo2max'), { refs: [{ v: 50, label: 'KSK-Ziel' }], fmt: f1 }],
