@@ -1,6 +1,6 @@
 // Bereich Sport: Startseite (Countdown + Tagesbefehl), Plan, Kraft, Ausdauer, Test, Daten, Timer.
 import { h, card, iconBtn, modal, scale, field, micFor, ring, countUp, progressBar, toast, seg } from '../ui.js';
-import { iso, addDays, daysBetween, fmtDateLong, fmtDate, fmtMonth, TAGE_LANG, mondayOf, isoWeekKey, num, weekday } from '../core/util.js';
+import { iso, addDays, daysBetween, fmtDateLong, fmtDate, fmtMonth, TAGE_LANG, mondayOf, isoWeekKey, num, weekday, fmtTime, fmtNum } from '../core/util.js';
 import { phaseAt, normProgress } from '../core/plan.js';
 import { plannedDay, weekPlan } from '../core/planner.js';
 import { CHECK_ITEMS } from '../core/readiness.js';
@@ -192,7 +192,10 @@ export function openSession(app, s, date, idx) {
     const id = 'train:' + idx;
     const info = EINHEITEN[s.code];
     if (!s.rest && !isDone(st, date, id) && info && (info.ersatz?.length || info.ersatzHinweis)) wrap.append(h('button', { class: 'btn o mt2', onclick: () => keineZeit(app, s, date, id, close) }, '⏱ Keine Zeit – Ersatz-Einheit'));
-    if (!s.rest) wrap.append(isDone(st, date, id) ? h('div', { class: 'center olive mt2' }, '✓ ABGESCHLOSSEN')
+    const vonUhr = (st.activities || []).find((a) => a.date === date && a.linked?.idx === idx);
+    if (vonUhr) wrap.append(card(h('div', { class: 'k' }, '[ VON DER GARMIN-UHR ]'), h('p', { class: 'small' }, `${vonUhr.typeLabel || 'Aktivität'} ${vonUhr.time || ''} · ${fmtTime(vonUhr.durSec)}${vonUhr.distM ? ' · ' + (vonUhr.sport === 'schwimmen' ? vonUhr.distM + ' m' : fmtNum(vonUhr.distM / 1000, 2) + ' km') : ''}${vonUhr.avgHR ? ' · Ø ' + vonUhr.avgHR + ' bpm' : ''}`),
+      vonUhr.sets?.length ? h('p', { class: 'm' }, `${vonUhr.sets.length} SÄTZE IM KRAFTTRACKER`) : null));
+    if (!s.rest) wrap.append(isDone(st, date, id) ? h('div', { class: 'center olive mt2' }, vonUhr ? '✓ ABGESCHLOSSEN (GARMIN)' : '✓ ABGESCHLOSSEN')
       : h('button', { class: 'btn f mt2', onclick: () => { markDone(st, date, id); close(); app.award(s.schon ? 25 : 40, 'train'); app.refresh(); } }, '> Einheit abgeschlossen'));
     return wrap;
   }, { full: true });

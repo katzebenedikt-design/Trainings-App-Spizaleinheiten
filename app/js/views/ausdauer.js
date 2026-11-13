@@ -1,4 +1,5 @@
 // Laufen, Marsch, Schwimmen (Brust), Körpergewicht und Garmin-Import.
+import { einheitAbhaken } from '../core/garmin-uebernahme.js';
 import { h, card, modal, field, micFor, lineChart, toast, seg, confirmBox, iconBtn, pickFile } from '../ui.js';
 import { iso, fmtDate, fmtTime, fmtPace, parseTime, num, fmtNum, sortByDate } from '../core/util.js';
 import { uid } from '../core/store.js';
@@ -96,7 +97,7 @@ export async function doImport(app) {
   toast('Lese ' + file.name + ' …', 4000);
   try {
     const res = await importFile(file, (i, n) => { if (i % 25 === 0) toast(`Verarbeite ${i}/${n} …`, 1500); });
-    let added = 0, dup = 0;
+    let added = 0, dup = 0, abgehakt = 0;
     for (const a of res.acts) {
       if (!a.start || !(a.durSec > 0)) continue;
       const date = toIso(new Date(a.start));
@@ -104,7 +105,9 @@ export async function doImport(app) {
       st.activities = st.activities || [];
       if (!st.activities.some((x) => x.date === date && Math.abs((x.durSec || 0) - a.durSec) < 30)) {
         const t = new Date(a.start); const LBL = { lauf: 'Laufen', schwimmen: 'Schwimmen', gehen: 'Gehen', wandern: 'Wandern', rad: 'Radfahren', kraft: 'Krafttraining' };
-        st.activities.push({ garminId: 'i' + uid(), date, time: `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`, type: a.type || a.sport, typeLabel: LBL[a.sport] || (a.type || 'Aktivität'), sport: /kraft|strength/i.test(a.type || '') ? 'kraft' : a.sport, durSec: Math.round(a.durSec), distM: a.distM ? Math.round(a.distM) : null, avgHR: a.avgHR || null, maxHR: a.maxHR || null, source: 'import' });
+        const act = { garminId: 'i' + uid(), date, time: `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`, type: a.type || a.sport, typeLabel: LBL[a.sport] || (a.type || 'Aktivität'), sport: /kraft|strength/i.test(a.type || '') ? 'kraft' : a.sport, durSec: Math.round(a.durSec), distM: a.distM ? Math.round(a.distM) : null, avgHR: a.avgHR || null, maxHR: a.maxHR || null, source: 'import' };
+        st.activities.push(act);
+        if (einheitAbhaken(st, act)) abgehakt++;
       }
       if (a.sport === 'schwimmen') {
         if (st.swims.some((x) => x.date === date && Math.abs((x.durSec || 0) - a.durSec) < 30)) { dup++; continue; }
@@ -118,7 +121,7 @@ export async function doImport(app) {
     const days = mergeDaily(st, res.daily);
     const ev = giveBadge(st, 'garmin');
     app.save();
-    toast(`Import: ${added} Aktivitäten${dup ? `, ${dup} doppelt übersprungen` : ''}, ${days} Tageswerte.`, 5000);
+    toast(`Import: ${added} Aktivitäten${dup ? `, ${dup} doppelt übersprungen` : ''}, ${days} Tageswerte${abgehakt ? `, ${abgehakt} Einheiten abgehakt` : ''}.`, 5000);
     if (ev) celebrate([ev]);
     app.refresh();
   } catch (e) { console.error(e); toast('Import fehlgeschlagen: ' + e.message, 5000); }

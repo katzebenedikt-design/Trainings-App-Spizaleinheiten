@@ -138,6 +138,7 @@ const shots = process.argv[3] || null;
     const t = iso();
     const swap = (txt) => txt.replaceAll('2030-01-10', t).replaceAll('2030-01-09', addDays(t, -1)).replaceAll('2030-01-07', mondayOf(t)).replaceAll('2030-01-05', addDays(t, -5)).replaceAll('2030-01-06', addDays(t, -4));
     const raw = {}; for (const k of ['readiness', 'status', 'hrv', 'sleep', 'stats', 'vo2', 'intensity', 'activities']) raw[k] = JSON.parse(swap(fs.readFileSync(path.join(root, 'tests/fixtures/garmin', k + '.json'), 'utf8')));
+    raw.sets = JSON.parse(swap(fs.readFileSync(path.join(root, 'tests/fixtures/garmin/sets-900002.json'), 'utf8')));
     const env = await encryptFor(mergePayload({}, { ...mapGarmin(raw), created: new Date().toISOString() }), code);
     await ctx.route('**/garmin/daten.enc.json*', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(env) }));
     await page.locator('.full').getByText('Jetzt abholen').click(); await page.waitForTimeout(1200);
@@ -150,6 +151,14 @@ const shots = process.argv[3] || null;
     for (const txt of ['Krafttraining', 'Intensitätsminuten pro Woche', 'Schlafphasen (letzte Nächte)', 'zuletzt aktualisiert']) if (!(await page.getByText(txt, { exact: false }).count())) throw new Error('Fehlt im Garmin-Bereich: ' + txt);
     if (!(await page.getByText('47,2').count())) throw new Error('VO2max aus Abholung fehlt');
     await shot('garmin-sync'); await noOverflow('sport/garmin');
+    // Kraftsätze von der Uhr im Krafttracker
+    await page.goto(url + '#/sport/kraft'); await page.waitForTimeout(400);
+    const kz = page.locator('.list li', { hasText: 'Klimmzüge (Ristgriff)' });
+    if (!/1× trainiert/.test(await kz.innerText())) throw new Error('Klimmzüge von Garmin nicht im Krafttracker');
+    if (!(await page.getByText('Seitheben (Garmin)').count())) throw new Error('Unbekannte Garmin-Übung nicht angelegt');
+    await kz.click(); await page.waitForTimeout(300);
+    if (!(await page.locator('.full').last().getByText('Von Garmin übernommen', { exact: false }).count())) throw new Error('Garmin-Hinweis im Verlauf fehlt');
+    await shot('kraft-von-garmin'); await close();
   });
   await step('Animationen neben Übungen', async () => {
     await page.goto(url + '#/sport/kraft'); await page.waitForTimeout(400);
@@ -159,9 +168,10 @@ const shots = process.argv[3] || null;
   await step('Jede Übung: Animation, Erklärung, Quelle, PDF-Bild, Zoom', async () => {
     await page.goto(url + '#/sport/kraft'); await page.waitForTimeout(400);
     const names = await page.locator('.list li b').allInnerTexts();
-    if (names.length < 29) throw new Error('Nur ' + names.length + ' Übungen');
+    if (names.filter((x) => !/\(Garmin\)$/.test(x)).length < 29) throw new Error('Nur ' + names.length + ' Übungen');
     const bad = [];
     for (const [i, name] of names.entries()) {
+      if (/\(Garmin\)$/.test(name)) continue; // von der Uhr angelegte eigene Übungen haben keine Animation/Quelle
       await page.goto(url + '#/sport/kraft'); await page.waitForTimeout(150);
       await page.locator('.list li').nth(i).click();
       const full = page.locator('.full').last();
@@ -569,7 +579,7 @@ const shots = process.argv[3] || null;
   await step('Daten bleiben nach Neuladen', async () => {
     await page.reload(); await page.waitForTimeout(1000);
     const n = await page.evaluate(() => new Promise((res) => { const r = indexedDB.open('trainings-app'); r.onsuccess = () => { const g = r.result.transaction('kv').objectStore('kv').get('state'); g.onsuccess = () => res(g.result.checkins.length + ':' + g.result.tests.length + ':' + g.result.strength.length); }; }));
-    if (n !== '1:1:1') throw new Error('Gespeichert: ' + n);
+    if (n !== '1:1:5') throw new Error('Gespeichert: ' + n + ' (erwartet 1 Check-in, 1 Test, 1 + 4 Kraft von Garmin)');
     await shot('99-start-ende');
   });
   await step('Service Worker aktiv', async () => {

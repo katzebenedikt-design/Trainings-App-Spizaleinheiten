@@ -81,10 +81,19 @@ async function start() {
   // Garmin-Daten im Hintergrund holen; bei neuen Daten Ansicht auffrischen
   // Danach (einmal pro Woche) das Wochen-Update der vergangenen Woche – mit den frischesten Garmin-Daten
   const weekly = () => { const w = wochenUpdateFaellig(store.state); if (w) { store.save(); if (!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) render(true); toast(`Wochen-Update KW ${w.key.split('-W')[1]}: ${w.text.replace('Nächste Woche: ', '')}`, 4500); } };
-  const pull = () => syncGarmin(store.state).then((r) => { if (r.status === 'neu') { store.save(); if (!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) render(true); toast(`Garmin: ${r.days} Tage aktualisiert.`, 2500); } }).catch((e) => toast('Garmin: ' + e.message, 4000)).finally(weekly);
+  const pull = () => syncGarmin(store.state).then((r) => {
+    if (r.status !== 'neu') return;
+    store.save(); if (!/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) render(true);
+    // Neue Trainings von der Uhr: abgehakte Einheiten und übernommene Kraftsätze melden
+    const frisch = (r.einheiten || []).filter((e) => e.pts);
+    if (frisch.length) { toast(`Garmin: ${frisch.map((e) => e.title).join(', ')} abgeschlossen${r.kraft ? ` · ${r.kraft} Übungen im Krafttracker` : ''}  +${frisch.reduce((a, e) => a + e.pts, 0)} P`, 4500); app.badges(); }
+    else if (r.acts) toast(`Garmin: ${r.acts} neue Aktivität${r.acts > 1 ? 'en' : ''} übernommen${r.einheiten?.length ? `, ${r.einheiten.length} Einheiten abgehakt` : ''}.`, 3500);
+    else toast(`Garmin: ${r.days} Tage aktualisiert.`, 2500);
+  }).catch((e) => toast('Garmin: ' + e.message, 4000)).finally(weekly);
   pull();
   checkReminders(app);
   setInterval(() => checkReminders(app), 60000);
+  setInterval(() => { if (document.visibilityState === 'visible') pull(); }, 10 * 60000); // neue Trainings von der Uhr zeitnah übernehmen
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { checkReminders(app); pull(); } else store.flush(); });
   window.addEventListener('pagehide', () => store.flush());
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {

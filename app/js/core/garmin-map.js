@@ -1,5 +1,5 @@
 // Garmin-Rohdaten (Antworten der Garmin-Connect-Abfragen) → App-Format. Reine Logik, läuft in Node und im Browser.
-// Eingang raw = { readiness, status, hrv, sleep, stats, vo2, intensity, activities } – jedes Feld optional,
+// Eingang raw = { readiness, status, hrv, sleep, stats, vo2, intensity, activities, sets } – jedes Feld optional,
 // einzeln oder als Liste. Ausgang = { daily: [...], weeks: { 'JJJJ-Www': {...} }, activities: [...] }.
 import { isoWeekKey } from './util.js';
 
@@ -10,9 +10,9 @@ export const STATUS_DE = {
 };
 export const STATUS_LABEL = { spitzenform: 'Spitzenform', produktiv: 'Produktiv', erhaltend: 'Erhaltend', erholung: 'Erholung', unproduktiv: 'Unproduktiv', abbau: 'Leistungsabbau', ueberfordert: 'Überfordert', ueberlastet: 'Überlastet', kein_status: 'Kein Status', pausiert: 'Pausiert' };
 export const HRV_LABEL = { ausgeglichen: 'Ausgeglichen', unausgeglichen: 'Unausgeglichen', niedrig: 'Niedrig', schwach: 'Schwach' };
-const TYPE_DE = { running: 'Laufen', trail_running: 'Trailrun', treadmill_running: 'Laufband', strength_training: 'Krafttraining', walking: 'Gehen', hiking: 'Wandern', cycling: 'Radfahren', indoor_cycling: 'Indoor-Rad', lap_swimming: 'Schwimmen (Bahn)', open_water_swimming: 'Freiwasser', swimming: 'Schwimmen', boxing: 'Boxen', mixed_martial_arts: 'Kampfsport', hiit: 'HIIT', cardio: 'Cardio', yoga: 'Yoga', other: 'Sonstiges' };
+const TYPE_DE = { running: 'Laufen', trail_running: 'Trailrun', treadmill_running: 'Laufband', strength_training: 'Krafttraining', walking: 'Gehen', hiking: 'Wandern', cycling: 'Radfahren', indoor_cycling: 'Indoor-Rad', lap_swimming: 'Schwimmen (Bahn)', open_water_swimming: 'Freiwasser', swimming: 'Schwimmen', boxing: 'Boxen', kickboxing: 'Kickboxen', mixed_martial_arts: 'Kampfsport', martial_arts: 'Kampfsport', hiit: 'HIIT', cardio: 'Cardio', yoga: 'Yoga', other: 'Sonstiges' };
 export const typeLabel = (t) => TYPE_DE[t] || (t ? t.replace(/_/g, ' ') : 'Aktivität');
-export const sportOf = (t = '') => (/swim/.test(t) ? 'schwimmen' : /run/.test(t) ? 'lauf' : /walk|hik/.test(t) ? 'gehen' : /cycl|bik/.test(t) ? 'rad' : /strength/.test(t) ? 'kraft' : 'sonstiges');
+export const sportOf = (t = '') => (/swim/.test(t) ? 'schwimmen' : /run/.test(t) ? 'lauf' : /walk|hik|ruck/.test(t) ? 'gehen' : /cycl|bik/.test(t) ? 'rad' : /strength/.test(t) ? 'kraft' : /box|martial|kick/.test(t) ? 'kampf' : /hiit|cardio|row|elliptic|stair/.test(t) ? 'cardio' : 'sonstiges');
 
 const list = (x) => (x == null ? [] : Array.isArray(x) ? x : [x]);
 const r1 = (v) => (v == null ? null : Math.round(v * 10) / 10);
@@ -63,9 +63,14 @@ export function mapGarmin(raw = {}) {
     weeks[isoWeekKey(w.week_start)] = { start: w.week_start, moderate: w.moderate_minutes || 0, vigorous: w.vigorous_minutes || 0, total: w.total_minutes ?? (w.moderate_minutes || 0) + 2 * (w.vigorous_minutes || 0), goal: w.weekly_goal || 150 };
   }
 
+  // Kraft-Sätze (get_activity_exercise_sets) je Aktivität
+  const setsBy = new Map();
+  for (const x of list(raw.sets)) if (x?.activityId != null) setsBy.set(String(x.activityId), mapSets(x.exerciseSets));
+
   const activities = list(raw.activities).flatMap((x) => x?.activities || [x]).filter((a) => a?.id && a.start_time).map((a) => ({
     garminId: String(a.id), date: a.start_time.slice(0, 10), time: a.start_time.slice(11, 16), type: a.type, typeLabel: typeLabel(a.type), sport: sportOf(a.type), name: String(a.name || '').replace(/\u200b/g, ''),
     durSec: Math.round(a.duration_seconds || 0), distM: a.distance_meters ? Math.round(a.distance_meters) : null, avgHR: a.avg_hr_bpm ? Math.round(a.avg_hr_bpm) : null, maxHR: a.max_hr_bpm ? Math.round(a.max_hr_bpm) : null,
+    ...(setsBy.has(String(a.id)) ? { sets: setsBy.get(String(a.id)) } : {}),
   }));
 
   return { daily: Object.values(days).sort((a, b) => (a.date < b.date ? -1 : 1)), weeks, activities };
@@ -80,4 +85,28 @@ export function mergePayload(base = {}, add = {}) {
   const daily = [...byDate.values()].sort((a, b) => (a.date < b.date ? -1 : 1)).slice(-400);
   const activities = [...acts.values()].sort((a, b) => (a.date + a.time < b.date + b.time ? 1 : -1)).slice(0, 400);
   return { v: 1, created: add.created || base.created || new Date().toISOString(), daily, weeks: { ...(base.weeks || {}), ...(add.weeks || {}) }, activities };
+}
+
+// Garmin-Sätze → [{ cat, name, reps, kg, sec, rest }]. Übung = wahrscheinlichste Kategorie außer UNKNOWN.
+// Unsichere Sätze (UNKNOWN vorn) erben die Übung des vorigen Satzes, wenn sie kurz danach kamen.
+export function mapSets(sets = []) {
+  const out = [];
+  let prev = null, prevEnd = 0;
+  const arr = list(sets);
+  arr.forEach((x, i) => {
+    if (x?.setType !== 'ACTIVE') return;
+    const t = Date.parse(x.startTime) || 0;
+    const reps = x.repetitionCount || 0;
+    const ex = (x.exercises || []).filter((e) => e.category && e.category !== 'UNKNOWN').sort((a, b) => (b.probability || 0) - (a.probability || 0))[0];
+    const unk = (x.exercises || []).find((e) => e.category === 'UNKNOWN')?.probability || 0;
+    let cat = ex && (ex.probability || 0) >= Math.min(50, unk) ? ex.category : null, name = cat ? ex.name || null : null;
+    if (!cat && prev && t && t - prevEnd < 5 * 60e3) { cat = prev.cat; name = prev.name; }
+    const sec = Math.round(x.duration || 0);
+    if (!cat || (!reps && !/PLANK/.test(cat))) return;
+    const next = arr[i + 1];
+    const rest = next?.setType === 'REST' ? Math.round(next.duration || 0) : null;
+    const s = { cat, name, reps, kg: x.weight ? Math.round(x.weight / 100) / 10 : 0, sec, rest };
+    out.push(s); prev = s; prevEnd = t + sec * 1000;
+  });
+  return out;
 }
