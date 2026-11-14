@@ -1,5 +1,7 @@
 // Bereich Sport: Startseite (Countdown + Tagesbefehl), Plan, Kraft, Ausdauer, Test, Daten, Timer.
 import { h, card, iconBtn, modal, scale, field, micFor, ring, countUp, progressBar, toast, seg } from '../ui.js';
+import { fruehVorschlag } from '../core/garmin-checkin.js';
+import { openAbend, abendItem } from './abend.js';
 import { iso, addDays, daysBetween, fmtDateLong, fmtDate, fmtMonth, TAGE_LANG, mondayOf, isoWeekKey, num, weekday, fmtTime, fmtNum } from '../core/util.js';
 import { phaseAt, normProgress } from '../core/plan.js';
 import { plannedDay, weekPlan } from '../core/planner.js';
@@ -85,7 +87,8 @@ function renderHeute(el, app) {
 
   // Tagesbefehl
   const items = [];
-  items.push({ id: 'checkin', t: 'Morgen-Check-in', sub: isDone(st, today, 'checkin') ? `BEREITSCHAFT ${r.percent}%` : '30 SEKUNDEN', act: () => openCheckin(app) });
+  const gvH = fruehVorschlag(st, today);
+  items.push({ id: 'checkin', t: 'Morgen-Check-in', sub: isDone(st, today, 'checkin') ? `BEREITSCHAFT ${r.percent}%` : gvH ? `⌚ ${gvH.felder.length} WERTE VON GARMIN · NOCH 3 TIPPS` : '30 SEKUNDEN', act: () => openCheckin(app) });
   sessions.forEach((s, i) => items.push({ id: 'train:' + i, t: s.title, sub: `${s.sub}${s.min ? ' · ca. ' + s.min + ' min' : ''}`.toUpperCase(), act: () => openSession(app, s, today, i), rest: s.rest }));
   const nl = spracheHome(st);
   const fri = weekday(today) === 4;
@@ -93,6 +96,7 @@ function renderHeute(el, app) {
   const kg = kognitivItem(st, today);
   items.push({ ...kg, act: () => startKognitiv(app, today) });
   items.push({ ...psychItem(st, today), act: () => startPsych(app, today) });
+  items.push({ ...abendItem(st, today), act: () => openAbend(app, today) });
   items.push({ id: 'mental', t: weekday(today) === 6 ? 'Mein Warum lesen + überarbeiten' : 'Box-Atmung oder Abendtext', sub: fri ? 'OPTIONAL · NACH DER HEIMFAHRT' : 'ABENDS · 5 MIN', act: () => app.go(weekday(today) === 6 ? '#/mental/warum' : '#/mental'), optional: fri });
   const lb = st.settings.lastBackup;
   if (!lb || daysBetween(lb.slice(0, 10), today) > 14) items.push({ id: 'backup', t: 'Daten sichern', sub: lb ? 'LETZTE SICHERUNG ' + fmtDate(lb.slice(0, 10)) : 'NOCH NIE GESICHERT', act: () => app.settings() });
@@ -143,18 +147,27 @@ export function openCheckin(app, date = iso()) {
   const st = app.state;
   const prev = st.checkins.find((c) => c.date === date);
   const v = prev ? { ...prev } : { date, schlaf: 0, energie: 0, kater: 0, schmerz: 0, stimmung: 0, ruhepuls: null, ort: '' };
+  // Gemessenes von der Garmin-Uhr vorausfüllen (nur leere Felder; Gefühltes bleibt beim Nutzer)
+  const gv = fruehVorschlag(st, date);
+  const vonGarmin = [];
+  if (gv) for (const k of gv.felder) if (!v[k]) { v[k] = gv.werte[k]; vonGarmin.push(k); }
   modal(({ close }) => {
     const hr = h('input', { type: 'number', inputmode: 'numeric', placeholder: 'z. B. 66', value: v.ruhepuls || '' });
     const ort = h('input', { type: 'text', placeholder: 'z. B. linkes Knie', value: v.ort || '' });
     const ortWrap = h('div', {}, field('Wo tut es weh?', ort), h('button', { class: 'btn s', type: 'button', onclick: () => schmerzModal(app, { staerke: Math.min(10, v.schmerz * 2) }) }, 'Stelle im Körperbild zeigen → Plan passt sich an')); if (!(v.schmerz >= 3)) ortWrap.classList.add('hidden');
+    const LBL = { schlaf: 'Schlaf', energie: 'Energie', ruhepuls: 'Ruhepuls' };
     return h('div', {}, h('div', { class: 'k' }, '[ MORGEN-CHECK-IN ]'), h('h2', {}, fmtDateLong(date)),
-      ...CHECK_ITEMS.map((it) => h('div', { class: 'mt' }, h('div', { class: 'row between' }, h('b', {}, it.label), h('span', { class: 'm' }, `1 = ${it.lo} · 5 = ${it.hi}`)),
+      vonGarmin.length ? h('div', { class: 'card' }, h('div', { class: 'k' }, '[ VON DER GARMIN-UHR EINGETRAGEN ]'),
+        h('p', { class: 'small' }, vonGarmin.map((k) => `${LBL[k]}: ${gv.quelle[k]}`).join(' · ')),
+        h('p', { class: 'm' }, CHECK_ITEMS.some((it) => !v[it.key]) ? 'NOCH OFFEN: ' + CHECK_ITEMS.filter((it) => !v[it.key]).map((it) => it.label.toUpperCase()).join(', ') + ' · MISST KEINE UHR' : 'DU KANNST ALLES ÄNDERN')) : null,
+      ...CHECK_ITEMS.map((it) => h('div', { class: 'mt' }, h('div', { class: 'row between' }, h('b', {}, it.label + (vonGarmin.includes(it.key) ? ' ⌚' : '')), h('span', { class: 'm' }, `1 = ${it.lo} · 5 = ${it.hi}`)),
         scale(v[it.key] || 0, (x) => { v[it.key] = x; if (it.key === 'schmerz') ortWrap.classList.toggle('hidden', x < 3); }))),
       ortWrap,
       field('Ruhepuls (optional, morgens im Liegen)', hr, micFor(hr)),
       h('button', { class: 'btn f mt2', onclick: () => {
         if (CHECK_ITEMS.some((it) => !v[it.key])) { toast('Bitte alle 5 Werte antippen.'); return; }
         v.ruhepuls = num(hr.value); v.ort = ort.value.trim();
+        if (vonGarmin.length) v.garmin = vonGarmin;
         const i = st.checkins.findIndex((c) => c.date === date);
         if (i >= 0) st.checkins[i] = v; else st.checkins.push(v);
         close();

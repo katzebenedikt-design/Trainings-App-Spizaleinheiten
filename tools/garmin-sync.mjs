@@ -32,7 +32,7 @@ for (const f of readdirSync(dir).filter((x) => x.endsWith('.json')).sort()) {
 }
 const payload = mergePayload({}, { ...mapGarmin(raw), created: new Date().toISOString() });
 // Prüfwert über den Inhalt (ohne Zeitstempel): bei unveränderten Daten nichts schreiben → kein Commit nötig
-const hash = createHash('sha256').update(JSON.stringify({ ...payload, created: null })).digest('hex');
+const hash = createHash('sha256').update(pub + JSON.stringify({ ...payload, created: null })).digest('hex'); // neuer Verbindungscode → neue Datei
 let alt = null; try { alt = existsSync(out) ? JSON.parse(readFileSync(out, 'utf8')).hash : null; } catch { alt = null; }
 if (alt === hash && !process.env.GARMIN_FORCE) { console.log('UNVERÄNDERT: keine neuen Garmin-Daten, nichts geschrieben.'); process.exit(0); }
 mkdirSync(dirname(out), { recursive: true });

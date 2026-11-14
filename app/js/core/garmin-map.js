@@ -52,7 +52,7 @@ export function mapGarmin(raw = {}) {
   // Tageswerte: Body Battery (Höchstwert nach dem Aufwachen), Ruhepuls, Intensitätsminuten
   for (const s of list(raw.stats)) {
     if (!s?.date) continue;
-    Object.assign(day(s.date), { bodyBattery: s.body_battery_highest ?? undefined, restHR: day(s.date).restHR ?? s.resting_heart_rate_bpm ?? undefined, steps: s.total_steps ?? undefined, stress: s.avg_stress_level ?? undefined, intensMin: s.moderate_intensity_minutes != null ? s.moderate_intensity_minutes + 2 * (s.vigorous_intensity_minutes || 0) : undefined });
+    Object.assign(day(s.date), { bodyBattery: s.body_battery_highest ?? undefined, restHR: day(s.date).restHR ?? s.resting_heart_rate_bpm ?? undefined, steps: s.total_steps ?? undefined, stress: s.avg_stress_level ?? undefined, stressMax: s.max_stress_level ?? undefined, bbLow: s.body_battery_lowest ?? undefined, bbCharged: s.body_battery_charged ?? undefined, bbDrained: s.body_battery_drained ?? undefined, kcalActive: s.active_calories ?? undefined, kcal: s.total_calories ?? undefined, distDayM: s.distance_meters ?? undefined, floors: s.floors_ascended != null ? Math.round(s.floors_ascended) : undefined, intensMin: s.moderate_intensity_minutes != null ? s.moderate_intensity_minutes + 2 * (s.vigorous_intensity_minutes || 0) : undefined });
   }
   // Rückwärtskompatibel: „load“ = akute Belastung (wird von Schonmodus und alten Diagrammen gelesen)
   for (const d of Object.values(days)) { if (d.acuteLoad != null) d.load = d.acuteLoad; for (const k of Object.keys(d)) if (d[k] === undefined) delete d[k]; }

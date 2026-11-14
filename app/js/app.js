@@ -1,3 +1,4 @@
+import { fruehVorschlag } from './core/garmin-checkin.js';
 import * as store from './core/store.js';
 import { h, icon, celebrate, toast, afterModalBack } from './ui.js';
 import { award as awardCore, checkBadges, praise } from './core/rewards.js';
@@ -88,6 +89,7 @@ async function start() {
     const frisch = (r.einheiten || []).filter((e) => e.pts);
     if (frisch.length) { toast(`Garmin: ${frisch.map((e) => e.title).join(', ')} abgeschlossen${r.kraft ? ` · ${r.kraft} Übungen im Krafttracker` : ''}  +${frisch.reduce((a, e) => a + e.pts, 0)} P`, 4500); app.badges(); }
     else if (r.acts) toast(`Garmin: ${r.acts} neue Aktivität${r.acts > 1 ? 'en' : ''} übernommen${r.einheiten?.length ? `, ${r.einheiten.length} Einheiten abgehakt` : ''}.`, 3500);
+    else if (fruehVorschlag(store.state, iso()) && !(store.state.done[iso()] || []).includes('checkin')) toast('Garmin-Daten da: Schlaf, Energie und Ruhepuls stehen im Früh-Check-in. Noch 3 Werte antippen.', 4500);
     else toast(`Garmin: ${r.days} Tage aktualisiert.`, 2500);
   }).catch((e) => toast('Garmin: ' + e.message, 4000)).finally(weekly);
   pull();

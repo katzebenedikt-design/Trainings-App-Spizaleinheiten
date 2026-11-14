@@ -14,7 +14,8 @@ export function defaultState() {
       av: { bestanden: null, ausbildungStart: null, spez: 'beide' }, // Schalter „AV bestanden“
     },
     week: { mode: 'arbeit', overrides: {}, avail: {}, availDefault: null }, // overrides: { '2026-W45': 'schule' }, avail: Verfügbarkeit je Woche
-    checkins: [], bodyweight: [], strength: [], runs: [], swims: [], tests: [],
+    checkins: [], abend: [], // Abend-Check-in { date, belastung, stimmung, muede, bett, note, garmin }
+    bodyweight: [], strength: [], runs: [], swims: [], tests: [],
     customExercises: [],
     daily: [], // Garmin-Tageswerte {date, restHR, hrv, hrv7, hrvStatus, sleepH, sleepScore, sleepDeep/Light/Rem/Awake, bodyBattery, readiness, recoveryH, trainingStatus, acuteLoad, chronicLoad, vo2max, report}
     done: {}, // { '2026-10-30': ['train', 'checkin', ...] }

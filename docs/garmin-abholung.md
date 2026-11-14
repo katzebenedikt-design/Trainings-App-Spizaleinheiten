@@ -1,7 +1,9 @@
-# Tägliche Garmin-Abholung (geplante Aufgabe)
+# Garmin-Abholung (Befehl „Garmin-Update“ oder geplante Aufgabe)
 
-Diese Anleitung befolgt die geplante Aufgabe jeden Morgen gegen 7:15 Uhr und tagsüber alle 2 Stunden (9–21 Uhr, Europe/Berlin),
-damit frisch beendete Trainings von der Uhr zeitnah in den Trainingstracker kommen. Jeder Lauf ist gleich aufgebaut.
+Diese Anleitung befolgt Claude, wenn der Nutzer den **Befehl „Garmin-Update“** schickt (kopiert in der App: Heute → Garmin-Morgenbericht
+oder Einstellungen → Garmin → „Garmin-Befehl für Claude kopieren“). Dieselbe Anleitung gilt für eine geplante Aufgabe
+(morgens 7:15 Uhr, tagsüber alle 2 Stunden). Ergebnis in der App: Morgenbericht, Früh-Check-in vorausgefüllt (Schlaf, Energie, Ruhepuls),
+Garmin-Werte im Abend-Check-in (gestern vollständig, heute bis jetzt), Trainings im Trainingstracker.
 Sie braucht den Garmin-Connector und Schreibzugriff auf das Repository. Es wird **kein Geheimnis** benötigt:
 verschlüsselt wird mit dem öffentlichen Verbindungscode der App (`app/garmin/verbindung.json` auf `main`).
 
@@ -9,7 +11,10 @@ verschlüsselt wird mit dem öffentlichen Verbindungscode der App (`app/garmin/v
 
 1. Repository holen und `main` auschecken:
    `git fetch origin main && git checkout -B garmin-sync origin/main`
-2. Prüfen, dass `app/garmin/verbindung.json` existiert. Wenn nicht: nichts tun und beenden.
+2. Verbindungscode: Steht in der Nachricht `Verbindungscode: <code>`, diesen nehmen. Weicht er von `app/garmin/verbindung.json` ab
+   (oder die Datei fehlt), die Datei mit `{ "publicKey": "<code>" }` schreiben und im selben Commit mitschicken
+   (`git add -f app/garmin/verbindung.json`). Ohne Code in der Nachricht und ohne Datei: nichts tun, den Nutzer bitten,
+   in der App „Garmin-Befehl für Claude kopieren“ zu nutzen.
 3. Werkzeug bereitstellen: `tools/garmin-sync.mjs` auf `main` verwenden. Falls es dort fehlt, aus dem Entwicklungszweig holen:
    `git fetch origin claude/fitness-training-pwa-app-weqfcx && git checkout origin/claude/fitness-training-pwa-app-weqfcx -- tools/garmin-sync.mjs app/js/core/garmin-map.js app/js/core/crypt.js app/js/core/util.js`
    (diese Dateien danach NICHT committen, nur benutzen).
@@ -20,7 +25,8 @@ verschlüsselt wird mit dem öffentlichen Verbindungscode der App (`app/garmin/v
    |---|---|
    | `readiness.json` | `get_morning_training_readiness(date=heute)` |
    | `status.json` | `get_training_status(date=heute)` |
-   | `stats.json` | `get_stats(date=heute)` |
+   | `stats.json` | `get_stats(date=heute)` (bis jetzt) |
+   | `stats-gestern.json` | `get_stats(date=gestern)` (ganzer Tag → Abend-Check-in von gestern) |
    | `hrv.json` | `get_hrv_trend(start_date=START, end_date=heute)` |
    | `sleep.json` | `get_sleep_summary_range(start_date=START, end_date=heute)` |
    | `vo2.json` | `get_vo2max_trend(start_date=heute − 60 Tage, end_date=heute)` |
@@ -33,6 +39,8 @@ verschlüsselt wird mit dem öffentlichen Verbindungscode der App (`app/garmin/v
 7. Meldet das Werkzeug `UNVERÄNDERT`, nichts committen und bei Schritt 8 weitermachen. Sonst nur diese eine Datei committen und auf `main` pushen:
    `git add -f app/garmin/daten.enc.json && git commit -m "Garmin-Daten (verschlüsselt) <Datum>" && git push origin HEAD:main`
 8. `/tmp/garmin-raw` löschen. Keine Gesundheitswerte in Commit-Nachrichten, Logs oder Antworten wiederholen.
+9. Beim Befehl: dem Nutzer kurz antworten, z. B. „Erledigt – öffne die App in 1–3 Minuten.“ (GitHub Pages braucht etwa eine Minute).
+   Die Werte selbst nicht in den Chat schreiben, außer der Nutzer fragt danach.
 
 ## Datenschutz
 

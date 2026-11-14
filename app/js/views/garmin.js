@@ -11,6 +11,25 @@ import { GARMIN_START } from '../data/garmin-start.js';
 import { uid } from '../core/store.js';
 import { giveBadge } from '../core/rewards.js';
 import { doImport } from './ausdauer.js';
+import { garminBefehl } from '../core/garmin-befehl.js';
+import { generateAppKeys } from '../core/crypt.js';
+
+// „Garmin-Befehl kopieren“: erzeugt bei Bedarf den Verbindungscode, kopiert den Befehl für Claude
+export function befehlKnopf(app, { label = '⌚ Garmin-Befehl für Claude kopieren' } = {}) {
+  return h('button', { class: 'btn f', onclick: async () => {
+    const st = app.state;
+    if (!st.settings.garminKeys) { st.settings.garminKeys = { ...(await generateAppKeys()), created: new Date().toISOString() }; app.save(); }
+    const text = garminBefehl(st.settings.garminKeys.publicKey);
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch { ok = false; }
+    modal(() => h('div', {}, h('div', { class: 'k' }, '[ GARMIN-BEFEHL ]'),
+      h('p', {}, ok ? 'Kopiert. Jetzt in den Chat mit Claude einfügen und abschicken.' : 'Bitte den Text markieren, kopieren und an Claude schicken.'),
+      h('textarea', { readonly: true, class: 'mono', style: { minHeight: '120px', fontSize: '12px' }, onclick: (e) => e.target.select() }, text),
+      h('ol', { class: 'small' }, h('li', {}, 'Claude-App öffnen, in den Chat mit deiner Trainings-App.'), h('li', {}, 'Einfügen, abschicken.'), h('li', {}, 'Nach 1–3 Minuten diese App öffnen: Werte sind da (holt sich die App von selbst).')),
+      h('p', { class: 'm' }, 'DER CODE IST NICHT GEHEIM. LESEN KANN DIE DATEN NUR DIESES HANDY.'),
+      h('a', { class: 'btn', href: 'https://claude.ai/code', target: '_blank', rel: 'noopener' }, 'Claude öffnen')));
+  } }, label);
+}
 
 const f1 = (v) => fmtNum(v, 1), r0 = (v) => String(Math.round(v));
 // Morgenbericht-Felder (Reihenfolge wie auf der Uhr) und weitere Tageswerte
@@ -40,9 +59,9 @@ export function morningCard(app, date = iso(), { compact = false } = {}) {
   const r = readiness(st, date);
   const has = g && (g.report || MORGEN.some((m) => g[m.k] != null && g.source !== 'startwert'));
   if (!has) {
-    const sync = st.settings.garminKeys ? 'Die automatische Abholung läuft jeden Morgen gegen 7:15 Uhr.' : 'Automatische Abholung einrichten: Einstellungen → Garmin → Verbindungscode.';
-    return card(h('div', { class: 'k' }, `[ GARMIN-MORGENBERICHT · ${fmtDate(date)} ]`), h('p', { class: 'small dim' }, `Noch kein Bericht für heute. ${sync}`),
-      h('button', { class: 'btn s', onclick: () => dailyModal(app, date) }, 'Von Hand eintragen'));
+    return card(h('div', { class: 'k' }, `[ GARMIN-MORGENBERICHT · ${fmtDate(date)} ]`),
+      h('p', { class: 'small dim' }, 'Noch kein Bericht für heute. Befehl kopieren, an Claude schicken – Claude trägt deine Garmin-Daten ein (Morgenbericht, Früh-Check-in, Abend-Check-in von gestern, Trainings).'),
+      befehlKnopf(app), h('button', { class: 'btn s', onclick: () => dailyModal(app, date) }, 'Von Hand eintragen'));
   }
   const voll = r.mode === 'normal' || r.mode === 'offen';
   const tile = (label, val, cls = '') => h('div', { class: 'tile' }, h('i', {}, label), h('b', { class: cls, style: { fontSize: '19px' } }, val));

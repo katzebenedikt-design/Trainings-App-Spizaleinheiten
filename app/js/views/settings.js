@@ -1,6 +1,7 @@
 // Einstellungen, Ersteinrichtung, Sichern & Wiederherstellen.
 import { syncGarmin } from '../core/garmin-sync.js';
 import { generateAppKeys } from '../core/crypt.js';
+import { befehlKnopf } from './garmin.js';
 import { h, card, modal, field, seg, toast, download, pickFile, confirmBox } from '../ui.js';
 import * as store from '../core/store.js';
 import { iso, fmtTime, parseTime, num, fmtDate } from '../core/util.js';
@@ -144,17 +145,17 @@ function targetsCard(app) {
 // Garmin-Verbindung: Schlüsselpaar auf dem Handy, Verbindungscode (öffentlich) zum Weitergeben
 function garminCard(app, st) {
   const s = st.settings;
-  const box = card(h('div', { class: 'k' }, '[ GARMIN · AUTOMATISCHE ABHOLUNG ]'));
+  const box = card(h('div', { class: 'k' }, '[ GARMIN · BEFEHL & ABHOLUNG ]'));
   const draw = () => {
     const kk = s.garminKeys;
-    box.replaceChildren(h('div', { class: 'k' }, '[ GARMIN · AUTOMATISCHE ABHOLUNG ]'),
-      h('p', { class: 'small dim' }, 'Jeden Morgen wird dein Garmin-Morgenbericht abgeholt und verschlüsselt neben die App gelegt. Öffnen kann ihn nur dieses Handy: Der geheime Schlüssel bleibt hier (und in deiner Sicherungsdatei). Der Verbindungscode ist nicht geheim – er wird nur zum Verschlüsseln gebraucht.'),
+    box.replaceChildren(h('div', { class: 'k' }, '[ GARMIN · BEFEHL & ABHOLUNG ]'),
+      h('p', { class: 'small dim' }, 'Jeden Morgen: „Garmin-Befehl kopieren“ antippen und an Claude schicken. Claude holt deine Garmin-Daten (Morgenbericht, Werte für Früh- und Abend-Check-in, Trainings) und legt sie verschlüsselt neben die App. Öffnen kann ihn nur dieses Handy: Der geheime Schlüssel bleibt hier (und in deiner Sicherungsdatei). Der Verbindungscode ist nicht geheim – er wird nur zum Verschlüsseln gebraucht.'),
       kk ? h('div', {}, h('div', { class: 'm' }, 'DEIN VERBINDUNGSCODE'), h('textarea', { readonly: true, class: 'mono', style: { minHeight: '84px', fontSize: '13px' } }, kk.publicKey),
-        h('button', { class: 'btn f', onclick: async () => { try { await navigator.clipboard.writeText(kk.publicKey); toast('Kopiert. Jetzt im Chat an Claude schicken.'); } catch { toast('Bitte den Code markieren und kopieren.'); } } }, 'Code kopieren'),
+        befehlKnopf(app),
         h('p', { class: 'small dim' }, s.garminSync ? `Verbunden – letzte Daten vom ${s.garminSync.created.slice(8, 10)}.${s.garminSync.created.slice(5, 7)}. ${s.garminSync.created.slice(11, 16)} Uhr.` : 'Noch keine Daten empfangen. Code einmal an Claude schicken, danach kommt der Bericht jeden Morgen.'),
         h('button', { class: 'btn', onclick: async () => { try { const r = await syncGarmin(st); store.save(); toast(r.status === 'neu' ? `${r.days} Tage, ${r.acts} Aktivitäten übernommen${r.einheiten?.length ? `, ${r.einheiten.length} Einheiten abgehakt` : ''}${r.kraft ? `, ${r.kraft} Übungen im Krafttracker` : ''}.` : r.status === 'aktuell' ? 'Schon aktuell.' : 'Noch keine Datei für dieses Handy.', 4000); draw(); app.refresh(); } catch (e) { toast(e.message, 5000); } } }, 'Jetzt abholen'),
         h('button', { class: 'btn danger', onclick: async () => { if (!(await confirmBox('Neuen Code erzeugen? Der alte Code funktioniert danach nicht mehr – der neue muss wieder an Claude geschickt werden.', 'Neu erzeugen'))) return; s.garminKeys = { ...(await generateAppKeys()), created: new Date().toISOString() }; s.garminSync = null; store.save(); draw(); } }, 'Neuen Code erzeugen'))
-        : h('button', { class: 'btn f', onclick: async () => { s.garminKeys = { ...(await generateAppKeys()), created: new Date().toISOString() }; store.save(); draw(); } }, 'Verbindungscode erzeugen'));
+        : h('div', {}, befehlKnopf(app), h('button', { class: 'btn', onclick: async () => { s.garminKeys = { ...(await generateAppKeys()), created: new Date().toISOString() }; store.save(); draw(); } }, 'Verbindungscode erzeugen')));
   };
   draw();
   return box;

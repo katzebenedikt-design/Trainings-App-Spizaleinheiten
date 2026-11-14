@@ -1,5 +1,5 @@
 // Service Worker: App läuft offline, Erinnerungen per Benachrichtigung.
-const VERSION = '764d59565c';
+const VERSION = '5a54692b58';
 // eslint-disable-next-line no-undef -- Platzhalter, wird von tools/build-sw.mjs ersetzt
 const ASSETS = [
  "./",
@@ -20,6 +20,8 @@ const ASSETS = [
  "./js/core/cat.js",
  "./js/core/crypt.js",
  "./js/core/games.js",
+ "./js/core/garmin-befehl.js",
+ "./js/core/garmin-checkin.js",
  "./js/core/garmin-map.js",
  "./js/core/garmin-source.js",
  "./js/core/garmin-sync.js",
@@ -57,6 +59,7 @@ const ASSETS = [
  "./js/data/psych.js",
  "./js/data/requirements.js",
  "./js/ui.js",
+ "./js/views/abend.js",
  "./js/views/ausdauer.js",
  "./js/views/auswahl.js",
  "./js/views/availability.js",

@@ -160,6 +160,44 @@ const shots = process.argv[3] || null;
     if (!(await page.locator('.full').last().getByText('Von Garmin übernommen', { exact: false }).count())) throw new Error('Garmin-Hinweis im Verlauf fehlt');
     await shot('kraft-von-garmin'); await close();
   });
+  await step('Garmin-Befehl für Claude kopieren', async () => {
+    await page.goto(url + '#/sport/heute'); await page.waitForTimeout(300); await page.locator('[title=Einstellungen]').click(); await page.waitForTimeout(300);
+    const code = (await page.locator('.full textarea[readonly]').first().inputValue()).trim();
+    await page.getByText('⌚ Garmin-Befehl für Claude kopieren').click(); await page.waitForTimeout(400);
+    const t = await page.locator('.modal textarea[readonly]').last().inputValue();
+    if (!t.startsWith('Garmin-Update') || !t.includes('Verbindungscode: ' + code)) throw new Error('Befehl falsch: ' + t.slice(0, 60));
+    await shot('garmin-befehl');
+    await page.evaluate(() => document.querySelectorAll('.full,.modal-bg').forEach((e) => e.remove()));
+  });
+  await step('Früh-Check-in: Garmin-Werte vorausgefüllt, Gefühltes offen', async () => {
+    await page.evaluate(async () => { const S = await import('./js/core/store.js'); const d = new Date(); const t = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); S.state.checkins = S.state.checkins.filter((c) => c.date !== t); S.state.done[t] = (S.state.done[t] || []).filter((x) => x !== 'checkin'); await S.flush(); });
+    await page.goto(url + '#/sport/heute'); await page.reload(); await page.waitForTimeout(800);
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    const it = page.locator('.tl .it', { hasText: 'Morgen-Check-in' });
+    if (!/WERTE VON GARMIN/.test(await it.innerText())) throw new Error('Tagesbefehl zeigt keine Garmin-Werte beim Check-in');
+    await it.click(); await page.waitForTimeout(300);
+    const m = page.locator('.modal').last();
+    if (!(await m.getByText('[ VON DER GARMIN-UHR EINGETRAGEN ]').count())) throw new Error('Keine Garmin-Vorbelegung');
+    if ((await m.locator('input[type=number]').inputValue()) !== '55') throw new Error('Ruhepuls nicht von Garmin');
+    if (!(await m.getByText(/NOCH OFFEN: MUSKELKATER, SCHMERZEN, STIMMUNG/).count())) throw new Error('Offene Felder nicht genannt');
+    await shot('checkin-garmin');
+    const scales = m.locator('.scale');
+    for (const i of [2, 3, 4]) await scales.nth(i).locator('button').nth(i === 4 ? 3 : 0).click();
+    await m.getByText('> Speichern').click(); await page.waitForTimeout(500);
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+  });
+  await step('Abend-Check-in mit Garmin-Tageswerten', async () => {
+    await page.goto(url + '#/sport/heute'); await page.waitForTimeout(400);
+    await page.locator('.tl .it', { hasText: 'Abend-Check-in' }).click(); await page.waitForTimeout(300);
+    const f = page.locator('.full').last();
+    if (!(await f.getByText('12.000').count())) throw new Error('Schritte von Garmin fehlen');
+    for (let i = 0; i < 3; i++) await f.locator('.scale').nth(i).locator('button').nth(2).click();
+    await shot('abend-checkin');
+    await f.getByText('> Speichern').click(); await page.waitForTimeout(500);
+    while (await page.locator('.reward').count()) { await page.locator('.reward').click(); await page.waitForTimeout(200); }
+    if (!/BELASTUNG 3\/5/.test(await page.locator('.tl .it', { hasText: 'Abend-Check-in' }).innerText())) throw new Error('Abend-Check-in nicht gespeichert');
+    await noOverflow('heute');
+  });
   await step('Animationen neben Übungen', async () => {
     await page.goto(url + '#/sport/kraft'); await page.waitForTimeout(400);
     const n = await page.locator('.list li').count(), t = await page.locator('.list li svg.fig.thumb').count();
