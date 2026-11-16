@@ -62,12 +62,20 @@ function exerciseDetail(app, ex) {
       for (const s of [...hist].reverse()) {
         const x = sessionStats(st, ex, s);
         list.append(h('li', {}, h('div', { class: 'grow' }, h('b', { class: 'mono' }, fmtDate(s.date)),
-          h('div', { class: 'm' }, s.sets.map((t) => ex.typ === 'zeit' ? `${t.sec}s` : ex.typ === 'kg' ? `${t.reps}` : `${t.reps}×${fmtNum(t.kg || 0)}`).join(' · ') + (s.note ? ` · ${s.note}` : '')),
+          // Sätze einzeln antippbar: falsch erkannte Sätze (z. B. von der Garmin-Uhr) lassen sich so entfernen
+          h('div', { class: 'saetze' }, ...s.sets.map((t, i) => h('button', { class: 'satz', type: 'button', title: 'Satz löschen', onclick: async () => {
+            const txt = ex.typ === 'zeit' ? `${t.sec} s` : ex.typ === 'kg' ? `${t.reps} Wdh.` : `${t.reps} × ${fmtNum(t.kg || 0)} kg`;
+            if (!(await confirmBox(`Satz ${i + 1} (${txt}) vom ${fmtDate(s.date)} löschen?`, 'Satz löschen'))) return;
+            s.sets.splice(i, 1);
+            if (!s.sets.length) st.strength = st.strength.filter((y) => y.id !== s.id);
+            s.bearbeitet = true; app.save(); draw();
+          } }, ex.typ === 'zeit' ? `${t.sec}s` : ex.typ === 'kg' ? `${t.reps}` : `${t.reps}×${fmtNum(t.kg || 0)}`))),
+          s.note ? h('div', { class: 'm' }, s.note) : null,
           ex.typ === 'kgplus' && x.bw ? h('div', { class: 'm' }, `inkl. Körpergewicht ${fmtNum(x.bw)} kg`) : null,
           s.grade ? h('div', { class: 'm' }, `Gefühl: Note ${s.grade}`) : null),
           iconBtn('trash', async () => { if (await confirmBox('Diesen Eintrag löschen?', 'Löschen')) { st.strength = st.strength.filter((y) => y.id !== s.id); app.save(); draw(); } }, 'Löschen')));
       }
-      wrap.append(card(h('div', { class: 'k' }, '[ EINTRÄGE ]'), hist.length ? list : h('p', { class: 'm' }, 'Noch keine Einträge.')));
+      wrap.append(card(h('div', { class: 'k' }, '[ EINTRÄGE ]'), hist.length ? h('p', { class: 'm' }, 'EINEN SATZ ANTIPPEN, UM IHN ZU LÖSCHEN') : null, hist.length ? list : h('p', { class: 'm' }, 'Noch keine Einträge.')));
       if (ex.custom) wrap.append(h('button', { class: 'btn danger', onclick: async () => { if (await confirmBox('Eigene Übung und alle Einträge löschen?', 'Löschen')) { st.customExercises = st.customExercises.filter((e) => e.id !== ex.id); st.strength = st.strength.filter((y) => y.exId !== ex.id); app.save(); close(); app.refresh(); } } }, 'Übung löschen'));
     };
     draw();

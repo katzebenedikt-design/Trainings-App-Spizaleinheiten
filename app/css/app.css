@@ -303,3 +303,8 @@ svg.koerper .reg.on { fill: #c4613f66; stroke: var(--bad); }
 svg.koerper .reg.sel { fill: #c9b47e88; stroke: var(--sand); stroke-width: 2; }
 svg.koerper .koerper-t { fill: var(--mut); font: 9px var(--mono); letter-spacing: .08em; }
 .scale { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* Krafttracker: Sätze einzeln antippbar */
+.saetze { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+.satz { font: 13px var(--mono); color: var(--sand2); background: transparent; border: 1px solid var(--line); padding: 3px 7px; cursor: pointer; }
+.satz:active { border-color: var(--bad, #b5523b); color: var(--bad, #b5523b); }

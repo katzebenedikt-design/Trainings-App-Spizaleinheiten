@@ -129,3 +129,25 @@ test('Neuere Satz-Auswertung ersetzt alte Kraft-Einträge derselben Aktivität',
   assert.ok(!st.strength.find((x) => x.exId === 'liegestuetz').sets.some((s) => s.reps === 99));
   assert.equal(st.strength.filter((x) => x.garminId === '9').length, 4);
 });
+
+test('Abgleich mit dem Plan: verwechselte und nicht erkannte Sätze landen bei der geplanten Übung', async () => {
+  const { abgleichMitPlan } = await import('../app/js/core/garmin-uebernahme.js');
+  const U = (reps, kg, extra = {}) => ({ cat: 'UNKNOWN', reps, kg, conf: false, alt: [], ...extra });
+  const C = (cat, reps, kg, alt = [{ cat, p: 90 }]) => ({ cat, reps, kg, conf: true, alt });
+  const BS = (reps, kg) => C('BENCH_PRESS', reps, kg, [{ cat: 'BENCH_PRESS', p: 95 }, { cat: 'SHOULDER_PRESS', p: 95 }]);
+  const sets = [
+    U(36, 25), U(36, 25), C('SQUAT', 36, 25), U(18, 25), // Ausfallschritte (Uhr: „Kniebeuge“, ein Satz falsch gezählt)
+    U(22, 45), U(22, 45, { alt: [{ cat: 'SQUAT', p: 12 }] }), U(22, 45), C('SQUAT', 22, 45), // Kniebeugen
+    BS(22, 25), BS(22, 25), BS(22, 25), BS(20, 25), // Bankdrücken
+    C('PULL_UP', 9, 0), C('PULL_UP', 8, 0), C('PULL_UP', 6, 0), C('PULL_UP', 5, 0), // Klimmzüge
+    BS(18, 15), BS(18, 15), BS(16, 15), BS(14, 15), // Schulterdrücken (Uhr: „Bankdrücken“)
+    U(18, 0), C('CURL', 18, 0), U(18, 0), U(18, 0), // Hyperextension
+  ];
+  const plan = [['ausfallschritt', 4], ['kniebeuge', 4], ['bankdruecken', 4], ['klimmzug', 5], ['schulterdruecken', 4], ['hyperextension', 4]].map(([id, n]) => ({ id, sets: n }));
+  const zu = abgleichMitPlan(sets, plan);
+  const zahl = (id) => zu.filter((x) => x === id).length;
+  assert.deepEqual(plan.map((p) => zahl(p.id)), [4, 4, 4, 4, 4, 4]);
+  assert.deepEqual(zu.slice(0, 8), ['ausfallschritt', 'ausfallschritt', 'ausfallschritt', 'ausfallschritt', 'kniebeuge', 'kniebeuge', 'kniebeuge', 'kniebeuge']);
+  // Passt die Reihenfolge gar nicht zum Plan → kein Abgleich (dann zählt Garmins Erkennung)
+  assert.equal(abgleichMitPlan([C('ROW', 10, 40), C('ROW', 10, 40), C('CURL', 10, 10), C('CURL', 10, 10)], plan), null);
+});

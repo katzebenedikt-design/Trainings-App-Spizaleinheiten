@@ -160,6 +160,18 @@ const shots = process.argv[3] || null;
     if (!(await page.locator('.full').last().getByText('Von Garmin übernommen', { exact: false }).count())) throw new Error('Garmin-Hinweis im Verlauf fehlt');
     await shot('kraft-von-garmin'); await close();
   });
+  await step('Krafttracker: einzelnen Satz löschen', async () => {
+    await page.goto(url + '#/sport/kraft'); await page.waitForTimeout(400);
+    await page.locator('.list li', { hasText: 'Klimmzüge (Ristgriff)' }).click(); await page.waitForTimeout(300);
+    const f = page.locator('.full').last();
+    const vorher = await f.locator('.satz').count();
+    if (vorher < 2) throw new Error('Keine einzelnen Sätze sichtbar');
+    await f.locator('.satz').first().click(); await page.waitForTimeout(200);
+    await page.getByText('Satz löschen', { exact: true }).last().click(); await page.waitForTimeout(300);
+    const nachher = await page.locator('.full').last().locator('.satz').count();
+    if (nachher !== vorher - 1) throw new Error(`Satz nicht gelöscht (${vorher} → ${nachher})`);
+    await shot('kraft-satz-loeschen'); await close();
+  });
   await step('Garmin-Befehl für Claude kopieren', async () => {
     await page.goto(url + '#/sport/heute'); await page.waitForTimeout(300); await page.locator('[title=Einstellungen]').click(); await page.waitForTimeout(300);
     const code = (await page.locator('.full textarea[readonly]').first().inputValue()).trim();

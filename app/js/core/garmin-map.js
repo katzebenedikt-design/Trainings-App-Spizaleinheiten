@@ -88,7 +88,7 @@ export function mergePayload(base = {}, add = {}) {
 }
 
 // Version der Satz-Auswertung: steigt, wenn sich die Zuordnung ändert → die App ersetzt alte Kraft-Einträge
-export const SETS_V = 2;
+export const SETS_V = 3;
 
 // Garmin-Sätze → [{ cat, name, reps, kg, sec, rest }]. Übung = wahrscheinlichste Kategorie außer UNKNOWN.
 // Unsichere Sätze (UNKNOWN vorn) erben die Übung des vorigen Satzes, wenn sie kurz danach kamen.
@@ -111,7 +111,10 @@ export function mapSets(sets = []) {
     if (!cat || (!reps && !/PLANK/.test(cat))) return;
     const next = arr[i + 1];
     const rest = next?.setType === 'REST' ? Math.round(next.duration || 0) : null;
-    const s = { cat, name, reps, kg: x.weight ? Math.round(x.weight / 100) / 10 : 0, sec, rest };
+    // conf = von der Uhr selbst sicher erkannt; alt = alle Übungen, die die Uhr für möglich hält (für den Abgleich mit dem Plan)
+    const conf = !!ex && cat === ex.category && (ex.probability || 0) >= Math.max(50, unk);
+    const alt = (x.exercises || []).filter((e) => e.category && e.category !== 'UNKNOWN' && (e.probability || 0) > 0).map((e) => ({ cat: e.category, name: e.name || null, p: Math.round(e.probability) }));
+    const s = { cat, name, reps, kg: x.weight ? Math.round(x.weight / 100) / 10 : 0, sec, rest, conf, alt };
     out.push(s); if (cat !== 'UNKNOWN') prev = s; prevEnd = t + sec * 1000;
   });
   return out;
