@@ -70,7 +70,7 @@ export function mapGarmin(raw = {}) {
   const activities = list(raw.activities).flatMap((x) => x?.activities || [x]).filter((a) => a?.id && a.start_time).map((a) => ({
     garminId: String(a.id), date: a.start_time.slice(0, 10), time: a.start_time.slice(11, 16), type: a.type, typeLabel: typeLabel(a.type), sport: sportOf(a.type), name: String(a.name || '').replace(/\u200b/g, ''),
     durSec: Math.round(a.duration_seconds || 0), distM: a.distance_meters ? Math.round(a.distance_meters) : null, avgHR: a.avg_hr_bpm ? Math.round(a.avg_hr_bpm) : null, maxHR: a.max_hr_bpm ? Math.round(a.max_hr_bpm) : null,
-    ...(setsBy.has(String(a.id)) ? { sets: setsBy.get(String(a.id)) } : {}),
+    ...(setsBy.has(String(a.id)) ? { sets: setsBy.get(String(a.id)), setsV: SETS_V } : {}),
   }));
 
   return { daily: Object.values(days).sort((a, b) => (a.date < b.date ? -1 : 1)), weeks, activities };
@@ -87,6 +87,9 @@ export function mergePayload(base = {}, add = {}) {
   return { v: 1, created: add.created || base.created || new Date().toISOString(), daily, weeks: { ...(base.weeks || {}), ...(add.weeks || {}) }, activities };
 }
 
+// Version der Satz-Auswertung: steigt, wenn sich die Zuordnung ändert → die App ersetzt alte Kraft-Einträge
+export const SETS_V = 2;
+
 // Garmin-Sätze → [{ cat, name, reps, kg, sec, rest }]. Übung = wahrscheinlichste Kategorie außer UNKNOWN.
 // Unsichere Sätze (UNKNOWN vorn) erben die Übung des vorigen Satzes, wenn sie kurz danach kamen.
 export function mapSets(sets = []) {
@@ -100,13 +103,16 @@ export function mapSets(sets = []) {
     const ex = (x.exercises || []).filter((e) => e.category && e.category !== 'UNKNOWN').sort((a, b) => (b.probability || 0) - (a.probability || 0))[0];
     const unk = (x.exercises || []).find((e) => e.category === 'UNKNOWN')?.probability || 0;
     let cat = ex && (ex.probability || 0) >= Math.min(50, unk) ? ex.category : null, name = cat ? ex.name || null : null;
-    if (!cat && prev && t && t - prevEnd < 5 * 60e3) { cat = prev.cat; name = prev.name; }
+    // Nur erben, wenn die Uhr die vorige Übung für diesen Satz wenigstens als Möglichkeit nennt – sonst „nicht erkannt“
+    // (z. B. Kniebeugen zwischen Liegestütz-Sätzen dürfen nicht als Liegestütze zählen)
+    if (!cat && prev && t && t - prevEnd < 5 * 60e3 && (x.exercises || []).some((e) => e.category === prev.cat && (e.probability || 0) > 0)) { cat = prev.cat; name = prev.name; }
+    if (!cat && reps) { cat = 'UNKNOWN'; name = null; }
     const sec = Math.round(x.duration || 0);
     if (!cat || (!reps && !/PLANK/.test(cat))) return;
     const next = arr[i + 1];
     const rest = next?.setType === 'REST' ? Math.round(next.duration || 0) : null;
     const s = { cat, name, reps, kg: x.weight ? Math.round(x.weight / 100) / 10 : 0, sec, rest };
-    out.push(s); prev = s; prevEnd = t + sec * 1000;
+    out.push(s); if (cat !== 'UNKNOWN') prev = s; prevEnd = t + sec * 1000;
   });
   return out;
 }

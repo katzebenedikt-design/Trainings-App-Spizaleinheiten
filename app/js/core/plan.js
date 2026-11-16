@@ -152,6 +152,15 @@ const K2_SETS = {
 const KMAX_U = ['kreuzheben', 'kniebeuge', 'ausfallschritt'];
 const KMAX_O = ['bankdruecken', 'klimmzug', 'schulterdruecken', 'rudern'];
 
+// K1-Übungen: Gerät/Hantel 4× 20–25; Ausfallschritte gesamt (10–12 je Bein); Klimmzüge nach eigenem Maximum (NSW-Tabelle),
+// weil 20–25 Klimmzüge pro Satz bei Kraftausdauer am eigenen Körpergewicht nicht machbar sind („Latzug/Klimmzüge“, Trainingsgestaltung).
+function k1Ex(ids, cal, deload) {
+  const s = (n) => Math.max(2, Math.round(n * (deload ? 0.67 : 1)));
+  return ids.map((id) => (id === 'klimmzug' ? { id, sets: s(cal.pull[0]), reps: cal.pull[1], rest: 90 }
+    : id === 'ausfallschritt' ? { id, sets: s(4), reps: '20–25 (10–12 je Bein)', rest: 75 }
+      : { id, sets: s(4), reps: '20–25', rest: 75 }));
+}
+
 // Griff & Tragen (SFAS: Farmer's Carry, Bar Hang) – fester Bestandteil jedes Kraft-Montags
 const griff = (week, deload) => ({ kind: 'main', title: 'Griff & Tragen', ex: [{ id: 'farmers', sets: deload ? 2 : 3, reps: '40 m', rest: 60 }], lines: [`Hängen an der Stange ${deload ? 2 : 3}× max. (Griff), Pause 60 s`, `Farmer’s Carry: schwer, aufrecht, zügig – Ziel SFAS: 2× 22 kg über 200 m`] });
 
@@ -193,7 +202,7 @@ export function buildSession(code, ctx) {
     case 'K1': {
       const v = ctx.variant || 'beine';
       return { code, title: `Kraftausdauer · GK ${v === 'beine' ? 'Beine' : v === 'brust' ? 'Brust' : 'Rücken'}`, sub: 'K1 · 20–25 Wdh. · Pause 60–90 s', min: Math.round(50 * Math.min(f, 1.2)), gym: true,
-        blocks: [warm(), { kind: 'main', title: 'Kraftausdauer (Gerät/Hantel)', ex: strengthEx(K1_SETS[v], 4, '20–25', 75), lines: ['Gewicht so wählen, dass 25 Wdh. gerade sauber gehen.', 'Langsam und kontrolliert ausführen. Erst 1–2 Gewöhnungssätze ohne Gewicht (Trainingsgestaltung).'] },
+        blocks: [warm(), { kind: 'main', title: 'Kraftausdauer (Gerät/Hantel)', ex: k1Ex(K1_SETS[v], cal, deload), lines: ['Gewicht so wählen, dass 25 Wdh. gerade sauber gehen (Kniebeuge: ca. 40–50 % deiner Maximallast, ohne Erfahrung mit der leeren Stange beginnen).', 'Ausfallschritte: 20–25 Wdh. insgesamt, also 10–12 je Bein.', `Klimmzüge nach deinem Maximum (${best.pullups || 5}): ${cal.pull[0]}× ${cal.pull[1]} – 20–25 Wdh. am Stück sind hier nicht das Ziel (dafür gibt es den Latzug).`, 'Langsam und kontrolliert ausführen. Erst 1–2 Gewöhnungssätze ohne Gewicht (Trainingsgestaltung).'] },
           griff(week, deload), { kind: 'main', title: 'Rumpf', lines: ['Unterarmstütz 3× 45–90 s'] }] };
     }
     case 'K2': {

@@ -19,7 +19,12 @@ export function applyGarminPayload(st, p, today = iso()) {
     const alt = have.get(a.garminId);
     if (alt) {
       // Schon bekannt: Sätze nachreichen, falls sie jetzt erst mitkommen
-      if (a.sets?.length && !alt.sets?.length) { alt.sets = a.sets; const r = uebernehme(st, alt, today); kraft.push(...r.kraft); if (r.einheit) einheiten.push(r.einheit); }
+      if (a.sets?.length && !alt.sets?.length) { alt.sets = a.sets; alt.setsV = a.setsV; const r = uebernehme(st, alt, today); kraft.push(...r.kraft); if (r.einheit) einheiten.push(r.einheit); }
+      // Neuere Satz-Auswertung (z. B. nicht erkannte Sätze nicht mehr als Liegestütze): alte Kraft-Einträge dieser Aktivität ersetzen
+      else if (a.sets?.length && (a.setsV || 1) > (alt.setsV || 1)) {
+        st.strength = st.strength.filter((x) => x.garminId !== alt.garminId);
+        alt.sets = a.sets; alt.setsV = a.setsV; kraft.push(...uebernehme(st, alt, today).kraft);
+      }
       continue;
     }
     const neu = { ...a, source: 'garmin' };

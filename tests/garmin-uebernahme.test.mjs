@@ -102,3 +102,30 @@ test('Werkzeug: unveränderte Daten → keine neue Datei (kein Commit)', async (
   assert.match(b, /UNVERÄNDERT/);
   assert.equal(readFileSync(out, 'utf8'), first);
 });
+
+test('Nicht erkannte Sätze zwischen Liegestützen bleiben „nicht erkannt“ (keine falschen Liegestütze)', () => {
+  const PS = (p) => [{ category: 'PUSH_UP', name: null, probability: p }, { category: 'UNKNOWN', name: null, probability: 100 - p }];
+  const sets = [
+    { exercises: PS(60), duration: 23, repetitionCount: 20, weight: 0, setType: 'ACTIVE', startTime: '2030-01-10T12:00:00.0' },
+    { exercises: [], duration: 120, setType: 'REST', startTime: '2030-01-10T12:00:23.0' },
+    { exercises: [{ category: 'UNKNOWN', probability: 99.6 }, { category: 'CURL', probability: 0 }, { category: 'BENCH_PRESS', probability: 0 }], duration: 24, repetitionCount: 20, weight: 0, setType: 'ACTIVE', startTime: '2030-01-10T12:02:23.0' },
+    { exercises: [], duration: 120, setType: 'REST', startTime: '2030-01-10T12:02:47.0' },
+    { exercises: [{ category: 'UNKNOWN', probability: 94.5 }, { category: 'PUSH_UP', probability: 4.7 }], duration: 20, repetitionCount: 20, weight: 0, setType: 'ACTIVE', startTime: '2030-01-10T12:04:47.0' },
+  ];
+  assert.deepEqual(mapSets(sets).map((x) => x.cat), ['PUSH_UP', 'UNKNOWN', 'PUSH_UP']);
+  const st = defaultState();
+  assert.equal(exIdFor('UNKNOWN', null, st), 'g_unknown');
+  assert.equal(st.customExercises[0].name, 'Nicht erkannt (Garmin)');
+});
+
+test('Neuere Satz-Auswertung ersetzt alte Kraft-Einträge derselben Aktivität', () => {
+  const st = defaultState();
+  const act = { id: 9, type: 'strength_training', start_time: '2030-01-10 18:00:00', duration_seconds: 2400 };
+  const p1 = mergePayload({}, { ...mapGarmin({ activities: [act], sets: { ...json('sets-900002.json'), activityId: 9 } }), created: 'a' });
+  p1.activities[0].setsV = 1; p1.activities[0].sets.push({ cat: 'PUSH_UP', reps: 99, kg: 0, sec: 1, rest: null });
+  applyGarminPayload(st, p1, '2030-01-10');
+  assert.ok(st.strength.find((x) => x.exId === 'liegestuetz').sets.some((s) => s.reps === 99));
+  applyGarminPayload(st, mergePayload({}, { ...mapGarmin({ activities: [act], sets: { ...json('sets-900002.json'), activityId: 9 } }), created: 'b' }), '2030-01-10');
+  assert.ok(!st.strength.find((x) => x.exId === 'liegestuetz').sets.some((s) => s.reps === 99));
+  assert.equal(st.strength.filter((x) => x.garminId === '9').length, 4);
+});

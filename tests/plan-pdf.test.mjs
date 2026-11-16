@@ -62,3 +62,15 @@ test('Zielwert 200 m Kleiderschwimmen und Quellenliste', () => {
   for (const x of PLAN_AENDERUNGEN) { assert.ok(['ksk', 'egb', 'nsw'].includes(x.quelle)); assert.ok(x.seite && x.was && x.warum); }
   assert.ok(phaseAt(st(), '2028-04-01').phase.key);
 });
+
+test('K1: Klimmzüge nach eigenem Maximum statt 20–25, Ausfallschritte je Bein erklärt', async () => {
+  const { buildSession } = await import('../app/js/core/plan.js');
+  const ctx = { best: { pullups: 11, pushups: 41 }, vol: 1, week: 1, deload: false, mode: 'arbeit', variant: 'beine' };
+  const ex = buildSession('K1', ctx).blocks.find((b) => b.ex && b.title.startsWith('Kraftausdauer')).ex;
+  const kz = ex.find((e) => e.id === 'klimmzug'), af = ex.find((e) => e.id === 'ausfallschritt'), kb = ex.find((e) => e.id === 'kniebeuge');
+  assert.deepEqual([kz.sets, kz.reps], [5, '5–6']);
+  assert.match(af.reps, /10–12 je Bein/);
+  assert.deepEqual([kb.sets, kb.reps], [4, '20–25']);
+  const stark = buildSession('K1', { ...ctx, best: { pullups: 18 } }).blocks[1].ex.find((e) => e.id === 'klimmzug');
+  assert.equal(stark.reps, '10–12');
+});

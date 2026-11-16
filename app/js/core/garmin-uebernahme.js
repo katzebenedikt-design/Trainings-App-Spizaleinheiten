@@ -11,7 +11,7 @@ export const KATEGORIE = {
   HIP_RAISE: 'glute_bridge', TOTAL_BODY: 'burpee',
 };
 // Deutsche Namen für Kategorien ohne eigene App-Übung (werden als eigene Übung angelegt)
-const KAT_DE = { LATERAL_RAISE: 'Seitheben', SHRUG: 'Shrugs', LEG_CURL: 'Beinbeuger', LEG_RAISE: 'Beinheben', CORE: 'Rumpf', CHOP: 'Holzhacker', HIP_STABILITY: 'Hüftstabilität', HIP_SWING: 'Kettlebell Swing', OLYMPIC_LIFT: 'Olympisches Heben', CARDIO: 'Cardio', BANDED_EXERCISES: 'Band-Übung', BATTLE_ROPE: 'Battle Rope', SLED: 'Schlitten', SANDBAG: 'Sandsack', MOVE: 'Bewegung', RUN: 'Laufen', BIKE: 'Rad' };
+const KAT_DE = { UNKNOWN: 'Nicht erkannt', LATERAL_RAISE: 'Seitheben', SHRUG: 'Shrugs', LEG_CURL: 'Beinbeuger', LEG_RAISE: 'Beinheben', CORE: 'Rumpf', CHOP: 'Holzhacker', HIP_STABILITY: 'Hüftstabilität', HIP_SWING: 'Kettlebell Swing', OLYMPIC_LIFT: 'Olympisches Heben', CARDIO: 'Cardio', BANDED_EXERCISES: 'Band-Übung', BATTLE_ROPE: 'Battle Rope', SLED: 'Schlitten', SANDBAG: 'Sandsack', MOVE: 'Bewegung', RUN: 'Laufen', BIKE: 'Rad' };
 
 export function exIdFor(cat, name, st) {
   for (const [re, id] of NAME_MAP) if (name && re.test(name)) return id;
